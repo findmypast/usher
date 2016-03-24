@@ -1,0 +1,19 @@
+{
+  "name": "usher",
+  "version": "0.0.1",
+  "description": "A command line app to usher our containers to production",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/findmypast/usher.git"
+  },
+  "author": "Neil Crawford",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/findmypast/usher/issues"
+  },
+  "homepage": "https://github.com/findmypast/usher#readme"
+}
