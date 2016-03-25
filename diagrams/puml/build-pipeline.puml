@@ -16,28 +16,30 @@ else(no)
   end
 endif
 
-:Run unit tests;
+:Run fast tests;
 
-if(Unit tests success) then (yes)
+if(Fast tests success) then (yes)
 else(no)
   end
 endif
 
-:Run integration tests;
+:Run slow tests;
 
-if(Tests success) then (yes)
+if(Slow tests success) then (yes)
 else(no)
   end
 endif
 
-:Run acceptance tests;
+:Run container locally;
+:Run acceptance tests
+against local container;
+:Teardown local container;
 
-if(Tests success) then (yes)
+if(Accetpance tests success) then (yes)
 else(no)
   end
 endif
 
-:Deploy to acceptance;
 :Deploy to integration;
 :Deploy to production;
 
