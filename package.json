@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "A command line app to usher our containers to production",
   "bin": {
-   "usher": "./src/cli.js"
+    "usher": "./src/cli.js"
   },
   "scripts": {
     "test": "mocha"
@@ -19,7 +19,8 @@
   },
   "homepage": "https://github.com/findmypast/usher#readme",
   "dependencies": {
-    "commander": "^2.9.0"
+    "commander": "^2.9.0",
+    "js-yaml": "^3.5.5"
   },
   "devDependencies": {
     "chai": "^3.5.0",

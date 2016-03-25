@@ -4,10 +4,13 @@ const program = require('commander');
 
 program
   .version('0.0.1')
-  .option('--hey', 'HEY!')
-  .option('--ho', 'HO!')
-  .parse(process.argv);
+  .option('init', "Create a `.usher.yml file with some defaults`")
+  .action(function () {
+    console.log('init');
+  });
+  .option('run [commands...]', "Run commands contained in `.usher.yml`")
+  .action(function (commands) {
+    console.log(commands);
+  });
 
-if (program.hey) console.log('HEY!');
-if (program.ho) console.log('HO!');
-if (program.hey && program.ho) console.log('LET\'s GO!!');
+program.parse(process.argv);
