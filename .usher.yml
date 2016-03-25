@@ -1,0 +1,15 @@
+build:
+  cmd:
+
+push:
+
+fast_tests:
+  cmd: "npm test"
+
+
+
+# docker build
+# --force-rm
+# --file=Dockerfile.test
+# --tag %docker.repository%-test:%teamcity.build.branch%
+# .
