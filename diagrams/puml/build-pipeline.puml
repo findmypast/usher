@@ -1,0 +1,46 @@
+@startuml
+title Build pipeline
+start
+:Code committed;
+:Build container;
+
+if (Build success) then (yes)
+else (no)
+  end
+endif
+
+:Publish container;
+
+if(Publish success) then (yes)
+else(no)
+  end
+endif
+
+:Run unit tests;
+
+if(Unit tests success) then (yes)
+else(no)
+  end
+endif
+
+:Run integration tests;
+
+if(Tests success) then (yes)
+else(no)
+  end
+endif
+
+:Run acceptance tests;
+
+if(Tests success) then (yes)
+else(no)
+  end
+endif
+
+:Deploy to acceptance;
+:Deploy to integration;
+:Deploy to production;
+
+stop
+
+@enduml
