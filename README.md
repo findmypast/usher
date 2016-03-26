@@ -1,7 +1,8 @@
 # usher
 A command line app to usher our containers to production
 
-### To do
+#### To do
+
 - [x] Describe the process
 - [ ] Team-city configuration
 - [ ] Publish docker image to internal registry
@@ -9,3 +10,7 @@ A command line app to usher our containers to production
 - [ ] Usher to publish Usher
 - [ ] Single command
 - [ ] Sequence of commands
+
+#### Our standard build pipeline as a diagram
+
+![Build Pipeline](./diagrams/img/build-pipeline.png)
