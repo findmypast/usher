@@ -20,9 +20,6 @@ Essentially it allows orchestration of lots of different command line applicatio
 - [ ] Public CI for publishing NPM package
 - [ ] Publish docker image to internal registry
 - [ ] Usher to publish Usher
-- [ ] Plugin for docker commands
-- [ ] Plugin for consul commands
-- [ ] Migrate Titan to use Usher
 
 #### Motivations
 
