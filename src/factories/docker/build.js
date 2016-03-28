@@ -6,7 +6,9 @@ var optionBuilders = {
     return _.map(values, (item) => {
       return `--build-arg ${item}`
     }).join(" ");
-  }
+  },
+  cpu_shares: () => { return '--cpu-shares' },
+  file: (filePath) => { return `-f ${filePath}`}
 };
 
 module.exports = (config) => {

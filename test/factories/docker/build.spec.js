@@ -12,7 +12,26 @@ describe('Docker Build Command', () => {
         ]
       },
       expected: "docker build --build-arg HTTP_PROXY=http://10.20.30.2:1234 --build-arg HTTPS_PROXY=https://10.20.30.2:1234"
-    }
+    },
+    {
+      options: {
+        cpu_shares: true
+      },
+      expected: "docker build --cpu-shares"
+    },
+    {
+      options: {
+        file: "Dockerfile.test"
+      },
+      expected: "docker build -f Dockerfile.test"
+    },
+    {
+      options: {
+        cpu_shares: true,
+        file: "Dockerfile.test"
+      },
+      expected: "docker build --cpu-shares -f Dockerfile.test"
+    },
   ];
 
   tests.forEach( (test) => {
