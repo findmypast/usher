@@ -7,10 +7,11 @@ describe('Docker Build Command', () => {
     {
       options: {
         build_arg: [
-          'HTTP_PROXY=http://10.20.30.2:1234'
+          'HTTP_PROXY=http://10.20.30.2:1234',
+          'HTTPS_PROXY=https://10.20.30.2:1234'
         ]
       },
-      expected: "docker build --build-arg HTTP_PROXY=http://10.20.30.2:1234"
+      expected: "docker build --build-arg HTTP_PROXY=http://10.20.30.2:1234 --build-arg HTTPS_PROXY=https://10.20.30.2:1234"
     }
   ];
 
