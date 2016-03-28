@@ -5,7 +5,7 @@ const version = require('./../package.json').version
 const commands = require('./commands')
 
 program
-  .version(require('./../package.json').version)
+  .version(version)
 
 program
   .command('init')

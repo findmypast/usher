@@ -3,11 +3,14 @@
 #### Contents
 
 - [Build Pipeline](#build-pipeline)
+- [Run](#run)
 - [How to write diagrams](#how-to-write-diagrams)
 - [How to generate diagrams](#how-to-generate-diagrams)
 
 #### Build Pipeline
 ![Build Pipeline](./img/build-pipeline.png)
+#### Run
+![Run](./img/run.png)
 
 #### How to write diagrams
 
