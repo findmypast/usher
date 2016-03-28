@@ -1,0 +1,17 @@
+@startuml
+start
+
+:Run command executed;
+
+:Find command in configuration;
+
+while (All commands executed?)
+  :Find command factory;
+  :Generate command;
+  :Execute command;
+endwhile
+
+:Complete build;
+
+stop
+@enduml

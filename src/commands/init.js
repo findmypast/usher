@@ -1,4 +1,2 @@
-
-
 module.exports = () =>
-  console.log("hi");
+  console.log("Init");
