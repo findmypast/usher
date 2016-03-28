@@ -1,4 +1,9 @@
 # usher
+
+### WARNING: still in active development
+
+#### Description
+
 A command line app to usher our containers to production
 
 Essentially it allows orchestration of lots of different command line applications into a single configuration file.
@@ -7,7 +12,7 @@ Essentially it allows orchestration of lots of different command line applicatio
 
 - [x] Describe the build pipeline - [see diagram](#our-standard-build-pipeline)
 - [x] Flow chart of how Usher works - [see diagram](#run)
-- [ ] Publish the Usher NPM module to internal registry + NPM task
+- [ ] Publish the Usher NPM module to registry
 - [ ] Single command
 - [ ] Sequence of commands
 - [ ] Retry commands
