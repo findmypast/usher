@@ -30,8 +30,8 @@ module.exports = (config) => {
     };
     return optionBuilders[key](value);
   }).join(" ");
-  var path = pathBuilder(config);
 
+  var path = pathBuilder(config);
   var command = `docker build ${options} ${path}`;
   return command;
 };
