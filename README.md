@@ -12,12 +12,12 @@ Essentially it allows orchestration of lots of different command line applicatio
 
 - [x] Describe the build pipeline - [see diagram](#our-standard-build-pipeline)
 - [x] Flow chart of how Usher works - [see diagram](#run)
-- [ ] Publish the Usher NPM module to registry
+- [x] Publish the Usher NPM module to registry
 - [ ] Single command
 - [ ] Sequence of commands
 - [ ] Retry commands
 - [ ] Passing exit codes
-- [ ] Team-city configuration
+- [ ] Public CI for publishing NPM package
 - [ ] Publish docker image to internal registry
 - [ ] Usher to publish Usher
 - [ ] Plugin for docker commands
