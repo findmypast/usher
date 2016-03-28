@@ -1,27 +1,38 @@
 // https://docs.docker.com/engine/reference/commandline/build/
 
 var _ = require('lodash');
+
 var optionBuilders = {
-  build_arg: (values) => {
-    return _.map(values, (item) => {
-      return `--build-arg ${item}`
-    }).join(" ");
-  },
-  cpu_shares: () => { return '--cpu-shares' },
-  file: (filePath) => { return `-f ${filePath}`}
+  build_arg: values => _.map(values, item => `--build-arg ${item}`).join(" "),
+  cpu_shares: () => '--cpu-shares',
+  file: value => `-f ${value}`,
+  memory: value => `-m ${value}`,
+  no_cache: () => '--no-cache',
+  quiet: () => '--q',
+  tag: values => _.map(values, item => `-t ${item}`).join(" ")
 };
 
+var pathBuilder = (config) => {
+  if(config.path){
+    return config.path;
+  }
+  if(config.url){
+    return url;
+  }
+  return ".";
+}
+
 module.exports = (config) => {
-  var options = _.map(config, (value, key) => {
+  var trimmedConfig = _.omit(config, 'path', 'url');
+  var options = _.map(trimmedConfig, (value, key) => {
     if(!_.has(optionBuilders, key)){
       throw new Error(`Cannot find ${key} in optionBuilders`);
     };
     return optionBuilders[key](value);
-  });
+  }).join(" ");
+  var path = pathBuilder(config);
 
-  var command = "docker build ";
-  command = command + options.join(" ");
-
+  var command = `docker build ${options} ${path}`;
   return command;
 };
 
