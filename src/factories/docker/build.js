@@ -9,7 +9,7 @@ var optionBuilders = {
   memory: value => `-m ${value}`,
   no_cache: () => '--no-cache',
   quiet: () => '--q',
-  tag: values => _.map(values, item => `-t ${item}`).join(" ")
+  tags: values => _.map(values, item => `-t ${item}`).join(" ")
 };
 
 var pathBuilder = (config) => {

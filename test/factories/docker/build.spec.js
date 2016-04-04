@@ -38,7 +38,7 @@ describe('Docker Build Command', () => {
       expected: "docker build --q ."
     },
     {
-      options: { tag: [ 'project:123', 'project:latest' ] },
+      options: { tags: [ 'project:123', 'project:latest' ] },
       expected: "docker build -t project:123 -t project:latest ."
     },
     {
