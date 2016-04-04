@@ -6,7 +6,7 @@
     "usher": "./src/cli.js"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha --recursive"
   },
   "repository": {
     "type": "git",
