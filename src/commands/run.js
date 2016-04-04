@@ -1,2 +1,2 @@
-module.exports = (commands) =>
-  console.log("Run: ", commands);
+module.exports = (preset) =>
+  console.log("Run: ", preset);

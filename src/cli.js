@@ -13,8 +13,8 @@ program
   .action(commands.init);
 
 program
-  .command('run [commands...]')
-  .description('Run one or multiple Usher commands')
+  .command('run <preset>')
+  .description('Run an Usher preset')
   .action(commands.run);
 
 program.parse(process.argv);
