@@ -13,6 +13,7 @@ Essentially it allows orchestration of lots of different command line applicatio
 - [x] Describe the build pipeline - [see diagram](#our-standard-build-pipeline)
 - [x] Flow chart of how Usher works - [see diagram](#run)
 - [x] Publish the Usher NPM module to registry
+- [ ] Circle CI with badge
 - [ ] Single command
 - [ ] Sequence of commands
 - [ ] Retry commands

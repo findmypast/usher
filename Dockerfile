@@ -1,4 +1,10 @@
-FROM node:5.9.1
+FROM node:latest
 
-RUN npm config set registry http://npm-mirror.dun.fh:2020/
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+COPY package.json /usr/src/app/
+
 RUN npm set progress=false
+RUN npm install
+
+COPY . /usr/src/app

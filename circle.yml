@@ -1,0 +1,22 @@
+machine:
+  services:
+    - docker
+
+dependencies:
+  override:
+    - docker info
+    - docker build -t usher-local .
+
+test:
+  override:
+    - docker run --rm usher-local npm run test
+
+# deployment:
+#   hub:
+#     branch: master
+#     commands:
+#       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+#       - docker tag usher-local:latest bapti/usher:$VERSION_NUM.$CIRCLE_BUILD_NUM
+#       - docker tag usher-local:latest bapti/usher:latest
+#       - docker push bapti/usher:$VERSION_NUM.$CIRCLE_BUILD_NUM
+#       - docker push bapti/usher:latest
