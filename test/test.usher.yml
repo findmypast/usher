@@ -1,0 +1,8 @@
+
+basic:
+  - cmd: docker build
+    tags:
+      - usher
+
+custom:
+  - cmd: do thing
