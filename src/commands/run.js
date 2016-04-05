@@ -44,7 +44,7 @@ function wrapAndRun(command, settings, attempt) {
   }
   catch(error) {
     if(settings.retry && attempt < settings.retry.attempts) {
-      console.log(`${command.executable} failed. Retry ${attempt}/${settings.retry.attempts - 1}`);
+      console.log(`${command[0]} failed. Retry ${attempt}/${settings.retry.attempts - 1}`);
       return wrapAndRun(command, settings, attempt + 1);
     }
     else throw error;
