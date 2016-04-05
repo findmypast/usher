@@ -30,7 +30,10 @@ function runCommand(command) {
   let commandArray  = command.split(" ");
   let executable    = _.head(commandArray);
   let args          = _.tail(commandArray);
-  let result        = spawnSync(executable, args);
+  let options       = {
+    stdio:  ['pipe', 'inherit', 'inherit']
+  };
+  let result        = spawnSync(executable, args, options);
   console.log(`${command} exited with code ${result.status}`);
   if (result.error) throw result.error;
   return result;
