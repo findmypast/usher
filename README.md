@@ -18,7 +18,7 @@ Essentially it allows orchestration of lots of different command line applicatio
 - [x] Circle CI with badge
 - [x] Single command
 - [x] Sequence of commands
-- [ ] Retry commands
+- [x] Retry commands
 - [ ] Passing exit codes
 - [ ] Public CI for publishing NPM package
 - [ ] Publish docker image to internal registry
