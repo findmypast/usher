@@ -16,8 +16,8 @@ Essentially it allows orchestration of lots of different command line applicatio
 - [x] Flow chart of how Usher works - [see diagram](#run)
 - [x] Publish the Usher NPM module to registry
 - [x] Circle CI with badge
-- [ ] Single command
-- [ ] Sequence of commands
+- [x] Single command
+- [x] Sequence of commands
 - [ ] Retry commands
 - [ ] Passing exit codes
 - [ ] Public CI for publishing NPM package
