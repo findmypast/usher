@@ -1,8 +1,17 @@
 
 basic:
+  cmd: docker build
+  tags:
+    - usher
+
+custom:
+  cmd: do thing
+
+sequence:
   - cmd: docker build
     tags:
       - usher
-
-custom:
   - cmd: do thing
+
+bogus:
+  blah: meh
