@@ -23,6 +23,10 @@ describe('YAML-to-commands parser', () => {
     {
       key: 'bogus',
       expected: false
+    },
+    {
+      key: 'null',
+      expected: false
     }
   ];
 
