@@ -1,7 +1,7 @@
 "use strict";
 
 const expect = require('chai').expect;
-const parse = require('../src/commands/parse');
+const parse = require('../../src/commands/parse');
 
 describe('YAML-to-commands parser', () => {
   let filename = 'test/test.usher.yml';
