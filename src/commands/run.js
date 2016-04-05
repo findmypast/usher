@@ -28,11 +28,12 @@ function runCommand(command) {
   console.log(`Running ${command}`);
   let result = spawnSync(command);
   console.log(`${command} exited with code ${result.status}`);
+  if (result.error) throw result.error;
   return result;
 }
 
 function commandNotFound(preset) {
-  console.log(`Failed to run ${preset}. Please see usage.`)
+  console.log(`Could not find preset "${preset}". Please see usage.`)
 }
 
 module.exports = preset => {
