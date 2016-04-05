@@ -1,10 +1,12 @@
+"use strict";
+
 var expect = require('chai').expect;
 var parse = require('../src/commands/parse');
 
 describe('YAML-to-commands parser', () => {
-  var filename = 'test/test.usher.yml';
-  var result = parse(filename);
-  var tests = [
+  let filename = 'test/test.usher.yml';
+  let result = parse(filename);
+  let tests = [
     {
       key: 'basic',
       expected: 'docker build -t usher .'
