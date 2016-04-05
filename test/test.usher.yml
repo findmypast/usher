@@ -13,6 +13,12 @@ sequence:
       - usher
   - cmd: do thing
 
+retry:
+  cmd: docker build
+  retry:
+    attempts: 5
+    delay: 10
+
 bogus:
   blah: meh
 

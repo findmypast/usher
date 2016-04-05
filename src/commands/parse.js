@@ -1,16 +1,23 @@
 "use strict";
 
-const yaml = require('js-yaml');
-const fs = require('fs');
-const _ = require('lodash')
-const factories = require('../factories')
+const yaml         = require('js-yaml');
+const fs           = require('fs');
+const _            = require('lodash')
+const factories    = require('../factories')
+const settingKeys  = ["retry"]
 
-function parseOptions(command) {
-  let path = command.cmd.replace(" ", ".");
-  let factory = _.get(factories, path, false);
+function parseOptions(options) {
+  let path        = options.cmd.replace(" ", ".");
+  let factory     = _.get(factories, path, false);
+  let settings    = _.pick(options, settingKeys);
+  let command     = _.omit(options, settingKeys);
+  let makeCommand = (command, settings) => ({
+    command:  command,
+    settings: settings
+  })
 
-  if    (factory)  return factory(_.omit(command, 'cmd'));
-  else             return command.cmd;
+  if    (factory)  return makeCommand(factory(_.omit(command, 'cmd')), settings);
+  else             return makeCommand(command.cmd, settings);
 }
 
 function parsePresets(options, name) {

@@ -9,18 +9,30 @@ describe('YAML-to-commands parser', () => {
   let tests = [
     {
       key: 'basic',
-      expected: ['docker build -t usher .']
+      expected: [{ command: 'docker build -t usher .', settings: {}}]
     },
     {
       key: 'custom',
-      expected: ['do thing']
+      expected: [{ command: 'do thing', settings: {} }]
     },
     {
       key: 'sequence',
       expected: [
-        'docker build -t usher .',
-        'do thing'
+        { command: 'docker build -t usher .', settings: {} },
+        { command: 'do thing', settings: {} }
       ]
+    },
+    {
+      key: 'retry',
+      expected: [{
+        command: 'docker build  .',
+        settings: {
+          retry: {
+            attempts: 5,
+            delay: 10
+          }
+        }
+      }]
     },
     {
       key: 'bogus',
@@ -33,6 +45,7 @@ describe('YAML-to-commands parser', () => {
   ];
 
   tests.forEach( test =>
-    it(`should make command ${test.key} ==> ${test.expected}`, () =>
+    it(`should make preset ${test.key} ==>
+      "${test.expected.command}" with settings "${test.expected.settings}"`, () =>
       expect(result[test.key]).to.deep.equal(test.expected)));
 });
