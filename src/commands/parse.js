@@ -1,9 +1,9 @@
 "use strict";
 
-var yaml = require('js-yaml');
-var fs = require('fs');
-var _ = require('lodash')
-var factories = require('../factories')
+const yaml = require('js-yaml');
+const fs = require('fs');
+const _ = require('lodash')
+const factories = require('../factories')
 
 function parseOptions(command) {
   let path = command.cmd.replace(" ", ".");
