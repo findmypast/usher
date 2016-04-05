@@ -9,11 +9,11 @@ describe('YAML-to-commands parser', () => {
   let tests = [
     {
       key: 'basic',
-      expected: 'docker build -t usher .'
+      expected: ['docker build -t usher .']
     },
     {
       key: 'custom',
-      expected: 'do thing'
+      expected: ['do thing']
     },
     {
       key: 'sequence',

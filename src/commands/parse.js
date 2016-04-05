@@ -21,7 +21,7 @@ function parsePresets(options, name) {
 
   if      (!options)                return fail(name);
   else if (Array.isArray(options))  return options.map(parseOptions);
-  else if (options.cmd)             return parseOptions(options);
+  else if (options.cmd)             return [parseOptions(options)];
   else                              return fail(name);
 }
 
