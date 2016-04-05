@@ -28,8 +28,7 @@ describe('YAML-to-commands parser', () => {
         command: 'docker build  .',
         settings: {
           retry: {
-            attempts: 5,
-            delay: 10
+            attempts: 5
           }
         }
       }]

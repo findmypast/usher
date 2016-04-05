@@ -25,18 +25,37 @@ function runCommandSequence(commandSequence) {
   commandSequence.forEach( command => runCommand(command) );
 }
 
-function runCommand(command) {
-  console.log(`Running ${command}`);
-  let commandArray  = command.split(" ");
-  let executable    = _.head(commandArray);
-  let args          = _.tail(commandArray);
-  let options       = {
+function runCommand(commandWithSettings) {
+  let command         = commandWithSettings.command;
+  let settings        = commandWithSettings.settings;
+  let commandArray    = command.split(" ");
+  let executable      = _.head(commandArray);
+  let args            = _.tail(commandArray);
+  let processOptions  = {
     stdio:  ['pipe', 'inherit', 'inherit']
   };
-  let result        = spawnSync(executable, args, options);
-  console.log(`${command} exited with code ${result.status}`);
+
+  return wrapAndRun([executable, args, processOptions], settings, 1);
+}
+
+function wrapAndRun(command, settings, attempt) {
+  try {
+    return runProcess(...command);
+  }
+  catch(error) {
+    if(settings.retry && attempt < settings.retry.attempts) {
+      console.log(`${command.executable} failed. Retry ${attempt}/${settings.retry.attempts - 1}`);
+      return wrapAndRun(command, settings, attempt + 1);
+    }
+    else throw error;
+  }
+}
+
+function runProcess(executable, args, processOptions) {
+  console.log(`Running ${executable}`);
+  let result        = spawnSync(executable, args, processOptions);
+  console.log(`${executable} exited with code ${result.status}`);
   if (result.error) throw result.error;
-  return result;
 }
 
 function commandNotFound(preset) {
