@@ -1,6 +1,7 @@
 "use strict";
 
-var parse = require('./parse');
+const _       = require('lodash');
+var parse     = require('./parse');
 var spawnSync = require('child_process').spawnSync;
 
 function getCommandSequence(preset) {
@@ -26,7 +27,10 @@ function runCommandSequence(commandSequence) {
 
 function runCommand(command) {
   console.log(`Running ${command}`);
-  let result = spawnSync(command);
+  let commandArray  = command.split(" ");
+  let executable    = _.head(commandArray);
+  let args          = _.tail(commandArray);
+  let result        = spawnSync(executable, args);
   console.log(`${command} exited with code ${result.status}`);
   if (result.error) throw result.error;
   return result;

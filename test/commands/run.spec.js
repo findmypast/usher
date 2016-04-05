@@ -1,5 +1,6 @@
 "use strict";
 
+const _         = require('lodash');
 const chai      = require('chai');
 const expect    = chai.expect;
 const sinon     = require('sinon');
@@ -12,6 +13,7 @@ var run = rewire('../../src/commands/run');
 describe('Command runner', () => {
   let testInput = {
     singleCommand:    ["singleCommand"],
+    multipleArgs:     ["run me here"],
     commandSequence:  ["firstCommand", "secondCommand"],
     emptyCommand:     false
   }
@@ -30,6 +32,16 @@ describe('Command runner', () => {
 
     run(testCommand);
     expect(spawnSyncStub).to.have.been.calledWith(testInput[testCommand][0]);
+  });
+
+  it('should run a command with multiple args in a child process', () => {
+    let testCommand = "multipleArgs";
+    let expectedCommandWithArgs = testInput[testCommand][0].split(" ");
+    let expectedCommand = _.head(expectedCommandWithArgs);
+    let expectedArgs = _.tail(expectedCommandWithArgs);
+
+    run(testCommand);
+    expect(spawnSyncStub).to.have.been.calledWith(expectedCommand, expectedArgs);
   });
 
   it('should run a sequence of commands in child processes', () => {
