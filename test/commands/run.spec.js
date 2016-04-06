@@ -22,7 +22,9 @@ describe('Command runner', () => {
                           } } ],
     multipleArgs:     [ { command: "run me here",    settings: {} } ],
     commandSequence:  [ { command: "firstCommand",   settings: {} },
-                        { command: "secondCommand",   settings: {} } ],
+                        { command: "secondCommand",  settings: {} } ],
+    acceptableErrors: [ { command: "firstCommand",   settings: { ignore_errors: [5] } },
+                        { command: "secondCommand",  settings: { ignore_errors: [5] } } ],
     emptyCommand:     false
   }
   let spawnSyncStub = sinon.stub()
@@ -89,6 +91,18 @@ describe('Command runner', () => {
     expect(() => run(testCommand)).to.throw();
     expect(spawnSyncStub).to.have.been.calledWith(testInput[testCommand][0].command);
     expect(spawnSyncStub).to.not.have.been.calledWith(testInput[testCommand][1].command);
+  });
+
+  it('should tolerate errors with accepted error codes with the right option', () => {
+    let testCommand = "acceptableErrors";
+    spawnSyncStub.returns({
+      status: 5,
+      error: new Error("Test Error")
+    })
+
+    run(testCommand);
+    expect(spawnSyncStub).to.have.been.calledWith(testInput[testCommand][0].command);
+    expect(spawnSyncStub).to.have.been.calledWith(testInput[testCommand][1].command);
   });
 
   it('should not run any commands when given invalid preset', () => {

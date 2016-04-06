@@ -13,10 +13,13 @@ sequence:
       - usher
   - cmd: do thing
 
-retry:
+with_settings:
   cmd: docker build
   retry:
     attempts: 5
+  ignore_errors:
+    - 5
+    - 6
 
 bogus:
   blah: meh

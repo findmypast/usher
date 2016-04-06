@@ -4,7 +4,10 @@ const yaml         = require('js-yaml');
 const fs           = require('fs');
 const _            = require('lodash')
 const factories    = require('../factories')
-const settingKeys  = ["retry"]
+const settingKeys  = [
+  "retry",
+  "ignore_errors"
+]
 
 function parseOptions(options) {
   let path        = options.cmd.replace(" ", ".");

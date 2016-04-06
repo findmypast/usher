@@ -19,7 +19,7 @@ Essentially it allows orchestration of lots of different command line applicatio
 - [x] Single command
 - [x] Sequence of commands
 - [x] Retry commands
-- [ ] Passing exit codes
+- [x] Passing exit codes
 - [ ] Public CI for publishing NPM package
 - [ ] Publish docker image to internal registry
 - [ ] Usher to publish Usher

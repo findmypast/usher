@@ -39,23 +39,27 @@ function runCommand(commandWithSettings) {
 }
 
 function wrapAndRun(command, settings, attempt) {
-  try {
-    return runProcess(...command);
+  let result = runProcess(...command);
+  let isIgnoredError = code =>
+    settings.ignore_errors.indexOf(result.status) !== -1;
+  let retry  = () => {
+    console.log(`${command[0]} failed. Retry ${attempt}/${settings.retry.attempts - 1}`);
+    return wrapAndRun(command, settings, attempt + 1);
   }
-  catch(error) {
-    if(settings.retry && attempt < settings.retry.attempts) {
-      console.log(`${command[0]} failed. Retry ${attempt}/${settings.retry.attempts - 1}`);
-      return wrapAndRun(command, settings, attempt + 1);
-    }
-    else throw error;
-  }
+  
+  if      ( result.status === 0 )               return result;
+  else if ( settings.ignore_errors &&
+            isIgnoredError(result.status) )     return result;
+  else if ( settings.retry &&
+            attempt < settings.retry.attempts ) return retry();
+  else                                          throw result.error;
 }
 
 function runProcess(executable, args, processOptions) {
   console.log(`Running ${executable}`);
   let result        = spawnSync(executable, args, processOptions);
   console.log(`${executable} exited with code ${result.status}`);
-  if (result.error) throw result.error;
+  return result;
 }
 
 function commandNotFound(preset) {

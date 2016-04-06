@@ -23,13 +23,14 @@ describe('YAML-to-commands parser', () => {
       ]
     },
     {
-      key: 'retry',
+      key: 'with_settings',
       expected: [{
         command: 'docker build  .',
         settings: {
           retry: {
             attempts: 5
-          }
+          },
+          ignore_errors: [5, 6]
         }
       }]
     },
@@ -44,7 +45,6 @@ describe('YAML-to-commands parser', () => {
   ];
 
   tests.forEach( test =>
-    it(`should make preset ${test.key} ==>
-      "${test.expected.command}" with settings "${test.expected.settings}"`, () =>
+    it(`should make preset ${test.key}`, () =>
       expect(result[test.key]).to.deep.equal(test.expected)));
 });
