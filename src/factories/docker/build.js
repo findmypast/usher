@@ -1,8 +1,13 @@
 // https://docs.docker.com/engine/reference/commandline/build/
 
-var _ = require('lodash');
+"use strict";
 
-var optionBuilders = {
+const _ = require('lodash');
+const buildCommand = require('../buildCommand');
+
+const executable = "docker build"
+
+const optionMap = {
   build_arg: values => _.map(values, item => `--build-arg ${item}`).join(" "),
   cpu_shares: () => '--cpu-shares',
   file: value => `-f ${value}`,
@@ -12,28 +17,16 @@ var optionBuilders = {
   tags: values => _.map(values, item => `-t ${item}`).join(" ")
 };
 
-var pathBuilder = (config) => {
-  if(config.path){
-    return config.path;
-  }
-  if(config.url){
-    return url;
-  }
-  return ".";
+function getTarget(config) {
+  if(config.path) return config.path;
+  if(config.url)  return url;
+  else            return ".";
 }
 
 module.exports = (config) => {
-  var trimmedConfig = _.omit(config, 'path', 'url');
-  var options = _.map(trimmedConfig, (value, key) => {
-    if(!_.has(optionBuilders, key)){
-      throw new Error(`Cannot find ${key} in optionBuilders`);
-    };
-    return optionBuilders[key](value);
-  }).join(" ");
-
-  var path = pathBuilder(config);
-  var command = `docker build ${options} ${path}`;
-  return command;
+  let options = _.omit(config, 'path', 'url');
+  let target = getTarget(config);
+  return buildCommand(executable, options, optionMap, target);
 };
 
 // --build-arg=[]                  Set build-time variables
