@@ -28,4 +28,4 @@ deployment:
       # login using environment variables
       - echo -e $NPM_USERNAME
       - echo -e $NPM_EMAIL
-      - docker run --rm usher-local --env="NPM_USERNAME=$NPM_USERNAME" --env="NPM_EMAIL=$NPM_EMAIL" --env="NPM_PASSWORD=$NPM_PASSWORD" npm run publish-to-npm
+      - docker run --rm usher-local --env=\"NPM_USERNAME=$NPM_USERNAME\" --env=\"NPM_EMAIL=$NPM_EMAIL\" --env=\"NPM_PASSWORD=$NPM_PASSWORD\" npm run publish-to-npm
