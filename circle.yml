@@ -20,3 +20,12 @@ test:
 #       - docker tag usher-local:latest bapti/usher:latest
 #       - docker push bapti/usher:$VERSION_NUM.$CIRCLE_BUILD_NUM
 #       - docker push bapti/usher:latest
+
+deployment:
+  npm:
+    branch: master
+    commands:
+      # login using environment variables
+      - echo -e $NPM_USERNAME
+      - echo -e $NPM_EMAIL
+      - docker run --rm usher-local -e "NPM_USERNAME=$NPM_USERNAME" -e "NPM_EMAIL=$NPM_EMAIL" -e "NPM_PASSWORD=$NPM_PASSWORD" npm run publish-to-npm
