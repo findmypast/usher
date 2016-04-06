@@ -1,6 +1,8 @@
 "use strict";
 
 const _         = require('lodash');
+const logger    = require('winston');
+logger.level = 0;
 const chai      = require('chai');
 const expect    = chai.expect;
 const sinon     = require('sinon');

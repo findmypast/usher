@@ -1,16 +1,17 @@
 "use strict";
 
 const _       = require('lodash');
+const logger  = require('winston');
 var parse     = require('./parse');
 var spawnSync = require('child_process').spawnSync;
 
 function getCommandSequence(preset) {
   let parseFailed = () => {
-    console.log("Failed to parse .usher.yml");
+    logger.log('error', "Failed to parse .usher.yml");
     return false;
   }
   let presetNotDefined = preset => {
-    console.log(`Preset ${preset} not in .usher.yml`);
+    logger.log('error', `Preset ${preset} not in .usher.yml`);
     return false;
   }
 
@@ -43,10 +44,10 @@ function wrapAndRun(command, settings, attempt) {
   let isIgnoredError = code =>
     settings.ignore_errors.indexOf(result.status) !== -1;
   let retry  = () => {
-    console.log(`${command[0]} failed. Retry ${attempt}/${settings.retry.attempts - 1}`);
+    logger.log('info', `${command[0]} failed. Retry ${attempt}/${settings.retry.attempts - 1}`);
     return wrapAndRun(command, settings, attempt + 1);
   }
-  
+
   if      ( result.status === 0 )               return result;
   else if ( settings.ignore_errors &&
             isIgnoredError(result.status) )     return result;
@@ -56,14 +57,14 @@ function wrapAndRun(command, settings, attempt) {
 }
 
 function runProcess(executable, args, processOptions) {
-  console.log(`Running ${executable}`);
+  logger.log('info', `Running ${executable}`);
   let result        = spawnSync(executable, args, processOptions);
-  console.log(`${executable} exited with code ${result.status}`);
+  logger.log('info', `${executable} exited with code ${result.status}`);
   return result;
 }
 
 function commandNotFound(preset) {
-  console.log(`Could not find preset "${preset}". Please see usage.`)
+  logger.log('error', `Could not find preset "${preset}". Please see usage.`)
 }
 
 module.exports = preset => {
