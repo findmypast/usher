@@ -1,7 +1,7 @@
 "use strict";
 
 const _       = require('lodash');
-const logger    = require('winston');
+const logger  = require('winston');
 var parse     = require('./parse');
 var spawnSync = require('child_process').spawnSync;
 
