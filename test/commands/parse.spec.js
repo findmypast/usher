@@ -1,5 +1,7 @@
 "use strict";
 
+const logger    = require('winston');
+logger.level = 0;
 const expect = require('chai').expect;
 const parse = require('../../src/commands/parse');
 

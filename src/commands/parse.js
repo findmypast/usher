@@ -3,6 +3,7 @@
 const yaml         = require('js-yaml');
 const fs           = require('fs');
 const _            = require('lodash')
+const logger       = require('winston');
 const factories    = require('../factories')
 const settingKeys  = [
   "retry",
@@ -25,7 +26,7 @@ function parseOptions(options) {
 
 function parsePresets(options, name) {
   let fail = key => {
-    console.log(`Please define at least one "cmd" attribute for preset ${key}`);
+    logger.log('error', `Please define at least one "cmd" attribute for preset ${key}`);
     return false;
   }
 

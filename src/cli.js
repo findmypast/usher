@@ -2,7 +2,8 @@
 
 const program = require('commander');
 const version = require('./../package.json').version
-const commands = require('./commands')
+const commands = require('./commands');
+const logger     = require('winston');
 
 program
   .version(version)
