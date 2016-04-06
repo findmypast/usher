@@ -8,8 +8,7 @@
   "scripts": {
     "test": "mocha --reporter nyan --recursive",
     "test:ci": "mocha --reporter mocha-teamcity-reporter --recursive",
-    "authenticate-user": "npm-authenticate",
-    "publish-to-npm": "publish"
+    "publish-to-npm": "npm-authenticate && publish"
   },
   "repository": {
     "type": "git",
