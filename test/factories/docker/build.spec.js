@@ -34,6 +34,10 @@ describe('Docker Build Command', () => {
       expected: "docker build --no-cache ."
     },
     {
+      options: { force_rm: true },
+      expected: "docker build --force-rm ."
+    },
+    {
       options: { quiet: true },
       expected: "docker build --q ."
     },

@@ -15,6 +15,7 @@ const optionMap = {
   file:       value   => `-f ${value}`,
   memory:     value   => `-m ${value}`,
   no_cache:   ()      => '--no-cache',
+  force_rm:   ()      => '--force-rm',
   quiet:      ()      => '--q',
   tags:       values  => _.map(
                           values, item => `-t ${item}`)

@@ -1,10 +1,11 @@
 build:
-  cmd:
-
-push:
+  cmd: docker build
+  force_rm: true
+  tags:
+    - findmypast/usher
 
 fast_tests:
-  cmd: "npm test"
+  cmd: npm test
 
 
 
