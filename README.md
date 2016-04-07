@@ -2,8 +2,6 @@
 
 ### WARNING: still in active development
 
-![Usher badge](https://img.shields.io/circleci/project/findmypast/usher/master.svg)
-
 #### Description
 
 A command line app to usher our containers to production
@@ -15,13 +13,12 @@ Essentially it allows orchestration of lots of different command line applicatio
 - [x] Describe the build pipeline - [see diagram](#our-standard-build-pipeline)
 - [x] Flow chart of how Usher works - [see diagram](#run)
 - [x] Publish the Usher NPM module to registry
-- [x] Circle CI with badge
 - [x] Single command
 - [x] Sequence of commands
 - [x] Retry commands
 - [x] Passing exit codes
-- [ ] Public CI for publishing NPM package
-- [ ] Publish docker image to internal registry
+- [x] Private CI for build and test
+- [x] Private CI for publishing NPM package
 - [ ] Usher to publish Usher
 
 #### Motivations
