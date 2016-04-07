@@ -2,8 +2,6 @@
 
 ### WARNING: still in active development
 
-![Usher badge](https://img.shields.io/circleci/project/findmypast/usher/master.svg)
-
 #### Description
 
 A command line app to usher our containers to production
