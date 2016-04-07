@@ -23,7 +23,7 @@ const optionMap = {
 
 function getTarget(config) {
   if(config.path) return config.path;
-  if(config.url)  return url;
+  if(config.url)  return config.url;
   else            return ".";
 }
 
