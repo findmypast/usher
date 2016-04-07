@@ -8,13 +8,17 @@ const buildCommand = require('../buildCommand');
 const executable = "docker build"
 
 const optionMap = {
-  build_arg: values => _.map(values, item => `--build-arg ${item}`).join(" "),
-  cpu_shares: () => '--cpu-shares',
-  file: value => `-f ${value}`,
-  memory: value => `-m ${value}`,
-  no_cache: () => '--no-cache',
-  quiet: () => '--q',
-  tags: values => _.map(values, item => `-t ${item}`).join(" ")
+  build_arg:  values  => _.map(
+                          values, item => `--build-arg ${item}`)
+                          .join(" "),
+  cpu_shares: ()      => '--cpu-shares',
+  file:       value   => `-f ${value}`,
+  memory:     value   => `-m ${value}`,
+  no_cache:   ()      => '--no-cache',
+  quiet:      ()      => '--q',
+  tags:       values  => _.map(
+                          values, item => `-t ${item}`)
+                          .join(" ")
 };
 
 function getTarget(config) {
