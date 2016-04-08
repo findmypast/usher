@@ -1,3 +1,5 @@
 module.exports = {
-  build: require('./build')
+  build: require('./build'),
+  push: require('./pull'),
+  push: require('./push')
 }

@@ -47,7 +47,7 @@ describe('Docker Build Command', () => {
     },
     {
       options: { path: './xyz' },
-      expected: "docker build  ./xyz"
+      expected: "docker build ./xyz"
     }
   ];
 

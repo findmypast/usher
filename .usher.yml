@@ -7,8 +7,6 @@ build:
 fast_tests:
   cmd: npm test
 
-
-
 # docker build
 # --force-rm
 # --file=Dockerfile.test
