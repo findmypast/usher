@@ -27,7 +27,7 @@ describe('YAML-to-commands parser', () => {
     {
       key: 'with_settings',
       expected: [{
-        command: 'docker build  .',
+        command: 'docker build .',
         settings: {
           retry: {
             attempts: 5
