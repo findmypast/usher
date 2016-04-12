@@ -5,24 +5,12 @@ describe('Docker Pull Command', () => {
 
   var tests = [
     {
-      options: { tag: "master" },
-      expected: "docker pull"
-    },
-    {
       options: { image: "findmypast/usher" },
       expected: "docker pull findmypast/usher"
     },
     {
       options: { tag: "master", image: "findmypast/usher" },
       expected: "docker pull findmypast/usher:master"
-    },
-    {
-      options: { registry: "docker-registry.example.com" },
-      expected: "docker pull"
-    },
-    {
-      options: { registry: "docker-registry.example.com", tag: "master" },
-      expected: "docker pull"
     },
     {
       options: { image: "findmypast/usher", registry: "docker-registry.example.com" },
@@ -53,7 +41,7 @@ describe('Docker Pull Command', () => {
   tests.forEach( (test) => {
     it(`should make ==> ${test.expected}`, () => {
       var command = build(test.options);
-      expect(test.expected).to.equal(command);
+      expect(command).to.equal(test.expected);
     });
   });
 });

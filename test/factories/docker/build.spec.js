@@ -42,7 +42,7 @@ describe('Docker Build Command', () => {
       expected: "docker build --q ."
     },
     {
-      options: { tags: [ 'project:123', 'project:latest' ] },
+      options: { tags: [ {image:'project', tag:'123'}, {image:'project', tag:'latest'} ] },
       expected: "docker build -t project:123 -t project:latest ."
     },
     {
@@ -54,7 +54,7 @@ describe('Docker Build Command', () => {
   tests.forEach( (test) => {
     it(`should make ==> ${test.expected}`, () => {
       var command = build(test.options);
-      expect(test.expected).to.equal(command);
+      expect(command).to.equal(test.expected);
     });
   });
 });
