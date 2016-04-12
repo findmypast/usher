@@ -15,7 +15,7 @@ program
   .action(commands.init);
 
 program
-  .command('run <preset>')
+  .command('run <preset> [args...]')
   .description('Run an Usher preset')
   .action(commands.run);
 

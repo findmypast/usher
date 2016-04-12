@@ -27,7 +27,8 @@ describe('Command runner', () => {
                         { command: "secondCommand",  settings: {} } ],
     acceptableErrors: [ { command: "firstCommand",   settings: { ignore_errors: [5] } },
                         { command: "secondCommand",  settings: { ignore_errors: [5] } } ],
-    emptyCommand:     false
+    emptyCommand:     false,
+    bespokeArgs:      [ { command: "do <%=myArg%>", settings: {} } ]
   }
   let spawnSyncStub = sinon.stub()
   let parseStub     = sinon.stub().returns(testInput);
@@ -125,5 +126,15 @@ describe('Command runner', () => {
 
     run(testCommand);
     expect(spawnSyncStub).to.not.have.been.called;
+  });
+
+  it('should interpolate any bespoke command line arguments', () => {
+    const testCommand = 'bespokeArgs';
+    spawnSyncStub.returns({
+      status: 0
+    });
+
+    run(testCommand, ["myArg=1.2.3"]);
+    expect(spawnSyncStub).to.have.been.calledWith('do', ['1.2.3']);
   });
 });

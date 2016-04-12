@@ -5,7 +5,7 @@ const logger  = require('winston');
 var parse     = require('./parse');
 var spawnSync = require('child_process').spawnSync;
 
-function getCommandSequence(preset) {
+function getCommandSequence(preset, args) {
   let parseFailed = () => {
     logger.log('error', "Failed to parse .usher.yml");
     return false;
@@ -18,8 +18,16 @@ function getCommandSequence(preset) {
   let commands = parse('.usher.yml');
 
   if      (!commands)        return parseFailed();
-  else if (commands[preset]) return commands[preset];
+  else if (commands[preset]) return  _.map(commands[preset], command => expandTokens(command, args));
   else                       return presetNotDefined(preset);
+}
+
+function expandTokens(preset, args) {
+  const template = _.template(preset.command);
+
+  preset.command = template(args);
+
+  return preset;
 }
 
 function runCommandSequence(commandSequence) {
@@ -67,8 +75,11 @@ function commandNotFound(preset) {
   logger.log('error', `Could not find preset "${preset}". Please see usage.`)
 }
 
-module.exports = preset => {
-  let commandSequence = getCommandSequence(preset);
+module.exports = (preset, args) => {
+  const splitArgs = _.map(args, a => a.split('='));
+  const parsedArgs = _.fromPairs(splitArgs);
+
+  let commandSequence = getCommandSequence(preset, parsedArgs);
 
   if   (commandSequence)   runCommandSequence(commandSequence);
   else                     commandNotFound(preset);

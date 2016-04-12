@@ -7,7 +7,7 @@ build_prod:
       tag: latest
     - registry: *REGISTRY
       image: *IMAGE_NAME
-      tag: $(version)
+      tag: <%=version%>
 
 fast_tests:
   cmd: npm test
