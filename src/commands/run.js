@@ -24,9 +24,7 @@ function getCommandSequence(preset, args) {
 
 function expandTokens(preset, args) {
   const template = _.template(preset.command);
-
   preset.command = template(args);
-
   return preset;
 }
 
