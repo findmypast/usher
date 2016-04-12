@@ -5,24 +5,12 @@ describe('Docker Push Command', () => {
 
   var tests = [
     {
-      options: { tag: "master" },
-      expected: "docker push"
-    },
-    {
       options: { image: "findmypast/usher" },
       expected: "docker push findmypast/usher"
     },
     {
       options: { tag: "master", image: "findmypast/usher" },
       expected: "docker push findmypast/usher:master"
-    },
-    {
-      options: { registry: "docker-registry.example.com" },
-      expected: "docker push"
-    },
-    {
-      options: { registry: "docker-registry.example.com", tag: "master" },
-      expected: "docker push"
     },
     {
       options: { image: "findmypast/usher", registry: "docker-registry.example.com" },
@@ -45,7 +33,7 @@ describe('Docker Push Command', () => {
   tests.forEach( (test) => {
     it(`should make ==> ${test.expected}`, () => {
       var command = build(test.options);
-      expect(test.expected).to.equal(command);
+      expect(command).to.equal(test.expected);
     });
   });
 });

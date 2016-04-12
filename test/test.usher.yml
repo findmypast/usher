@@ -2,7 +2,8 @@
 basic:
   cmd: docker build
   tags:
-    - usher
+    - image: usher
+      tag: test
 
 custom:
   cmd: do thing
@@ -10,7 +11,7 @@ custom:
 sequence:
   - cmd: docker build
     tags:
-      - usher
+      - image: usher
   - cmd: do thing
 
 with_settings:

@@ -4,6 +4,7 @@
 
 const _ = require('lodash');
 const buildCommand = require('../buildCommand');
+const buildImageName = require('../buildImageName');
 
 const executable = "docker build"
 
@@ -18,7 +19,7 @@ const optionMap = {
   force_rm:   ()      => '--force-rm',
   quiet:      ()      => '--q',
   tags:       values  => _.map(
-                          values, item => `-t ${item}`)
+                          values, item => `-t ${buildImageName(item)}`)
                           .join(" ")
 };
 
