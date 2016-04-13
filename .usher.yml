@@ -1,8 +1,13 @@
-build:
+build_prod:
   cmd: docker build
   force_rm: true
   tags:
-    - findmypast/usher
+    - registry: &REGISTRY docker-registry.dun.fh
+      image: &IMAGE_NAME findmypast/usher
+      tag: latest
+    - registry: *REGISTRY
+      image: *IMAGE_NAME
+      tag: <%=version%>
 
 fast_tests:
   cmd: npm test
