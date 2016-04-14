@@ -5,19 +5,12 @@ build:
     - registry: &REGISTRY docker-registry.dun.fh
       image: &IMAGE_NAME findmypast/usher
       tag: <%=version%>
-    - registry: *REGISTRY
-      image: *IMAGE_NAME
-      tag: latest
 
 push:
-  - cmd: docker push
-    registry: *REGISTRY
-    image: *IMAGE_NAME
-    tag: <%=version%>
-  - cmd: docker push
-    registry: *REGISTRY
-    image: *IMAGE_NAME
-    tag: latest
+  cmd: docker push
+  registry: *REGISTRY
+  image: *IMAGE_NAME
+  tag: <%=version%>
 
 test:
   cmd: docker run
@@ -26,7 +19,7 @@ test:
   target:
     registry: *REGISTRY
     image: *IMAGE_NAME
-    tag: latest
+    tag: <%=version%>
   container_command: npm test
 
 publish:
@@ -40,5 +33,5 @@ publish:
   target:
     registry: *REGISTRY
     image: *IMAGE_NAME
-    tag: latest
+    tag: <%=version%>
   container_command: npm run publish-to-npm
