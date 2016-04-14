@@ -11,7 +11,7 @@ describe('YAML-to-commands parser', () => {
   let tests = [
     {
       key: 'basic',
-      expected: [{ command: 'docker build -t usher .', settings: {}}]
+      expected: [{ command: 'docker build -t usher:test .', settings: {}}]
     },
     {
       key: 'custom',
@@ -27,7 +27,7 @@ describe('YAML-to-commands parser', () => {
     {
       key: 'with_settings',
       expected: [{
-        command: 'docker build  .',
+        command: 'docker build .',
         settings: {
           retry: {
             attempts: 5

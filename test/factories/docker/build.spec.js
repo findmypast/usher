@@ -34,23 +34,27 @@ describe('Docker Build Command', () => {
       expected: "docker build --no-cache ."
     },
     {
+      options: { force_rm: true },
+      expected: "docker build --force-rm ."
+    },
+    {
       options: { quiet: true },
       expected: "docker build --q ."
     },
     {
-      options: { tags: [ 'project:123', 'project:latest' ] },
+      options: { tags: [ {image:'project', tag:'123'}, {image:'project', tag:'latest'} ] },
       expected: "docker build -t project:123 -t project:latest ."
     },
     {
       options: { path: './xyz' },
-      expected: "docker build  ./xyz"
+      expected: "docker build ./xyz"
     }
   ];
 
   tests.forEach( (test) => {
     it(`should make ==> ${test.expected}`, () => {
       var command = build(test.options);
-      expect(test.expected).to.equal(command);
+      expect(command).to.equal(test.expected);
     });
   });
 });

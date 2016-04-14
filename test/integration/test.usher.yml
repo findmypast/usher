@@ -1,3 +1,6 @@
+fast_tests:
+  cmd: npm test
+
 build_prod:
   cmd: docker build
   force_rm: true
@@ -9,28 +12,20 @@ build_prod:
       image: *IMAGE_NAME
       tag: <%=version%>
 
-fast_tests:
-  cmd: npm test
-
-# docker build
-# --force-rm
-# --file=Dockerfile.test
-# --tag %docker.repository%-test:%teamcity.build.branch%
-# .
-
 run_prod:
   cmd: docker run
   environment:
     - node-env=prod
+    - anotherenv=something
   memory: 256M
   name: usher
   publish:
     - client: 80
       host: 80
-    - client: 8080
+    - client: 8081
       host: 8080
   target:
-    registry: *REGISTRY,
-    image: *IMAGE_NAME,
+    registry: *REGISTRY
+    image: *IMAGE_NAME
     tag: test
   container_command: npm test
