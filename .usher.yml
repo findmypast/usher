@@ -1,36 +1,44 @@
-build_prod:
+build:
   cmd: docker build
   force_rm: true
   tags:
     - registry: &REGISTRY docker-registry.dun.fh
       image: &IMAGE_NAME findmypast/usher
-      tag: latest
+      tag: <%=version%>
     - registry: *REGISTRY
       image: *IMAGE_NAME
-      tag: <%=version%>
+      tag: latest
 
-fast_tests:
-  cmd: npm test
+push:
+  - cmd: docker push
+    registry: *REGISTRY
+    image: *IMAGE_NAME
+    tag: <%=version%>
+  - cmd: docker push
+    registry: *REGISTRY
+    image: *IMAGE_NAME
+    tag: latest
 
-# docker build
-# --force-rm
-# --file=Dockerfile.test
-# --tag %docker.repository%-test:%teamcity.build.branch%
-# .
-
-run_prod:
+test:
   cmd: docker run
-  environment:
-    - node-env=prod
-  memory: 256M
-  name: usher
-  publish:
-    - client: 80
-      host: 80
-    - client: 8080
-      host: 8080
+  name: usher-test-runner
+  remove: true
   target:
-    registry: *REGISTRY,
-    image: *IMAGE_NAME,
-    tag: test
+    registry: *REGISTRY
+    image: *IMAGE_NAME
+    tag: latest
   container_command: npm test
+
+publish:
+  cmd: docker run
+  name: usher-publisher
+  environment:
+    - NPM_USER=<%=user%>
+    - NPM_PASSWORD=<%=password%>
+    - NPM_EMAIL=<%=email%>
+  remove: true
+  target:
+    registry: *REGISTRY
+    image: *IMAGE_NAME
+    tag: latest
+  container_command: npm run publish-to-npm
