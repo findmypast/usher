@@ -17,6 +17,7 @@ program
 program
   .command('run <preset> [args...]')
   .description('Run an Usher preset')
+  .option('-f, --file [filepath]', 'Filepath for .usher.yml')
   .action(commands.run);
 
 program.parse(process.argv);
