@@ -16,12 +16,13 @@ run_prod:
   cmd: docker run
   environment:
     - node-env=prod
+    - anotherenv=something
   memory: 256M
   name: usher
   publish:
     - client: 80
       host: 80
-    - client: 8080
+    - client: 8081
       host: 8080
   target:
     registry: *REGISTRY

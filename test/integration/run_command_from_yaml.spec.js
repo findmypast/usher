@@ -1,7 +1,7 @@
 "use strict";
 
 const logger    = require('winston');
-logger.level = 0;
+logger.level = 4;
 const chai      = require('chai');
 const expect    = chai.expect;
 const sinon     = require('sinon');
@@ -14,20 +14,37 @@ chai.use(sinonChai);
 describe('Given a YAML file run command execution', () => {
   let filename = 'test/integration/test.usher.yml';
 
-  let tests = [
-    {
+  let tests = [{
       key: 'fast_tests',
       cmd_args: '',
-      expected: {executable: 'npm', args: ['test']}
-    },
-    {
+      expected: {
+          executable: 'npm',
+          args: ['test']
+      }
+  }, {
       key: 'build_prod',
       cmd_args: ['version=1'],
-      expected: {executable: 'docker', args: ['build', '--force-rm',
-       '-t', 'docker-registry.dun.fh/findmypast/usher:latest',
-       '-t', 'docker-registry.dun.fh/findmypast/usher:1', '.']}
-    },
-  ];
+      expected: {
+          executable: 'docker',
+          args: ['build', '--force-rm',
+              '-t', 'docker-registry.dun.fh/findmypast/usher:latest',
+              '-t', 'docker-registry.dun.fh/findmypast/usher:1', '.'
+          ]
+      }
+  }, {
+      key: 'run_prod',
+      cmd_args: '',
+      expected: {
+          executable: 'docker',
+          args: ['run', '-e', 'node-env=prod', '-e', 'anotherenv=something',
+              '-m', '256M',
+              '--name', 'usher',
+              '-p', '80:80',
+              '-p', '8080:8081',
+              'docker-registry.dun.fh/findmypast/usher:test', 'npm', 'test'
+          ]
+      }
+  }, ];
 
   let spawnSyncStub = sinon.stub();
   run.__set__({
