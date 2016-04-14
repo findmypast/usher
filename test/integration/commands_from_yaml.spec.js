@@ -61,7 +61,7 @@ describe('Given a YAML file run command execution', () => {
 
   tests.forEach( test =>
     it(`should make command for preset ${test.key}`, () => {
-      run(test.key, test.cmd_args, filename)
+      run(test.key, test.cmd_args, {filepath:filename})
       expect(spawnSyncStub).to.have.been.calledWith(test.expected.executable, test.expected.args);
     }));
 });

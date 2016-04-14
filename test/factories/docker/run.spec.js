@@ -81,6 +81,18 @@ describe('Docker Run Command', () => {
       },
       expected: "docker run myReg/usher:test run this"
     },
+    {
+      options: {
+        remove: true,
+        target: {
+          image: 'usher',
+          tag: 'test',
+          registry: 'myReg'
+        },
+        container_command: 'run this'
+      },
+      expected: "docker run --rm myReg/usher:test run this"
+    }
   ];
 
   tests.forEach( (test) => {
