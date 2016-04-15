@@ -59,6 +59,21 @@ describe('Docker Run Command', () => {
           tag: 'test',
           registry: 'myReg'
         },
+        restart: 'always'
+      },
+      expected: "docker run -e node_env=prod -e version=1 --restart always myReg/usher:test"
+    },
+    {
+      options: {
+        environment: [
+          'node_env=prod',
+          'version=1'
+        ],
+        target: {
+          image: 'usher',
+          tag: 'test',
+          registry: 'myReg'
+        },
         publish: [ {
           client: 80,
           host: 80

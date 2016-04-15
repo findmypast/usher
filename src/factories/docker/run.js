@@ -12,6 +12,7 @@ const optionMap = {
   environment:  values  => _.map(values, item => `-e ${item}`)
                             .join(" "),
   name:       value     => `--name ${value}`,
+  restart:    value     => `--restart ${value}`,
   memory:     value     => `-m ${value}`,
   publish:    values    => _.map(values, item => `-p ${item.host}:${item.client}`)
                             .join(" "),
