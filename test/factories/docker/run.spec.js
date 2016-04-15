@@ -20,6 +20,17 @@ describe('Docker Run Command', () => {
     },
     {
       options: {
+        detach: true,
+        target: {
+          image: 'usher',
+          tag: 'test',
+          registry: 'myReg'
+        }
+      },
+      expected: "docker run -d myReg/usher:test"
+    },
+    {
+      options: {
         environment: [
           'node_env=prod',
           'version=1'

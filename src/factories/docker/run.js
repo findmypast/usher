@@ -16,7 +16,8 @@ const optionMap = {
   memory:     value     => `-m ${value}`,
   publish:    values    => _.map(values, item => `-p ${item.host}:${item.client}`)
                             .join(" "),
-  remove:     value     => value ? "--rm" : ""
+  remove:     value     => value ? "--rm" : "",
+  detach:     value     => value ? "-d" : ""
 };
 
 function getTarget(config) {
