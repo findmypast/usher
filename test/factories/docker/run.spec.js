@@ -31,6 +31,17 @@ describe('Docker Run Command', () => {
     },
     {
       options: {
+        network: 'test-network',
+        target: {
+          image: 'usher',
+          tag: 'test',
+          registry: 'myReg'
+        }
+      },
+      expected: "docker run --net test-network myReg/usher:test"
+    },
+    {
+      options: {
         environment: [
           'node_env=prod',
           'version=1'
