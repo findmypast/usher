@@ -1,0 +1,10 @@
+fast_tests:
+  cmd: {{fastTestCommand}}
+
+build:
+  cmd: {{buildDockerCommand}}
+  force_rm: {{buildForceRm}}
+  tags:
+    - registry: &REGISTRY {{buildDockerRegistry}}
+      image: &IMAGE_NAME {{buildDockerImage}}
+      tag: <%=version%>
