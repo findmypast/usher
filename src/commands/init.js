@@ -15,7 +15,8 @@ function guardFileExists(fileName, message){
 }
 
 module.exports = (templateName, opts) => {
-  const templatePath = path.resolve(opts.path || `${__dirname}/templates`);
+  templateName = templateName || 'default';
+  const templatePath = path.resolve(opts.path || `${__dirname}/../templates`);
   const usherFilePath = path.resolve(opts.outputPath || `${__dirname}`);
   const templateFilename = `${templatePath}/template.${templateName}.yml`;
   const jsonPromptFilename = `${templatePath}/prompt.${templateName}.json`;
