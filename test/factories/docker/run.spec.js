@@ -16,14 +16,32 @@ describe('Docker Run Command', () => {
           registry: 'myReg'
         }
       },
-      expected: "docker run -e node_env=prod -e version=1 myReg/usher:test"
+      expected: "-e node_env=prod -e version=1"
     },
     {
       options: {
-        environment: [
-          'node_env=prod',
-          'version=1'
-        ],
+        detach: true,
+        target: {
+          image: 'usher',
+          tag: 'test',
+          registry: 'myReg'
+        }
+      },
+      expected: "-d"
+    },
+    {
+      options: {
+        network: 'test-network',
+        target: {
+          image: 'usher',
+          tag: 'test',
+          registry: 'myReg'
+        }
+      },
+      expected: "--net test-network"
+    },
+    {
+      options: {
         target: {
           image: 'usher',
           tag: 'test',
@@ -31,14 +49,10 @@ describe('Docker Run Command', () => {
         },
         memory: '256M'
       },
-      expected: "docker run -e node_env=prod -e version=1 -m 256M myReg/usher:test"
+      expected: "-m 256M"
     },
     {
       options: {
-        environment: [
-          'node_env=prod',
-          'version=1'
-        ],
         target: {
           image: 'usher',
           tag: 'test',
@@ -46,14 +60,21 @@ describe('Docker Run Command', () => {
         },
         name: 'usher'
       },
-      expected: "docker run -e node_env=prod -e version=1 --name usher myReg/usher:test"
+      expected: "--name usher"
     },
     {
       options: {
-        environment: [
-          'node_env=prod',
-          'version=1'
-        ],
+        target: {
+          image: 'usher',
+          tag: 'test',
+          registry: 'myReg'
+        },
+        restart: 'always'
+      },
+      expected: "--restart always"
+    },
+    {
+      options: {
         target: {
           image: 'usher',
           tag: 'test',
@@ -68,7 +89,7 @@ describe('Docker Run Command', () => {
           host: 4567
         }]
       },
-      expected: "docker run -e node_env=prod -e version=1 -p 80:80 -p 4567:1234 myReg/usher:test"
+      expected: "-p 80:80 -p 4567:1234"
     },
     {
       options: {
@@ -88,17 +109,27 @@ describe('Docker Run Command', () => {
           image: 'usher',
           tag: 'test',
           registry: 'myReg'
-        },
-        container_command: 'run this'
+        }
       },
-      expected: "docker run --rm myReg/usher:test run this"
+      expected: "--rm"
+    },
+    {
+      options: {
+        host: 'docker.host',
+        target: {
+          image: 'usher',
+          tag: 'test',
+          registry: 'myReg'
+        }
+      },
+      expected: "-H docker.host"
     }
   ];
 
   tests.forEach( (test) => {
     it(`should make ==> ${test.expected}`, () => {
       var command = build(test.options);
-      expect(command).to.equal(test.expected);
+      expect(command).to.contain(test.expected);
     });
   });
 });
