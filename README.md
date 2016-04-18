@@ -1,7 +1,7 @@
 # usher
 
-[![npm](https://img.shields.io/npm/dm/usher-cli.svg)]()
-[![npm](https://img.shields.io/npm/v/usher-cli.svg?maxAge=2592000)]()
+[![npm](https://img.shields.io/npm/dm/usher-cli.svg)](https://www.npmjs.com/package/usher-cli)
+[![npm](https://img.shields.io/npm/v/usher-cli.svg?maxAge=2592000)](https://www.npmjs.com/package/usher-cli)
 
 ### WARNING: still in active development
 
