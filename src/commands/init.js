@@ -19,15 +19,14 @@ module.exports = (templateName, opts) => {
   const templatePath = path.resolve(opts.path || `${__dirname}/../templates`);
   const usherFilePath = path.resolve(opts.outputPath || `${__dirname}`);
   const templateFilename = `${templatePath}/template.${templateName}.yml`;
-  const jsonPromptFilename = `${templatePath}/prompt.${templateName}.json`;
+  const jsonPromptFilename = `${templatePath}/prompt.${templateName}.js`;
 
   guardFileExists(jsonPromptFilename, `Template prompts file does not exist, cannot find ${jsonPromptFilename}`);
   guardFileExists(templateFilename, `Template file does not exist, cannot find  ${templateFilename}`);
-  const prompts = fs.readJsonSync(jsonPromptFilename);
+  const prompts = require(jsonPromptFilename);
 
   return inquirer.prompt(prompts)
     .then(answers => {
-
       const source = fs.readFileSync(templateFilename, 'utf-8');
       const template = handlebars.compile(source);
       const result = template(answers);

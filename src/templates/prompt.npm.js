@@ -1,4 +1,6 @@
-[
+'use strict';
+
+module.exports = [
   {
     "name": "buildDockerRegistry",
     "message": "The docker registry URL"
@@ -17,4 +19,4 @@
     "message": "Command to publish your code",
     "default": "npm run publish-to-npm"
   }
-]
+];
