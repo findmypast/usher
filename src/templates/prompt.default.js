@@ -3,11 +3,25 @@
 module.exports = [
   {
     name: "buildDockerRegistry",
-    message: "The docker registry URL"
+    message: "The docker registry URL",
+    validate: (value) => {
+      return new Promise( (resolve, reject) => {
+        if(value === '')
+            return resolve("buildDockerRegistry cannot be blank");
+        return resolve(true);
+      });
+    }
   },
   {
     name: "buildDockerImage",
-    message: "The docker image, e.g. findmypast/usher"
+    message: "The docker image, e.g. findmypast/usher",
+    validate: (value) => {
+      return new Promise( (resolve, reject) => {
+        if(value === '')
+            return resolve("buildDockerImage cannot be blank");
+        return resolve(true);
+      });
+    }
   },
   {
     name: "projectName",
@@ -29,6 +43,8 @@ module.exports = [
       return new Promise( (resolve, reject) => {
         if(value.search(/[^\d]/g) !== -1)
           return resolve("clientPort must be numeric");
+        if(value === '')
+            return resolve("clientPort cannot be blank");
         return resolve(true);
       });
     }
@@ -40,12 +56,21 @@ module.exports = [
       return new Promise( (resolve, reject) => {
         if(value.search(/[^\d]/g) !== -1)
           return resolve("liveHostPort must be numeric");
+        if(value === '')
+            return resolve("liveHostPort cannot be blank");
         return resolve(true);
       });
     }
   },
   {
     name: "remoteDockerAddress",
-    message: "Full URL to remote docker daemon, e.g. tcp://example.com:12345"
+    message: "Full URL to remote docker daemon, e.g. tcp://example.com:12345",
+    validate: (value) => {
+      return new Promise( (resolve, reject) => {
+        if(value === '')
+            return resolve("remoteDockerAddress cannot be blank");
+        return resolve(true);
+      });
+    }
   },
 ];
