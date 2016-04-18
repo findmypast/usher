@@ -112,6 +112,17 @@ describe('Docker Run Command', () => {
         }
       },
       expected: "--rm"
+    },
+    {
+      options: {
+        host: 'docker.host',
+        target: {
+          image: 'usher',
+          tag: 'test',
+          registry: 'myReg'
+        }
+      },
+      expected: "-H docker.host"
     }
   ];
 

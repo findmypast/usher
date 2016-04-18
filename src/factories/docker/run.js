@@ -6,8 +6,6 @@ const _ = require('lodash');
 const buildCommand = require('../buildCommand');
 const buildImageName = require('../buildImageName');
 
-const executable = "docker run";
-
 const optionMap = {
   environment:  values  => _.map(values, item => `-e ${item}`)
                             .join(" "),
@@ -26,7 +24,8 @@ function getTarget(config) {
 }
 
 module.exports = (config) => {
-  const options = _.omit(config, 'target', 'container_command');
+  const options = _.omit(config, 'target', 'container_command', 'host');
   const target = getTarget(config.target);
+  const executable = config.host ? `docker -H ${config.host} run` : 'docker run';
   return buildCommand(executable, options, optionMap, target, config.container_command);
 };
