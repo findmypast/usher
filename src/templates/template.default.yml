@@ -14,7 +14,7 @@ push:
 
 test:
   cmd: docker run
-  name: {projectName}}-test-runner
+  name: {{projectName}}-test-runner
   remove: true
   target: &TARGET
     registry: *REGISTRY
