@@ -10,7 +10,9 @@ program
   .version(version)
 
 program
-  .command('init')
+  .command('init [templateName]')
+  .option('-p, --path [templatepath]', 'Path to the template files')
+  .option('-o, --outputPath [outputpath]', 'Path for the output file')
   .description('Initialise your project for use with Usher')
   .action(commands.init);
 

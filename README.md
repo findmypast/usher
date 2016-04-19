@@ -18,6 +18,13 @@ to be run by inputting `usher run <preset-name>` on the command line.
 
 If you'd rather not install globally, Usher's runtime is in `src/cli.js`, and `node <path-to-cli.js>` can replace `usher` in all examples.
 
+#### Set up
+To generate a generic usher configuration for your project, run:
+```
+usher init
+```
+This will prompt for data regarding the containers and their configuration required for the project. An `.usher.yml` file will be created in your project.
+
 #### Usage
 
 ```
@@ -103,3 +110,13 @@ preset:
       - 1
   - cmd: npm install
 ```
+
+#### Additional `init` templates
+
+To create a new template to be used with the `init` command, two files are required:
+* _src/templates/prompt.**NAME**.js_
+* _src/templates/template.**NAME**.yml_
+
+The `js` file should contain [inquirer](https://github.com/SBoudrias/Inquirer.js/) style configuration for each value you need to use in the template. The `yml` file will be expanded into the `.usher.yml` file using [handleBars](https://www.npmjs.com/package/handlebars) templating. Make sure that the names of the handleBar values match the names in the `js` inquirer configuration.
+
+Finally, once both files are present you can use `userh init` **NAME** to use the new template.
