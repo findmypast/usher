@@ -31,6 +31,7 @@ module.exports = (templateName, opts) => {
       const template = handlebars.compile(source);
       const result = template(answers);
 
-      return fs.writeFileSync(`${usherFilePath}/.usher.yml`, result);
+      fs.writeFileSync(`${usherFilePath}/.usher.yml`, result);
+      console.log(`Usher configuration file written to: ${usherFilePath}/.usher.yml`);
     });
 }
