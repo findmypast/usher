@@ -1,4 +1,4 @@
-[
+module.exports = [
   {
     "name": "fastTestCommand",
     "message": "The command to execute for the 'fast test' task"
@@ -19,4 +19,4 @@
     "name": "buildDockerImage",
     "message": "The docker image for the 'build' task"
   }
-]
+];
