@@ -1,28 +1,15 @@
 
-basic:
-  cmd: docker build
-  tags:
-    - image: usher
-      tag: test
+vars:
+  registry: docker-registry.dun.fh
+  image: findmypast/usher
 
-custom:
-  cmd: do thing
+tasks:
+  build:
+    cmd: docker build --force-rm -t <%=registry%>/<%=image%>:<%=version%> .
 
-sequence:
-  - cmd: docker build
-    tags:
-      - image: usher
-  - cmd: do thing
-
-with_settings:
-  cmd: docker build
-  retry:
-    attempts: 5
-  ignore_errors:
-    - 5
-    - 6
-
-bogus:
-  blah: meh
-
-null:
+  publish:
+    cmd: docker run --name usher-publisher --rm <%=registry%>/<%=image%>:<%=version%> npm run publish-to-npm
+    environment:
+      - NPM_USER=<%=user%>
+      - NPM_PASSWORD=<%=password%>
+      - NPM_EMAIL=<%=email%>
