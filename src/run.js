@@ -1,5 +1,6 @@
 'use strict';
 
+const logger = require('winston');
 const parser = require('js-yaml');
 const fs = require('fs');
 const _ = require('lodash');
@@ -23,15 +24,31 @@ function buildSpawnOptions(env) {
   return !_.isEmpty(env) ? { env: env } : {};
 }
 
+function execCommand(cmdTemplate, environment, vars) {
+  const command = expandTokens(cmdTemplate, vars).split(" ");
+  const parsedEnv = resolveKeyValuePairs(environment, vars);
+  const spawnOptions = buildSpawnOptions(parsedEnv)
+
+  logger.info(`Executing command : ${command.join(" ")}`);
+  
+  return spawnSync(command[0], _.tail(command), spawnOptions)
+}
+
 module.exports = (taskName, taskVars, opts) => {
   const usherFile = opts.filepath || '.usher.yml';
   const parsedVars = resolveKeyValuePairs(taskVars);
   const config = parser.safeLoad(fs.readFileSync(usherFile, 'utf8'));
   const vars = _.merge(config.vars, parsedVars);
   const task = config.tasks[taskName];
-  const command = expandTokens(task.cmd, vars).split(" ");
-  const parsedEnv = resolveKeyValuePairs(task.environment, vars);
-  const spawnOptions = buildSpawnOptions(parsedEnv)
 
-  spawnSync(command[0], _.tail(command), spawnOptions)
+  _.forEach(task, command => {
+    let result = execCommand(command.cmd, command.environment, vars);
+
+    if (result.status !== 0) {
+      logger.error(result.error.message);
+      return false;
+    }
+
+    return true;
+  });
 }
