@@ -24,32 +24,34 @@ function buildSpawnOptions(env) {
   return !_.isEmpty(env) ? { env: env, stdio: 'inherit' } : { stdio: 'inherit' };
 }
 
-function execCommand(cmdTemplate, environment, vars) {
-  if(!cmdTemplate) throw new Error('Command not defined')
-  const command = expandTokens(cmdTemplate, vars).split(" ");
-  const parsedEnv = resolveKeyValuePairs(environment, vars);
+function execCommand(command, vars) {
+  if(!command.cmd) throw new Error('Command not defined')
+  const parsedCommand = expandTokens(command.cmd, vars).split(" ");
+  const parsedEnv = resolveKeyValuePairs(command.environment, vars);
   const spawnOptions = buildSpawnOptions(parsedEnv)
 
-  logger.info(`Executing command : ${command.join(" ")}`);
+  logger.info(`Executing command : ${parsedCommand.join(" ")}`);
 
-  return spawnSync(command[0], _.tail(command), spawnOptions)
+  const result = spawnSync(parsedCommand[0], _.tail(parsedCommand), spawnOptions);
+
+  return (result.status !== 0 && !command.ignore_errors) ? false : true;
+}
+
+function getTaskConfig(taskName, taskVars, opts) {
+  const usherFile = opts.filepath || '.usher.yml';
+  const config = parser.safeLoad(fs.readFileSync(usherFile, 'utf8'));
+  const parsedVars = resolveKeyValuePairs(taskVars);
+
+  if(!_.isArray(config.tasks[taskName])) throw new Error('Tasks should be array of commands')
+
+  return {
+    vars: _.merge(config.vars, parsedVars),
+    task: config.tasks[taskName]
+  };
 }
 
 module.exports = (taskName, taskVars, opts) => {
-  const usherFile = opts.filepath || '.usher.yml';
-  const parsedVars = resolveKeyValuePairs(taskVars);
-  const config = parser.safeLoad(fs.readFileSync(usherFile, 'utf8'));
-  const vars = _.merge(config.vars, parsedVars);
-  const task = config.tasks[taskName];
-  if(!_.isArray(task)) throw new Error('Tasks should be array of commands')
+  const taskConfig = getTaskConfig(taskName, taskVars, opts);
 
-  _.forEach(task, command => {
-    let result = execCommand(command.cmd, command.environment, vars);
-
-    if (result.status !== 0 && !command.ignore_errors) {
-      return false;
-    }
-
-    return true;
-  });
+  _.forEach(taskConfig.task, command => execCommand(command, taskConfig.vars));
 }
