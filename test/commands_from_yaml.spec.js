@@ -1,7 +1,7 @@
 "use strict";
 
 const logger    = require('winston');
-logger.level = 4;
+logger.level = 'none';
 const chai      = require('chai');
 const expect    = chai.expect;
 const sinon     = require('sinon');
@@ -22,7 +22,9 @@ describe('Given a YAML file run command execution', () => {
       expected: [{
           executable: 'docker',
           args: 'build --force-rm -t docker-registry.dun.fh/findmypast/usher:latest .'.split(' '),
-          options: {}
+          options: {
+            stdio: 'inherit'
+          }
       }]
     },
     {
@@ -31,7 +33,9 @@ describe('Given a YAML file run command execution', () => {
       expected: [{
           executable: 'docker',
           args: 'build --force-rm -t docker-registry.dun.fh/usher-test:latest .'.split(' '),
-          options: {}
+          options: {
+            stdio: 'inherit'
+          }
       }]
     },
     {
@@ -45,7 +49,8 @@ describe('Given a YAML file run command execution', () => {
               NPM_USER: 'neil',
               NPM_PASSWORD: 'password',
               NPM_EMAIL: 'ncrawford@findmypast.com'
-            }
+            },
+            stdio: 'inherit'
           }
       }]
     },
@@ -56,12 +61,35 @@ describe('Given a YAML file run command execution', () => {
       {
         executable: 'docker',
         args: 'rm -f findmypast/usher-local'.split(' '),
-        options: {}
+        options: {
+          stdio: 'inherit'
+        }
       },
       {
         executable: 'docker',
         args: 'build --force-rm -t docker-registry.dun.fh/findmypast/usher:latest .'.split(' '),
-        options: {}
+        options: {
+          stdio: 'inherit'
+        }
+      }]
+    },
+    {
+      key: 'build_seq_ignore_errors',
+      cmdArgs: ['version=latest'],
+      expected: [
+      {
+        executable: 'docker',
+        args: 'rm -f findmypast/usher-local'.split(' '),
+        options: {
+          stdio: 'inherit'
+        }
+      },
+      {
+        executable: 'docker',
+        args: 'build --force-rm -t docker-registry.dun.fh/findmypast/usher:latest .'.split(' '),
+        options: {
+          stdio: 'inherit'
+        }
       }]
     }
   ];
@@ -71,12 +99,10 @@ describe('Given a YAML file run command execution', () => {
     spawnSync:  spawnSyncStub
   });
 
-  spawnSyncStub.returns({
-    status: 0
-  });
-
   beforeEach(() => {
     spawnSyncStub.reset();
+    spawnSyncStub.returns({
+      status: 0});
   })
 
   tests.forEach( test =>
@@ -99,5 +125,19 @@ describe('Given a YAML file run command execution', () => {
     run(test.key, test.cmdArgs, {filepath:filename});
     expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args, expected.options);
     expect(spawnSyncStub).to.have.been.calledOnce;
+  })
+
+  it(`Should continue to execute a sequence of commands when an error is returned on a command with ignore_errors: true`, ()=> {
+    spawnSyncStub.returns({
+      status: 1,
+      error: new Error('Test error!')
+    });
+
+    let test = _.find(tests, {key: 'build_seq_ignore_errors'});
+
+    run(test.key, test.cmdArgs, {filepath:filename});
+    _.map(test.expected, expected => {
+      expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args, expected.options);
+    })
   })
 });

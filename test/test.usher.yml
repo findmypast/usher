@@ -17,3 +17,8 @@ tasks:
   build_seq:
     - cmd: docker rm -f <%=image%>-local
     - cmd: docker build --force-rm -t <%=registry%>/<%=image%>:<%=version%> .
+
+  build_seq_ignore_errors:
+    - cmd: docker rm -f <%=image%>-local
+      ignore_errors: true
+    - cmd: docker build --force-rm -t <%=registry%>/<%=image%>:<%=version%> .

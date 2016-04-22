@@ -21,16 +21,17 @@ function resolveKeyValuePairs(array, vars) {
 }
 
 function buildSpawnOptions(env) {
-  return !_.isEmpty(env) ? { env: env } : {};
+  return !_.isEmpty(env) ? { env: env, stdio: 'inherit' } : { stdio: 'inherit' };
 }
 
 function execCommand(cmdTemplate, environment, vars) {
+  if(!cmdTemplate) throw new Error('Command not defined')
   const command = expandTokens(cmdTemplate, vars).split(" ");
   const parsedEnv = resolveKeyValuePairs(environment, vars);
   const spawnOptions = buildSpawnOptions(parsedEnv)
 
   logger.info(`Executing command : ${command.join(" ")}`);
-  
+
   return spawnSync(command[0], _.tail(command), spawnOptions)
 }
 
@@ -40,12 +41,12 @@ module.exports = (taskName, taskVars, opts) => {
   const config = parser.safeLoad(fs.readFileSync(usherFile, 'utf8'));
   const vars = _.merge(config.vars, parsedVars);
   const task = config.tasks[taskName];
+  if(!_.isArray(task)) throw new Error('Tasks should be array of commands')
 
   _.forEach(task, command => {
     let result = execCommand(command.cmd, command.environment, vars);
 
-    if (result.status !== 0) {
-      logger.error(result.error.message);
+    if (result.status !== 0 && !command.ignore_errors) {
       return false;
     }
 
