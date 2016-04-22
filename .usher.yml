@@ -10,7 +10,7 @@ tasks:
     - cmd: docker push <%=registry%>/<%=image%>:<%=version%>
 
   test:
-    - cmd: docker run --name usher-test-runner --rm <%=registry%>/<%=image%>:<%=version%>  npm test
+    - cmd: docker run --name usher-test-runner --rm <%=registry%>/<%=image%>:<%=version%> npm test
 
   publish:
     - cmd: docker run --name usher-publisher --rm <%=registry%>/<%=image%>:<%=version%> npm run publish-to-npm
