@@ -29,7 +29,11 @@ class TaskRunner {
       this.vars[command.register] = result.stdout;
     }
 
-    return (result.status !== 0 && !command.ignore_errors) ? false : true;
+    return this.shouldExecutionContinue(result, command);
+  }
+
+  shouldExecutionContinue(result, command) {
+    return result.status === 0 || command.ignore_errors || false;
   }
 
   expandTokens(command) {
@@ -39,7 +43,7 @@ class TaskRunner {
   }
 
   resolveKeyValuePairs(array) {
-    const templated = this.vars ? _.map(array, a => this.expandTokens(a, this.vars)) : array;
+    const templated = _.map(array, a => this.expandTokens(a, this.vars));
     const split = _.map(templated, a => a.split('='));
     const hashed = _.fromPairs(split);
     return hashed;
