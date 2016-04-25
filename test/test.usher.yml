@@ -2,6 +2,9 @@
 vars:
   registry: docker-registry.dun.fh
   image: findmypast/usher
+  host: consul.dun.fh
+  blue_tag: blue
+  green_tag: green
 
 tasks:
   build:
@@ -22,3 +25,8 @@ tasks:
     - cmd: docker rm -f <%=image%>-local
       ignore_errors: true
     - cmd: docker build --force-rm -t <%=registry%>/<%=image%>:<%=version%> .
+
+  pass_value_to_next_command:
+    - cmd: twoface -H <%=host%> -b <%=blue_tag%> -g <%=green_tag%> peek
+      register: deploy_target
+    - cmd: docker -H <%=host%> run --name <%=deploy_target%> --rm <%=registry%>/<%=image%>:<%=version%>
