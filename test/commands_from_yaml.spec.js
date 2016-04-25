@@ -9,6 +9,7 @@ const sinonChai = require('sinon-chai');
 const rewire    = require('rewire');
 const _         = require('lodash');
 
+let taskRunner = rewire('../src/modules/task-runner');
 let run = rewire('../src/run');
 chai.use(sinonChai);
 
@@ -95,8 +96,12 @@ describe('Given a YAML file run command execution', () => {
   ];
 
   let spawnSyncStub = sinon.stub();
-  run.__set__({
+  taskRunner.__set__({
     spawnSync:  spawnSyncStub
+  });
+
+  run.__set__({
+    TaskRunner: taskRunner
   });
 
   beforeEach(() => {
@@ -139,5 +144,39 @@ describe('Given a YAML file run command execution', () => {
     _.map(test.expected, expected => {
       expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args, expected.options);
     })
+  })
+
+  it ('Should save the result of a command to a variable', () => {
+    const expectedDeployTarget = 'green';
+
+    const test = {
+      key: 'pass_value_to_next_command',
+      cmdArgs: ['version=latest'],
+      expected: [
+      {
+        executable: 'twoface',
+        args: '-H consul.dun.fh -b blue -g green peek'.split(' '),
+        options: {
+          stdio: 'inherit'
+        }
+      },
+      {
+        executable: 'docker',
+        args: `-H consul.dun.fh run --name ${expectedDeployTarget} --rm docker-registry.dun.fh/findmypast/usher:latest`.split(' '),
+        options: {
+          stdio: 'inherit'
+        }
+      }]
+    };
+
+    spawnSyncStub.returns({
+      status: 0,
+      stdout: expectedDeployTarget
+    });
+
+    run(test.key, test.cmdArgs, {filepath:filename});
+    _.map(test.expected, expected => {
+      expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args, expected.options);
+    });
   })
 });
