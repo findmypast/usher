@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const logger = require('winston');
 
-let spawnSync = require('child_process').spawnSync;
+let spawnSync = require('npm-run').spawnSync;
 
 class TaskRunner {
   constructor(task, vars) {
