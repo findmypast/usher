@@ -29,11 +29,14 @@ class TaskRunner {
       this.vars[command.register] = result.stdout;
     }
 
-    return this.shouldExecutionContinue(result, command);
+    if(this.shouldExecutionContinue(result, command)) {
+      return true;
+    }
+    throw result.error;
   }
 
   shouldExecutionContinue(result, command) {
-    return result.status === 0 || command.ignore_errors || false;
+    return result.status === 0 || command.ignore_errors;
   }
 
   expandTokens(command) {

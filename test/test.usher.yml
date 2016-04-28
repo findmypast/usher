@@ -25,6 +25,7 @@ tasks:
     - cmd: docker rm -f <%=image%>-local
       ignore_errors: true
     - cmd: docker build --force-rm -t <%=registry%>/<%=image%>:<%=version%> .
+      ignore_errors: true
 
   pass_value_to_next_command:
     - cmd: twoface -H <%=host%> -b <%=blue_tag%> -g <%=green_tag%> peek

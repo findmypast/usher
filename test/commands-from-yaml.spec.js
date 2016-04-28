@@ -119,15 +119,16 @@ describe('Given a YAML file run command execution', () => {
     }));
 
   it(`Should not continue to execute a sequence of commands when an error is returned`, ()=> {
+    const expectedError = new Error('Test error!');
     spawnSyncStub.returns({
       status: 1,
-      error: new Error('Test error!')
+      error: expectedError
     });
 
     const test = _.find(tests, {key: 'build_seq'});
     const expected = test.expected[0];
 
-    run(test.key, test.cmdArgs, {filepath:filename});
+    expect(() => run(test.key, test.cmdArgs, {filepath:filename})).to.throw(expectedError);
     expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args, expected.options);
     expect(spawnSyncStub).to.have.been.calledOnce;
   })
