@@ -53,7 +53,7 @@ class TaskRunner {
   }
 
   buildSpawnOptions(env) {
-    return !_.isEmpty(env) ? { env: env, stdio: 'inherit' } : { stdio: 'inherit' };
+    return !_.isEmpty(env) ? { env: _.merge(env, process.env), stdio: 'inherit' } : { stdio: 'inherit' };
   }
 };
 
