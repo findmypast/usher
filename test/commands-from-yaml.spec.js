@@ -46,11 +46,11 @@ describe('Given a YAML file run command execution', () => {
           executable: 'docker',
           args: 'run --name usher-publisher --rm docker-registry.dun.fh/findmypast/usher:latest npm run publish-to-npm'.split(' '),
           options: {
-            env: {
+            env: _.merge({
               NPM_USER: 'neil',
               NPM_PASSWORD: 'password',
               NPM_EMAIL: 'ncrawford@findmypast.com'
-            },
+            }, process.env),
             stdio: 'inherit'
           }
       }]
