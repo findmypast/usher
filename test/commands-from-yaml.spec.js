@@ -23,9 +23,6 @@ describe('Given a YAML file run command execution', () => {
       expected: [{
           executable: 'docker',
           args: 'build --force-rm -t docker-registry.dun.fh/findmypast/usher:latest .'.split(' '),
-          options: {
-            stdio: 'inherit'
-          }
       }]
     },
     {
@@ -34,9 +31,6 @@ describe('Given a YAML file run command execution', () => {
       expected: [{
           executable: 'docker',
           args: 'build --force-rm -t docker-registry.dun.fh/usher-test:latest .'.split(' '),
-          options: {
-            stdio: 'inherit'
-          }
       }]
     },
     {
@@ -62,16 +56,10 @@ describe('Given a YAML file run command execution', () => {
       {
         executable: 'docker',
         args: 'rm -f findmypast/usher-local'.split(' '),
-        options: {
-          stdio: 'inherit'
-        }
       },
       {
         executable: 'docker',
         args: 'build --force-rm -t docker-registry.dun.fh/findmypast/usher:latest .'.split(' '),
-        options: {
-          stdio: 'inherit'
-        }
       }]
     },
     {
@@ -81,16 +69,10 @@ describe('Given a YAML file run command execution', () => {
       {
         executable: 'docker',
         args: 'rm -f findmypast/usher-local'.split(' '),
-        options: {
-          stdio: 'inherit'
-        }
       },
       {
         executable: 'docker',
         args: 'build --force-rm -t docker-registry.dun.fh/findmypast/usher:latest .'.split(' '),
-        options: {
-          stdio: 'inherit'
-        }
       }]
     }
   ];
@@ -114,9 +96,18 @@ describe('Given a YAML file run command execution', () => {
     it(`should execute task ${test.key} with command line vars ${test.cmdArgs.join(' ')}`, () => {
       run(test.key, test.cmdArgs, {filepath:filename})
       _.map(test.expected, expected => {
-        expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args, expected.options);
+        expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args);
       })
     }));
+
+  it(`Should pass through environment variables merged with the parent environment`, () => {
+    let test = _.find(tests, {key: 'publish'});
+
+    run(test.key, test.cmdArgs, {filepath:filename});
+    _.map(test.expected, expected => {
+      expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args, expected.options);
+    });
+  });
 
   it(`Should not continue to execute a sequence of commands when an error is returned`, ()=> {
     const expectedError = new Error('Test error!');
@@ -129,7 +120,7 @@ describe('Given a YAML file run command execution', () => {
     const expected = test.expected[0];
 
     expect(() => run(test.key, test.cmdArgs, {filepath:filename})).to.throw(expectedError);
-    expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args, expected.options);
+    expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args);
     expect(spawnSyncStub).to.have.been.calledOnce;
   })
 
@@ -143,7 +134,7 @@ describe('Given a YAML file run command execution', () => {
 
     run(test.key, test.cmdArgs, {filepath:filename});
     _.map(test.expected, expected => {
-      expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args, expected.options);
+      expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args);
     })
   })
 
@@ -177,7 +168,7 @@ describe('Given a YAML file run command execution', () => {
 
     run(test.key, test.cmdArgs, {filepath:filename});
     _.map(test.expected, expected => {
-      expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args, expected.options);
+      expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args);
     });
   })
 });
