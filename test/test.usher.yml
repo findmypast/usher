@@ -31,3 +31,8 @@ tasks:
     - cmd: twoface -H <%=host%> -b <%=blue_tag%> -g <%=green_tag%> peek
       register: deploy_target
     - cmd: docker -H <%=host%> run --name <%=deploy_target%> --rm <%=registry%>/<%=image%>:<%=version%>
+  retry:
+    - cmd: echo test_retry
+      retry:
+        attempts: 2
+        delay: 0.01

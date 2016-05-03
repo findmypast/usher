@@ -171,4 +171,51 @@ describe('Given a YAML file run command execution', () => {
       expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args);
     });
   })
+
+  it ('Should retry a command if it fails', () => {
+    const test = {
+      key: 'retry',
+      cmdArgs: [],
+      expected: {
+        executable: 'echo',
+        args: 'test_retry'.split(' '),
+      }
+    };
+
+    spawnSyncStub.onFirstCall().returns({
+      status: 1,
+      error: new Error("Test Error")
+    });
+    spawnSyncStub.onSecondCall().returns({
+      status: 0
+    });
+
+    run(test.key, test.cmdArgs, {filepath:filename});
+    expect(spawnSyncStub).to.have.been.calledWith(test.expected.executable, test.expected.args);
+    expect(spawnSyncStub).to.have.been.calledTwice;
+  });
+
+  it ('Should throw if it exceeds the maximum number of retries', () => {
+    const test = {
+      key: 'retry',
+      cmdArgs: [],
+      expected: {
+        executable: 'echo',
+        args: 'test_retry'.split(' '),
+      }
+    };
+
+    spawnSyncStub.onFirstCall().returns({
+      status: 1,
+      error: new Error("Test Error")
+    });
+    spawnSyncStub.onSecondCall().returns({
+      status: 1,
+      error: new Error("Test Error")
+    });
+
+    expect(() => run(test.key, test.cmdArgs, {filepath:filename})).to.throw();
+    expect(spawnSyncStub).to.have.been.calledWith(test.expected.executable, test.expected.args);
+    expect(spawnSyncStub).to.have.been.calledTwice;
+  });
 });
