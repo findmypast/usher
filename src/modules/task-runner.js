@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const logger = require('winston');
+const sleep = require('sleep');
 
 let spawnSync = require('npm-run').spawnSync;
 
@@ -9,6 +10,7 @@ class TaskRunner {
   constructor(task, vars) {
     this.task = task;
     this.vars = vars;
+    this.attempts = 0;
   }
 
   execute() {
@@ -23,6 +25,7 @@ class TaskRunner {
 
     logger.info(`Executing command : ${parsedCommand.join(" ")}`);
 
+    this.attempts++;
     const result = spawnSync(parsedCommand[0], _.tail(parsedCommand), spawnOptions);
 
     if (command.register && result.stdout) {
@@ -34,11 +37,19 @@ class TaskRunner {
     if(this.shouldExecutionContinue(result, command)) {
       return true;
     }
+    if(this.shouldCommandRetry(command)) {
+      sleep.usleep(command.retry.delay * 1000000);
+      return this.runCommand(command);
+    }
     throw result.error;
   }
 
   shouldExecutionContinue(result, command) {
     return result.status === 0 || command.ignore_errors;
+  }
+
+  shouldCommandRetry(command) {
+    return command.retry && this.attempts < command.retry.attempts;
   }
 
   expandTokens(command) {

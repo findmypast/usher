@@ -26,6 +26,7 @@
     "js-yaml": "^3.5.5",
     "lodash": "^4.6.1",
     "npm-run": "^3.0.0",
+    "sleep": "^3.0.1",
     "winston": "^2.2.0"
   },
   "devDependencies": {
