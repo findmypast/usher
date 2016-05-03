@@ -149,7 +149,7 @@ describe('Given a YAML file run command execution', () => {
         executable: 'twoface',
         args: '-H consul.dun.fh -b blue -g green peek'.split(' '),
         options: {
-          stdio: 'inherit'
+          stdio: 'pipe'
         }
       },
       {

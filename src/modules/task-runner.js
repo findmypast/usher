@@ -19,14 +19,16 @@ class TaskRunner {
     if(!command.cmd) throw new Error('Command not defined')
     const parsedCommand = this.expandTokens(command.cmd).split(" ");
     const parsedEnv = this.resolveKeyValuePairs(command.environment);
-    const spawnOptions = this.buildSpawnOptions(parsedEnv)
+    const spawnOptions = this.buildSpawnOptions(command, parsedEnv)
 
     logger.info(`Executing command : ${parsedCommand.join(" ")}`);
 
     const result = spawnSync(parsedCommand[0], _.tail(parsedCommand), spawnOptions);
 
-    if (command.register) {
-      this.vars[command.register] = result.stdout;
+    if (command.register && result.stdout) {
+      const out = result.stdout.toString().trim();
+      logger.info(`Saved ${out} to ${command.register}`);
+      this.vars[command.register] = out;
     }
 
     if(this.shouldExecutionContinue(result, command)) {
@@ -52,8 +54,13 @@ class TaskRunner {
     return hashed;
   }
 
-  buildSpawnOptions(env) {
-    return !_.isEmpty(env) ? { env: _.merge(env, process.env), stdio: 'inherit' } : { env: process.env, stdio: 'inherit' };
+  buildSpawnOptions(command, envOptions) {
+    const stdio = command.register ? "pipe" : "inherit";
+    const env = _.isEmpty(envOptions) ? process.env : _.merge(envOptions, process.env);
+    return {
+      stdio: stdio,
+      env: env
+    };
   }
 };
 
