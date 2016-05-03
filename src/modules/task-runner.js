@@ -19,7 +19,7 @@ class TaskRunner {
     if(!command.cmd) throw new Error('Command not defined')
     const parsedCommand = this.expandTokens(command.cmd).split(" ");
     const parsedEnv = this.resolveKeyValuePairs(command.environment);
-    const spawnOptions = this.buildSpawnOptions(parsedEnv)
+    const spawnOptions = this.buildSpawnOptions(command, parsedEnv)
 
     logger.info(`Executing command : ${parsedCommand.join(" ")}`);
 
@@ -52,8 +52,16 @@ class TaskRunner {
     return hashed;
   }
 
-  buildSpawnOptions(env) {
-    return !_.isEmpty(env) ? { env: _.merge(env, process.env), stdio: 'inherit' } : { stdio: 'inherit' };
+  buildSpawnOptions(command, env) {
+    const stdio = command.register ? "pipe" : "inherit";
+    let opts = {
+      stdio: stdio
+    };
+
+    if(!_.isEmpty(env)) {
+      opts.env = _.merge(env, process.env);
+    }
+    return opts;
   }
 };
 
