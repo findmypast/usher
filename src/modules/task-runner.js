@@ -52,16 +52,13 @@ class TaskRunner {
     return hashed;
   }
 
-  buildSpawnOptions(command, env) {
+  buildSpawnOptions(command, envOptions) {
     const stdio = command.register ? "pipe" : "inherit";
-    let opts = {
-      stdio: stdio
+    const env = _.isEmpty(envOptions) ? process.env : _.merge(envOptions, process.env);
+    return {
+      stdio: stdio,
+      env: env
     };
-
-    if(!_.isEmpty(env)) {
-      opts.env = _.merge(env, process.env);
-    }
-    return opts;
   }
 };
 
