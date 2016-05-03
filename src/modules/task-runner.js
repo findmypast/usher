@@ -14,7 +14,10 @@ class TaskRunner {
   }
 
   execute() {
-    _.forEach(this.task, command => this.runCommand(command));
+    _.forEach(this.task, command => {
+      this.attempts = 0;
+      return this.runCommand(command);
+    });
   }
 
   runCommand(command) {
