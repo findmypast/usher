@@ -25,8 +25,10 @@ class TaskRunner {
 
     const result = spawnSync(parsedCommand[0], _.tail(parsedCommand), spawnOptions);
 
-    if (command.register) {
-      this.vars[command.register] = result.stdout;
+    if (command.register && result.stdout) {
+      const out = result.stdout.toString().trim();
+      logger.info(`Saved ${out} to ${command.register}`);
+      this.vars[command.register] = out;
     }
 
     if(this.shouldExecutionContinue(result, command)) {
