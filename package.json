@@ -1,6 +1,6 @@
 {
   "name": "usher-cli",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "A command line app to usher other command line applications",
   "bin": {
     "usher": "./src/cli.js"
@@ -9,7 +9,8 @@
     "test": "mocha --reporter nyan --recursive",
     "test:ci": "mocha --reporter mocha-teamcity-reporter --recursive",
     "prepublish-to-npm": "supersoaker squirt -r https://registry.npmjs.org",
-    "publish-to-npm": "publish"
+    "publish-to-npm": "publish",
+    "usher-test": "node src/cli.js"
   },
   "repository": {
     "type": "git",
