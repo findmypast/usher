@@ -26,7 +26,7 @@ class TaskRunner {
     const parsedEnv = this.resolveKeyValuePairs(command.environment);
     const spawnOptions = this.buildSpawnOptions(command, parsedEnv)
 
-    logger.info(`Executing command : ${parsedCommand.join(" ")}`);
+    logger.info(`Executing command : ${parsedCommand.join(" ")}  \n Env : ${parsedEnv}`);
 
     this.attempts++;
     const result = spawnSync(parsedCommand[0], _.tail(parsedCommand), spawnOptions);
