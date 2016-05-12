@@ -20,13 +20,23 @@ class TaskRunner {
     });
   }
 
+  logCommand(parsedCommand, parsedEnv) {
+    const command = parsedCommand.join(" ")
+    const env = _.toPairs(parsedEnv)
+      .map(x => `\n -${x[0]}=${x[1]}`)
+      .join("")
+    logger.info(`
+      Executing command : ${command}
+      Environment variables: ${env}`);
+  }
+
   runCommand(command) {
     if(!command.cmd) throw new Error('Command not defined')
     const parsedCommand = this.expandTokens(command.cmd).split(" ");
     const parsedEnv = this.resolveKeyValuePairs(command.environment);
     const spawnOptions = this.buildSpawnOptions(command, parsedEnv)
 
-    logger.info(`Executing command : ${parsedCommand.join(" ")}  \n Env : ${parsedEnv}`);
+    this.logCommand(parsedCommand, parsedEnv)
 
     this.attempts++;
     const result = spawnSync(parsedCommand[0], _.tail(parsedCommand), spawnOptions);
