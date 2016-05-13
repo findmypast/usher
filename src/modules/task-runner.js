@@ -7,7 +7,7 @@ const getOptionalSleep = () => {
   try {
     return require('sleep');
   } catch (error) {
-    return null;
+    return { usleep: () => {} };
   };
 };
 
@@ -59,11 +59,9 @@ class TaskRunner {
     if(this.shouldExecutionContinue(result, command)) {
       return true;
     }
-    if(this.shouldCommandRetry(command)) {
-      if (sleep) {
-        sleep.usleep(command.retry.delay * 1000000);
-      }
 
+    if (this.shouldCommandRetry(command)) {
+      sleep.usleep(command.retry.delay * 1000000);
       return this.runCommand(command);
     }
 
