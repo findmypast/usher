@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const logger = require('winston');
-const sleep = require('sleep');
+const snuze = require('snuze');
 
 let spawnSync = require('npm-run').spawnSync;
 
@@ -51,7 +51,7 @@ class TaskRunner {
       return true;
     }
     if(this.shouldCommandRetry(command)) {
-      sleep.usleep(command.retry.delay * 1000000);
+      snuze.snooze(command.retry.delay_ms);
       return this.runCommand(command);
     }
     throw result.error;
