@@ -50,10 +50,17 @@ class TaskRunner {
     if(this.shouldExecutionContinue(result, command)) {
       return true;
     }
+<<<<<<< HEAD
     if(this.shouldCommandRetry(command)) {
       snuze.snooze(command.retry.delay_ms);
+=======
+
+    if (this.shouldCommandRetry(command)) {
+      sleep.usleep(command.retry.delay * 1000000);
+>>>>>>> master
       return this.runCommand(command);
     }
+
     throw result.error;
   }
 

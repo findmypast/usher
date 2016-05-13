@@ -27,9 +27,11 @@
     "js-yaml": "^3.5.5",
     "lodash": "^4.6.1",
     "npm-run": "^3.0.0",
-    "sleep": "^3.0.1",
     "snuze": "^1.0.0",
     "winston": "^2.2.0"
+  },
+  "optionalDependencies": {
+    "sleep": "^3.0.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",
