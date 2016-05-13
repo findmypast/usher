@@ -30,9 +30,6 @@
     "snuze": "^1.0.0",
     "winston": "^2.2.0"
   },
-  "optionalDependencies": {
-    "sleep": "^3.0.1"
-  },
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^2.4.5",
