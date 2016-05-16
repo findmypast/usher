@@ -2,16 +2,7 @@
 
 const _ = require('lodash');
 const logger = require('winston');
-
-const getOptionalSleep = () => {
-  try {
-    return require('sleep');
-  } catch (error) {
-    return { usleep: () => {} };
-  };
-};
-
-const sleep = getOptionalSleep();
+const snuze = require('snuze');
 
 let spawnSync = require('npm-run').spawnSync;
 
@@ -60,8 +51,8 @@ class TaskRunner {
       return true;
     }
 
-    if (this.shouldCommandRetry(command)) {
-      sleep.usleep(command.retry.delay * 1000000);
+    if(this.shouldCommandRetry(command)) {
+      snuze.snooze(this.delayInMilliseconds(command.retry.delay));
       return this.runCommand(command);
     }
 
@@ -96,6 +87,10 @@ class TaskRunner {
       stdio: stdio,
       env: env
     };
+  }
+
+  delayInMilliseconds(delay) {
+    return delay * 1000;
   }
 };
 
