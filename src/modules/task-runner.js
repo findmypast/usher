@@ -35,6 +35,7 @@ class TaskRunner {
   }
 
   runTask(command) {
+    logger.info(`Executing task : ${command.task} with vars ${JSON.stringify(command.vars)}`)
     return run(command.task, command.vars, this.opts);
   }
 
