@@ -1,6 +1,6 @@
 {
   "name": "usher-cli",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "description": "A command line app to usher other command line applications",
   "bin": {
     "usher": "./src/cli.js"
@@ -27,10 +27,8 @@
     "js-yaml": "^3.5.5",
     "lodash": "^4.6.1",
     "npm-run": "^3.0.0",
+    "snuze": "^1.0.0",
     "winston": "^2.2.0"
-  },
-  "optionalDependencies": {
-    "sleep": "^3.0.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",
