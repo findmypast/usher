@@ -35,4 +35,4 @@ tasks:
     - cmd: echo test_retry
       retry:
         attempts: 2
-        delay_ms: 500
+        delay: 0.1
