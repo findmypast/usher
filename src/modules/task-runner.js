@@ -52,7 +52,7 @@ class TaskRunner {
     }
 
     if(this.shouldCommandRetry(command)) {
-      snuze.snooze(command.retry.delay * 1000);
+      snuze.snooze(this.delayInMilliseconds(command.retry.delay));
       return this.runCommand(command);
     }
 
@@ -87,6 +87,10 @@ class TaskRunner {
       stdio: stdio,
       env: env
     };
+  }
+
+  delayInMilliseconds(delay) {
+    return delay * 1000;
   }
 };
 
