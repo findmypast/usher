@@ -3,20 +3,24 @@
 const _ = require('lodash');
 const logger = require('winston');
 const snuze = require('snuze');
+let run = require('../run');
 
 let spawnSync = require('npm-run').spawnSync;
 
 class TaskRunner {
-  constructor(task, vars) {
+  constructor(task, vars, opts) {
     this.task = task;
     this.vars = vars;
+    this.opts = opts;
     this.attempts = 0;
   }
 
   execute() {
     _.forEach(this.task, command => {
       this.attempts = 0;
-      return this.runCommand(command);
+      if(command.cmd) return this.runCommand(command);
+      else if(command.task) return this.runTask(command);
+      else throw new Error('Task step contains no valid command');
     });
   }
 
@@ -30,8 +34,11 @@ class TaskRunner {
       Environment variables: ${env}`);
   }
 
+  runTask(command) {
+    return run(command.task, command.vars, this.opts);
+  }
+
   runCommand(command) {
-    if(!command.cmd) throw new Error('Command not defined')
     const parsedCommand = this.expandTokens(command.cmd).split(" ");
     const parsedEnv = this.resolveKeyValuePairs(command.environment);
     const spawnOptions = this.buildSpawnOptions(command, parsedEnv)

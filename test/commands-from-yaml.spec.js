@@ -94,6 +94,10 @@ describe('Given a YAML file run command execution', () => {
     TaskRunner: taskRunner
   });
 
+  taskRunner.__set__({
+    run: run
+  });
+
   beforeEach(() => {
     spawnSyncStub.reset();
     spawnSyncStub.returns({
