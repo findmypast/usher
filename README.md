@@ -18,13 +18,6 @@ to be run by inputting `usher run <preset-name>` on the command line.
 
 If you'd rather not install globally, Usher's runtime is in `src/cli.js`, and `node <path-to-cli.js>` can replace `usher` in all examples.
 
-#### Set up
-To generate a generic usher configuration for your project, run:
-```
-usher init
-```
-This will prompt for data regarding the containers and their configuration required for the project. An `.usher.yml` file will be created in your project.
-
 #### Usage
 
 ```
