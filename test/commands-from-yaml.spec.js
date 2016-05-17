@@ -74,6 +74,14 @@ describe('Given a YAML file run command execution', () => {
         executable: 'docker',
         args: 'build --force-rm -t docker-registry.dun.fh/findmypast/usher:latest .'.split(' '),
       }]
+    },
+    {
+      key: 'run_task',
+      cmdArgs: [],
+      expected: [{
+          executable: 'docker',
+          args: 'build --force-rm -t docker-registry.dun.fh/findmypast/usher:task .'.split(' '),
+      }]
     }
   ];
 
@@ -84,6 +92,10 @@ describe('Given a YAML file run command execution', () => {
 
   run.__set__({
     TaskRunner: taskRunner
+  });
+
+  taskRunner.__set__({
+    run: run
   });
 
   beforeEach(() => {

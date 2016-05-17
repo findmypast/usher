@@ -18,13 +18,6 @@ to be run by inputting `usher run <preset-name>` on the command line.
 
 If you'd rather not install globally, Usher's runtime is in `src/cli.js`, and `node <path-to-cli.js>` can replace `usher` in all examples.
 
-#### Set up
-To generate a generic usher configuration for your project, run:
-```
-usher init
-```
-This will prompt for data regarding the containers and their configuration required for the project. An `.usher.yml` file will be created in your project.
-
 #### Usage
 
 ```
@@ -62,6 +55,29 @@ tasks:
 ---
 
 $ usher run build version=v1.0.0
+```
+
+You can also run tasks as commands, and pass the subtask its own array of
+variables:
+
+```
+  preset:
+    - cmd: command name
+      option: value
+    - task: other_preset
+      vars:
+        variable_name: value
+```
+
+Commands can save their result (everything in the command's `stdout`) to a
+variable for use by following commands in the same task using the `register`
+option.
+
+```
+  preset:
+    - cmd: docker ps -q
+      register: containers
+    - cmd: docker rm <%=containers%>
 ```
 
 ##### Ignoring error codes

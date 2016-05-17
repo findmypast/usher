@@ -3,40 +3,55 @@
 const _ = require('lodash');
 const logger = require('winston');
 const snuze = require('snuze');
+let run = require('../run');
 
 let spawnSync = require('npm-run').spawnSync;
 
 class TaskRunner {
-  constructor(task, vars) {
+  constructor(task, vars, opts) {
     this.task = task;
     this.vars = vars;
+    this.opts = opts;
     this.attempts = 0;
   }
 
   execute() {
     _.forEach(this.task, command => {
       this.attempts = 0;
-      return this.runCommand(command);
+
+      if (command.cmd) {
+        return this.runCommand(command);
+      }
+      else if (command.task) {
+        return this.runTask(command);
+      }
+      else {
+        throw new Error('Task step contains no valid command');
+      }
     });
   }
 
   logCommand(parsedCommand, parsedEnv) {
-    const command = parsedCommand.join(" ")
+    const command = parsedCommand.join(' ');
     const env = _.toPairs(parsedEnv)
       .map(x => `\n -${x[0]}=${x[1]}`)
-      .join("")
+      .join('');
     logger.info(`
       Executing command : ${command}
       Environment variables: ${env}`);
   }
 
-  runCommand(command) {
-    if(!command.cmd) throw new Error('Command not defined')
-    const parsedCommand = this.expandTokens(command.cmd).split(" ");
-    const parsedEnv = this.resolveKeyValuePairs(command.environment);
-    const spawnOptions = this.buildSpawnOptions(command, parsedEnv)
+  runTask(command) {
+    logger.info(`Executing task : ${command.task} with vars ${JSON.stringify(command.vars)}`);
+    return run(command.task, command.vars, this.opts);
+  }
 
-    this.logCommand(parsedCommand, parsedEnv)
+  runCommand(command) {
+    const parsedCommand = this.expandTokens(command.cmd).split(' ');
+    const parsedEnv = this.resolveKeyValuePairs(command.environment);
+    const spawnOptions = this.buildSpawnOptions(command, parsedEnv);
+
+    this.logCommand(parsedCommand, parsedEnv);
 
     this.attempts++;
     const result = spawnSync(parsedCommand[0], _.tail(parsedCommand), spawnOptions);
@@ -47,11 +62,11 @@ class TaskRunner {
       this.vars[command.register] = out;
     }
 
-    if(this.shouldExecutionContinue(result, command)) {
+    if (this.shouldExecutionContinue(result, command)) {
       return true;
     }
 
-    if(this.shouldCommandRetry(command)) {
+    if (this.shouldCommandRetry(command)) {
       snuze.snooze(this.delayInMilliseconds(command.retry.delay));
       return this.runCommand(command);
     }
@@ -81,7 +96,7 @@ class TaskRunner {
   }
 
   buildSpawnOptions(command, envOptions) {
-    const stdio = command.register ? "pipe" : "inherit";
+    const stdio = command.register ? 'pipe' : 'inherit';
     const env = _.isEmpty(envOptions) ? process.env : _.merge(envOptions, process.env);
     return {
       stdio: stdio,
@@ -92,6 +107,6 @@ class TaskRunner {
   delayInMilliseconds(delay) {
     return delay * 1000;
   }
-};
+}
 
 module.exports = TaskRunner;
