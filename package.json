@@ -1,6 +1,6 @@
 {
   "name": "usher-cli",
-  "version": "0.8.5",
+  "version": "0.9.0",
   "description": "A command line app to usher other command line applications",
   "bin": {
     "usher": "./src/cli.js"
@@ -46,13 +46,22 @@
     "extends": "eslint",
     "env": {
       "node": true,
-      "es6" : true
+      "es6": true
     },
     "rules": {
-      "quotes": ["error", "single"],
-      "indent": ["error", 2],
+      "quotes": [
+        "error",
+        "single"
+      ],
+      "indent": [
+        "error",
+        2
+      ],
       "require-jsdoc": "off",
-      "brace-style": ["error", "stroustrup"]
+      "brace-style": [
+        "error",
+        "stroustrup"
+      ]
     }
   }
 }
