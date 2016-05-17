@@ -1,13 +1,14 @@
 #!/usr/bin/env node
+'use strict';
 
 const program = require('commander');
-const version = require('./../package.json').version
+const version = require('./../package.json').version;
 const run = require('./run');
 const logger = require('winston');
-logger.cli()
+logger.cli();
 
 program
-  .version(version)
+  .version(version);
 
 program
   .command('run <preset> [args...]')
