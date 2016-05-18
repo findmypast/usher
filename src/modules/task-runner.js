@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const logger = require('winston');
 const snuze = require('snuze');
-let run = require('../run');
+const getTaskConfig = require('./get-task-config');
 
 let spawnSync = require('npm-run').spawnSync;
 
@@ -43,7 +43,11 @@ class TaskRunner {
 
   runTask(command) {
     logger.info(`Executing task : ${command.task} with vars ${JSON.stringify(command.vars)}`);
-    return run(command.task, command.vars, this.opts);
+
+    const taskConfig = getTaskConfig(command.task, command.vars, this.opts);
+    const taskRunner = new TaskRunner(taskConfig.task, taskConfig.vars, this.opts);
+
+    return taskRunner.execute();
   }
 
   runCommand(command) {
