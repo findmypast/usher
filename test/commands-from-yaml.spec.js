@@ -79,10 +79,10 @@ describe('Given a YAML file run command execution', () => {
     },
     {
       key: 'run_task',
-      cmdArgs: [],
+      cmdArgs: ['version=latest'],
       expected: [{
         executable: 'docker',
-        args: 'build --force-rm -t docker-registry.dun.fh/findmypast/usher:task .'.split(' ')
+        args: 'build --force-rm -t docker-registry.dun.fh/task:latest .'.split(' ')
       }]
     }
   ];

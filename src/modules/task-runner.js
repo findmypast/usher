@@ -44,7 +44,8 @@ class TaskRunner {
   runTask(command) {
     logger.info(`Executing task : ${command.task} with vars ${JSON.stringify(command.vars)}`);
 
-    const taskConfig = getTaskConfig(command.task, command.vars, this.opts);
+    const taskVars = _.merge(this.vars, command.vars);
+    const taskConfig = getTaskConfig(command.task, taskVars, this.opts);
     const taskRunner = new TaskRunner(taskConfig.task, taskConfig.vars, this.opts);
 
     return taskRunner.execute();

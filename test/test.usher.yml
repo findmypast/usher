@@ -41,4 +41,4 @@ tasks:
   run_task:
     - task: build
       vars:
-        version: task
+        image: task
