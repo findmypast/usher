@@ -36,9 +36,8 @@ class TaskRunner {
     const env = _.toPairs(parsedEnv)
       .map(x => `\n -${x[0]}=${x[1]}`)
       .join('');
-    logger.info(`
-      Executing command : ${command}
-      Environment variables: ${env}`);
+    logger.info(`Executing command : ${command}`);
+    logger.verbose(`Environment variables: ${env}`);
   }
 
   runTask(command) {
