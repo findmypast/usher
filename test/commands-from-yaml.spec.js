@@ -47,7 +47,7 @@ describe('Given a YAML file run command execution', () => {
             NPM_PASSWORD: 'password',
             NPM_EMAIL: 'ncrawford@findmypast.com'
           }, process.env),
-          stdio: 'inherit'
+          stdio: [process.stdin, process.stdout, process.stderr]
         }
       }]
     },
