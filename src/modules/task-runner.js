@@ -101,10 +101,10 @@ class TaskRunner {
   }
 
   buildSpawnOptions(command, envOptions) {
-    const stdio = command.register ? 'pipe' : 'inherit';
+    const stdout = command.register ? 'pipe' : process.stdout;
     const env = _.isEmpty(envOptions) ? process.env : _.merge(envOptions, process.env);
     return {
-      stdio: stdio,
+      stdio: [process.stdin, stdout, process.stderr],
       env: env
     };
   }
