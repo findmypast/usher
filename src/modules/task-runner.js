@@ -16,6 +16,7 @@ class TaskRunner {
   }
 
   execute() {
+    logger.verbose('Starting task');
     _.forEach(this.task, command => {
       this.attempts = 0;
 
@@ -29,11 +30,12 @@ class TaskRunner {
         throw new Error('Task step contains no valid command');
       }
     });
+    logger.verbose('Task completed successfully');
   }
 
-  logCommand(parsedCommand, parsedEnv) {
+  logCommand(parsedCommand, spawnOptions) {
     const command = parsedCommand.join(' ');
-    const env = _.toPairs(parsedEnv)
+    const env = _.toPairs(spawnOptions.env)
       .map(x => `\n -${x[0]}=${x[1]}`)
       .join('');
     logger.info(`Executing command : ${command}`);
@@ -55,7 +57,7 @@ class TaskRunner {
     const parsedEnv = this.resolveKeyValuePairs(command.environment);
     const spawnOptions = this.buildSpawnOptions(command, parsedEnv);
 
-    this.logCommand(parsedCommand, parsedEnv);
+    this.logCommand(parsedCommand, spawnOptions);
 
     this.attempts++;
     const result = spawnSync(parsedCommand[0], _.tail(parsedCommand), spawnOptions);
@@ -75,7 +77,8 @@ class TaskRunner {
       return this.runCommand(command);
     }
 
-    throw result.error;
+    logger.error('Command exited with non-zero exit status. Aborting.');
+    throw new Error(`Error in ${command.cmd}`);
   }
 
   shouldExecutionContinue(result, command) {
@@ -87,6 +90,7 @@ class TaskRunner {
   }
 
   expandTokens(command) {
+    logger.verbose('Interpolating ERB tokens');
     const template = _.template(command);
 
     return template(this.vars);
@@ -100,7 +104,7 @@ class TaskRunner {
   }
 
   buildSpawnOptions(command, envOptions) {
-    const stdout = command.register ? 'pipe' : process.stdout;
+    const stdout = command.register || this.opts.quiet ? 'pipe' : process.stdout;
     const env = _.isEmpty(envOptions) ? process.env : _.merge(envOptions, process.env);
     return {
       stdio: [process.stdin, stdout, process.stderr],
