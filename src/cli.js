@@ -16,4 +16,8 @@ program
   .option('-q, --quiet', 'Disable stdout logging (will still log errors)')
   .action(run);
 
+if (process.argv.length <= 2) {
+  program.help();
+}
+
 program.parse(process.argv);
