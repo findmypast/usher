@@ -129,7 +129,7 @@ describe('Given a YAML file run command execution', () => {
     const test = _.find(tests, {key: 'build_seq'});
     const expected = test.expected[0];
 
-    expect(() => run(test.key, test.cmdArgs, {filepath: filename})).to.throw('Error in docker rm -f <%=image%>-local');
+    expect(() => run(test.key, test.cmdArgs, {filepath: filename})).to.throw();
     expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args);
     expect(spawnSyncStub).to.have.been.calledOnce;
   });
