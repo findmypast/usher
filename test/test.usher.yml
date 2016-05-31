@@ -41,4 +41,14 @@ tasks:
   run_task:
     - task: build
       vars:
-        image: task
+        image: some_image
+
+  nested_run_task:
+    - task: build
+      vars:
+        image: <%=image%>
+
+  run_task_using_a_task:
+    - task: nested_run_task
+      vars:
+        image: some_image
