@@ -43,9 +43,10 @@ class TaskRunner {
   }
 
   runTask(command) {
-    logger.info(`Executing task : ${command.task} with vars ${JSON.stringify(command.vars)}`);
+    const cmdVars = _.mapValues(command.vars, this.expandTokens.bind(this));
+    const taskVars = _.merge(this.vars, cmdVars);
+    logger.info(`Executing task : ${command.task} with vars ${JSON.stringify(taskVars)}`);
 
-    const taskVars = _.merge(this.vars, command.vars);
     const taskConfig = getTaskConfig(command.task, taskVars, this.opts);
     const taskRunner = new TaskRunner(taskConfig.task, taskConfig.vars, this.opts);
 
@@ -89,9 +90,9 @@ class TaskRunner {
     return command.retry && this.attempts < command.retry.attempts;
   }
 
-  expandTokens(command) {
+  expandTokens(str) {
     logger.verbose('Interpolating ERB tokens');
-    const template = _.template(command);
+    const template = _.template(str);
 
     return template(this.vars);
   }
