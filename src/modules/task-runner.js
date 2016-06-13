@@ -25,7 +25,8 @@ class TaskRunner {
       }
       else if (command.task) {
         if (command.for_all) {
-          return _.map(command.for_all, (x) => this.runTask(command.task, x));
+          const vars = command.vars || {};
+          return _.map(command.for_all, (x) => this.runTask(command.task, _.merge(vars, x)));
         }
         else {
           return this.runTask(command.task, command.vars);

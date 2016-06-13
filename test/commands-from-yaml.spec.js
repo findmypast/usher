@@ -100,6 +100,20 @@ describe('Given a YAML file run command execution', () => {
       ]
     },
     {
+      key: 'run_many_tasks_with_vars',
+      cmdArgs: [],
+      expected: [
+        {
+          executable: 'docker',
+          args: 'build --force-rm -t docker-registry.dun.fh/image01:latest .'.split(' ')
+        },
+        {
+          executable: 'docker',
+          args: 'build --force-rm -t docker-registry.dun.fh/image01:latest .'.split(' ')
+        }
+      ]
+    },
+    {
       key: 'run_task_using_a_task',
       cmdArgs: ['version=latest'],
       expected: [{

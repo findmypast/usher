@@ -49,6 +49,14 @@ tasks:
         - image: image01
         - image: image02
 
+  run_many_tasks_with_vars:
+    - task: build
+      vars:
+        version: latest
+      for_all:
+        - image: image01
+        - image: image02
+
   nested_run_task:
     - task: build
       vars:
