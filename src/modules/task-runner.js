@@ -3,40 +3,68 @@
 const _ = require('lodash');
 const logger = require('winston');
 const snuze = require('snuze');
+const getTaskConfig = require('./get-task-config');
 
 let spawnSync = require('npm-run').spawnSync;
 
 class TaskRunner {
-  constructor(task, vars) {
+  constructor(task, vars, opts) {
     this.task = task;
     this.vars = vars;
+    this.opts = opts;
     this.attempts = 0;
   }
 
   execute() {
+    logger.verbose('Starting task');
     _.forEach(this.task, command => {
       this.attempts = 0;
-      return this.runCommand(command);
+
+      if (command.cmd) {
+        return this.runCommand(command);
+      }
+      else if (command.task) {
+        if (command.for_all) {
+          const vars = command.vars || {};
+          return _.map(command.for_all, (x) => this.runTask(command.task, _.merge(vars, x)));
+        }
+        else {
+          return this.runTask(command.task, command.vars);
+        }
+      }
+      else {
+        throw new Error('Task step contains no valid command');
+      }
     });
+    logger.verbose('Task completed successfully');
   }
 
-  logCommand(parsedCommand, parsedEnv) {
-    const command = parsedCommand.join(" ")
-    const env = _.toPairs(parsedEnv)
+  logCommand(parsedCommand, spawnOptions) {
+    const command = parsedCommand.join(' ');
+    const env = _.toPairs(spawnOptions.env)
       .map(x => `\n -${x[0]}=${x[1]}`)
-      .join("")
-    logger.info(`
-      Executing command : ${command}
-      Environment variables: ${env}`);
+      .join('');
+    logger.info(`Executing command : ${command}`);
+    logger.verbose(`Environment variables: ${env}`);
+  }
+
+  runTask(task, vars) {
+    const cmdVars = _.mapValues(vars, this.expandTokens.bind(this));
+    const taskVars = _.merge(this.vars, cmdVars);
+    logger.info(`Executing task : ${task} with vars ${JSON.stringify(taskVars)}`);
+
+    const taskConfig = getTaskConfig(task, taskVars, this.opts);
+    const taskRunner = new TaskRunner(taskConfig.task, taskConfig.vars, this.opts);
+
+    return taskRunner.execute();
   }
 
   runCommand(command) {
-    if(!command.cmd) throw new Error('Command not defined')
-    const parsedCommand = this.expandTokens(command.cmd).split(" ");
+    const parsedCommand = this.expandTokens(command.cmd).split(' ');
     const parsedEnv = this.resolveKeyValuePairs(command.environment);
-    const spawnOptions = this.buildSpawnOptions(command, parsedEnv)
+    const spawnOptions = this.buildSpawnOptions(command, parsedEnv);
 
-    this.logCommand(parsedCommand, parsedEnv)
+    this.logCommand(parsedCommand, spawnOptions);
 
     this.attempts++;
     const result = spawnSync(parsedCommand[0], _.tail(parsedCommand), spawnOptions);
@@ -47,16 +75,17 @@ class TaskRunner {
       this.vars[command.register] = out;
     }
 
-    if(this.shouldExecutionContinue(result, command)) {
+    if (this.shouldExecutionContinue(result, command)) {
       return true;
     }
 
-    if(this.shouldCommandRetry(command)) {
+    if (this.shouldCommandRetry(command)) {
       snuze.snooze(this.delayInMilliseconds(command.retry.delay));
       return this.runCommand(command);
     }
 
-    throw result.error;
+    logger.error('Command exited with non-zero exit status. Aborting.');
+    throw new Error(`Error in ${command.cmd}`);
   }
 
   shouldExecutionContinue(result, command) {
@@ -67,8 +96,9 @@ class TaskRunner {
     return command.retry && this.attempts < command.retry.attempts;
   }
 
-  expandTokens(command) {
-    const template = _.template(command);
+  expandTokens(str) {
+    logger.verbose('Interpolating ERB tokens');
+    const template = _.template(str);
 
     return template(this.vars);
   }
@@ -81,10 +111,10 @@ class TaskRunner {
   }
 
   buildSpawnOptions(command, envOptions) {
-    const stdio = command.register ? "pipe" : "inherit";
+    const stdout = command.register || this.opts.quiet ? 'pipe' : process.stdout;
     const env = _.isEmpty(envOptions) ? process.env : _.merge(envOptions, process.env);
     return {
-      stdio: stdio,
+      stdio: [process.stdin, stdout, process.stderr],
       env: env
     };
   }
@@ -92,6 +122,6 @@ class TaskRunner {
   delayInMilliseconds(delay) {
     return delay * 1000;
   }
-};
+}
 
 module.exports = TaskRunner;

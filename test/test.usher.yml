@@ -31,8 +31,38 @@ tasks:
     - cmd: twoface -H <%=host%> -b <%=blue_tag%> -g <%=green_tag%> peek
       register: deploy_target
     - cmd: docker -H <%=host%> run --name <%=deploy_target%> --rm <%=registry%>/<%=image%>:<%=version%>
+
   retry:
     - cmd: echo test_retry
       retry:
         attempts: 2
         delay: 0.1
+
+  run_task:
+    - task: build
+      vars:
+        image: some_image
+
+  run_many_tasks:
+    - task: build
+      for_all:
+        - image: image01
+        - image: image02
+
+  run_many_tasks_with_vars:
+    - task: build
+      vars:
+        version: latest
+      for_all:
+        - image: image01
+        - image: image02
+
+  nested_run_task:
+    - task: build
+      vars:
+        image: <%=image%>
+
+  run_task_using_a_task:
+    - task: nested_run_task
+      vars:
+        image: some_image
