@@ -43,6 +43,12 @@ tasks:
       vars:
         image: some_image
 
+  run_many_tasks:
+    - task: build
+      for_all:
+        - image: image01
+        - image: image02
+
   nested_run_task:
     - task: build
       vars:

@@ -24,7 +24,12 @@ class TaskRunner {
         return this.runCommand(command);
       }
       else if (command.task) {
-        return this.runTask(command);
+        if (command.for_all) {
+          return _.map(command.for_all, (x) => this.runTask(command.task, x));
+        }
+        else {
+          return this.runTask(command.task, command.vars);
+        }
       }
       else {
         throw new Error('Task step contains no valid command');
@@ -42,12 +47,12 @@ class TaskRunner {
     logger.verbose(`Environment variables: ${env}`);
   }
 
-  runTask(command) {
-    const cmdVars = _.mapValues(command.vars, this.expandTokens.bind(this));
+  runTask(task, vars) {
+    const cmdVars = _.mapValues(vars, this.expandTokens.bind(this));
     const taskVars = _.merge(this.vars, cmdVars);
-    logger.info(`Executing task : ${command.task} with vars ${JSON.stringify(taskVars)}`);
+    logger.info(`Executing task : ${task} with vars ${JSON.stringify(taskVars)}`);
 
-    const taskConfig = getTaskConfig(command.task, taskVars, this.opts);
+    const taskConfig = getTaskConfig(task, taskVars, this.opts);
     const taskRunner = new TaskRunner(taskConfig.task, taskConfig.vars, this.opts);
 
     return taskRunner.execute();
