@@ -8,6 +8,8 @@ const sinonChai = require('sinon-chai');
 const rewire = require('rewire');
 const _ = require('lodash');
 
+const filename = 'test/test.usher.yml';
+
 const expect = chai.expect;
 chai.use(sinonChai);
 
@@ -20,17 +22,37 @@ list.__set__({
   logger: logger
 });
 
-describe('Given a YAML file list command execution', () => {
-  let filename = 'test/test.usher.yml';
-  let tests = [{
-    key: 'build',
-    expected: 'builds the docker container'
-  }];
+const descriptions = {
+  build: 'builds the docker container',
+  publish: '',
+  build_seq: 'kills the running container then builds the docker container'
+};
 
-  _.forEach(tests, (test) =>{
-    list(test.key, { filepath: filename });
-    it('Should print each tasks description', () => {
-      expect(logger.info).to.have.been.calledWith(test.expected);
+describe('Given a YAML file, and a task with a description', () => {
+  let key = 'build';
+  let expected = descriptions.build;
+
+  list.listTask(key, { filepath: filename });
+  it('Should print the tasks description', () => {
+    expect(logger.info).to.have.been.calledWith(expected);
+  });
+});
+
+describe('Given a YAML file, and a task without a description', () => {
+  let key = 'publish';
+  let expected = '';
+
+  list.listTask(key, { filepath: filename });
+  it('Should print an empty string', () => {
+    expect(logger.info).to.have.been.calledWith(expected);
+  });
+});
+
+describe('Given a YAML file, and listing all commands', () => {
+  list.listAll({ filepath: filename });
+  it('Should print an empty string', () => {
+    _.forOwn(descriptions, (value, key) => {
+      expect(logger.info).to.have.been.calledWith(`${key}: ${value}`);
     });
   });
 });

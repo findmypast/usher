@@ -19,6 +19,7 @@ tasks:
         - NPM_EMAIL=<%=email%>
 
   build_seq:
+    - description: kills the running container then builds the docker container
     - cmd: docker rm -f <%=image%>-local
     - cmd: docker build --force-rm -t <%=registry%>/<%=image%>:<%=version%> .
 
