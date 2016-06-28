@@ -30,11 +30,30 @@ const descriptions = {
 };
 
 describe('Given a YAML file, and a task with a description', () => {
-  let key = 'build';
-  let expected = descriptions.build;
 
-  list(key, { filepath: filename });
-  it('Should print the tasks description', () => {
+  it('Should print the tasks first description', () => {
+    let key = 'build';
+    let expected = descriptions.build;
+
+    list(key, {
+      filepath: filename
+    });
+
+    expect(logger.info).to.have.been.calledWith(expected);
+  });
+
+  it('Should print the tasks sub-description', () => {
+    let key = 'build_seq';
+    let expected = [
+      'kills the running container then builds the docker container',
+      'remove container',
+      'build container'
+    ];
+
+    list(key, {
+      filepath: filename
+    });
+
     expect(logger.info).to.have.been.calledWith(expected);
   });
 });
@@ -43,14 +62,18 @@ describe('Given a YAML file, and a task without a description', () => {
   let key = 'publish';
   let expected = '';
 
-  list(key, { filepath: filename });
+  list(key, {
+    filepath: filename
+  });
   it('Should print an empty string', () => {
     expect(logger.info).to.have.been.calledWith(expected);
   });
 });
 
 describe('Given a YAML file, and listing all commands', () => {
-  list(undefined, { filepath: filename });
+  list(undefined, {
+    filepath: filename
+  });
 
   it('Should print the first description of each task', () => {
     _.forOwn(descriptions, (value, key) => {

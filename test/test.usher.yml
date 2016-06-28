@@ -21,7 +21,9 @@ tasks:
   build_seq:
     - description: kills the running container then builds the docker container
     - cmd: docker rm -f <%=image%>-local
+      description: remove container
     - cmd: docker build --force-rm -t <%=registry%>/<%=image%>:<%=version%> .
+      description: build container
 
   build_seq_ignore_errors:
     - cmd: docker rm -f <%=image%>-local
