@@ -32,7 +32,7 @@ describe('Given a YAML file, and a task with a description', () => {
   let key = 'build';
   let expected = descriptions.build;
 
-  list.listTask(key, { filepath: filename });
+  list(key, { filepath: filename });
   it('Should print the tasks description', () => {
     expect(logger.info).to.have.been.calledWith(expected);
   });
@@ -42,15 +42,16 @@ describe('Given a YAML file, and a task without a description', () => {
   let key = 'publish';
   let expected = '';
 
-  list.listTask(key, { filepath: filename });
+  list(key, { filepath: filename });
   it('Should print an empty string', () => {
     expect(logger.info).to.have.been.calledWith(expected);
   });
 });
 
 describe('Given a YAML file, and listing all commands', () => {
-  list.listAll({ filepath: filename });
-  it('Should print an empty string', () => {
+  list(undefined, { filepath: filename });
+
+  it('Should print the first description of each task', () => {
     _.forOwn(descriptions, (value, key) => {
       expect(logger.info).to.have.been.calledWith(`${key}: ${value}`);
     });
