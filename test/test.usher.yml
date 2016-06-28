@@ -8,6 +8,7 @@ vars:
 
 tasks:
   build:
+    - description: builds the docker container
     - cmd: docker build --force-rm -t <%=registry%>/<%=image%>:<%=version%> .
 
   publish:
