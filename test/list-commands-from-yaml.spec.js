@@ -44,7 +44,7 @@ describe('Given a YAML file, and a task with a description', () => {
 
   it('Should print the tasks sub-description', () => {
     let key = 'build_seq';
-    let expected = [
+    let expectedList = [
       'kills the running container then builds the docker container',
       'remove container',
       'build container'
@@ -54,7 +54,9 @@ describe('Given a YAML file, and a task with a description', () => {
       filepath: filename
     });
 
-    expect(logger.info).to.have.been.calledWith(expected);
+    _.forEach(expectedList, (expected) => {
+      expect(logger.info).to.have.been.calledWith(expected);
+    });
   });
 });
 

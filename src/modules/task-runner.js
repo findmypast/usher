@@ -17,7 +17,7 @@ class TaskRunner {
 
   execute() {
     logger.verbose('Starting task');
-    const tasks = _.filter(this.task, (t) => !t.description);
+    const tasks = _.filter(this.task, (t) => t.cmd || t.task);
 
     _.forEach(tasks, command => {
       this.attempts = 0;

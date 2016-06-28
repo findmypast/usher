@@ -23,7 +23,14 @@ function listTask(taskName, opts) {
   const taskConfig = getTaskConfig(taskName, {}, opts);
   const descriptionTask = _.find(taskConfig.task, (t) => t.description);
   const description = _.get(descriptionTask, 'description', '');
+
+  const stepDescriptions = _.map(taskConfig.task, (t) => t.description);
+  stepDescriptions.shift();
+
   logger.info(description);
+  _.forEach(stepDescriptions, (desc) => {
+    logger.info(desc);
+  });
 }
 
 module.exports = (taskName, opts) => {
