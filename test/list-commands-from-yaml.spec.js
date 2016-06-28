@@ -53,7 +53,7 @@ describe('Given a YAML file, and listing all commands', () => {
 
   it('Should print the first description of each task', () => {
     _.forOwn(descriptions, (value, key) => {
-      expect(logger.info).to.have.been.calledWith(`${key}: ${value}`);
+      expect(logger.info).to.have.been.calledWith(`${key} - ${value}`);
     });
   });
 });
