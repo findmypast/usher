@@ -4,15 +4,12 @@ vars:
 
 tasks:
   build:
-    - description: Build the container
     - cmd: docker build --force-rm -t <%=registry%>/<%=image%>:<%=version%> .
-      description: subdescription
 
   push:
     - cmd: docker push <%=registry%>/<%=image%>:<%=version%>
 
   test:
-    - description: Run unit tests
     - cmd: docker run --name usher-test-runner --rm <%=registry%>/<%=image%>:<%=version%> npm run test:ci
 
   publish:
