@@ -24,20 +24,22 @@ function listTask(taskName, opts) {
   const descriptionTask = _.find(taskConfig.task, (t) => t.description);
   const description = _.get(descriptionTask, 'description', '');
 
-  const stepDescriptions = _.map(taskConfig.task, (t) => t.description);
-  stepDescriptions.shift();
+  const stepDescriptions = _.filter(_.map(taskConfig.task, (t) => t.description), (description) => description);
 
-  logger.info(description);
+  if (_.isEqual(_.keys(descriptionTask), ['description'])) {
+    stepDescriptions.shift();
+    logger.info(`${chalk.bold(taskName)} - ${chalk.underline(description)}`);
+  }
+
   _.forEach(stepDescriptions, (desc) => {
-    logger.info(desc);
+    logger.info(`- ${desc}`);
   });
 }
 
 module.exports = (taskName, opts) => {
   if (!taskName) {
     listAll(opts);
-  }
-  else {
+  } else {
     listTask(taskName, opts);
   }
 };

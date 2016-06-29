@@ -39,7 +39,7 @@ describe('Given a YAML file, and a task with a description', () => {
       filepath: filename
     });
 
-    expect(logger.info).to.have.been.calledWith(expected);
+    expect(logger.info).to.have.been.calledWith(`${chalk.bold(key)} - ${chalk.underline(expected)}`);
   });
 
   it('Should print the tasks sub-description', () => {
@@ -54,8 +54,10 @@ describe('Given a YAML file, and a task with a description', () => {
       filepath: filename
     });
 
+    expect(logger.info).to.have.been.calledWith(`${chalk.bold(key)} - ${chalk.underline(expectedList[0])}`);
+    expectedList.shift();
     _.forEach(expectedList, (expected) => {
-      expect(logger.info).to.have.been.calledWith(expected);
+      expect(logger.info).to.have.been.calledWith(`- ${expected}`);
     });
   });
 });
@@ -67,8 +69,8 @@ describe('Given a YAML file, and a task without a description', () => {
   list(key, {
     filepath: filename
   });
-  it('Should print an empty string', () => {
-    expect(logger.info).to.have.been.calledWith(expected);
+  it('Should not print anything', () => {
+    expect(logger.info).not.to.have.been.calledWith(`${chalk.bold(key)} - ${chalk.underline(expected)}`);
   });
 });
 
