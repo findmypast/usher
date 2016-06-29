@@ -62,18 +62,6 @@ describe('Given a YAML file, and a task with a description', () => {
   });
 });
 
-describe('Given a YAML file, and a task without a description', () => {
-  let key = 'publish';
-  let expected = '';
-
-  list(key, {
-    file: filename
-  });
-  it('Should not print anything', () => {
-    expect(logger.info).not.to.have.been.calledWith(`${chalk.bold(key)} - ${chalk.underline(expected)}`);
-  });
-});
-
 describe('Given a YAML file, and listing all commands', () => {
   list(null, {
     file: filename
