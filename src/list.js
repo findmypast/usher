@@ -47,7 +47,8 @@ function listTask(taskName, opts) {
 module.exports = (taskName, opts) => {
   if (!taskName) {
     listAll(opts);
-  } else {
+  }
+  else {
     listTask(taskName, opts);
   }
 };

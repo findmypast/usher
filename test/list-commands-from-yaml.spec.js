@@ -75,7 +75,7 @@ describe('Given a YAML file, and a task without a description', () => {
 });
 
 describe('Given a YAML file, and listing all commands', () => {
-  list(undefined, {
+  list(null, {
     file: filename
   });
 
