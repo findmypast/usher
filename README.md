@@ -20,6 +20,14 @@ If you'd rather not install globally, Usher's runtime is in `src/cli.js`, and `n
 
 #### Usage
 
+To list presets:
+
+```
+$ usher list [-f config-file] [preset-name]
+```
+
+To run a preset:
+
 ```
 $ usher run [-f config-file] <preset-name> [templating-data]
 ```
@@ -106,4 +114,16 @@ publish:
       - NPM_USER=<%=user%>
       - NPM_PASSWORD=<%=password%>
       - NPM_EMAIL=<%=email%>
+```
+
+##### Descriptions
+
+It's possible to add descriptions to presets by adding a `description` key, for example:
+
+```
+preset:
+  - description: This is the over description of the preset
+  - cmd: rm -r node_modules
+    description: This is a sub-description which will be listed on the listing of the preset itself
+  - cmd: npm install
 ```
