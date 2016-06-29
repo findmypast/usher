@@ -62,7 +62,8 @@ class TaskRunner {
   }
 
   runCommand(command) {
-    const parsedCommand = this.expandTokens(command.cmd).split(' ');
+    const parsedCommand = _.map(command.cmd.split(' '), (param) =>
+      this.expandTokens(param));
     const parsedEnv = this.resolveKeyValuePairs(command.environment);
     const spawnOptions = this.buildSpawnOptions(command, parsedEnv);
 
