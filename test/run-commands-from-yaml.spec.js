@@ -140,7 +140,7 @@ describe('Given a YAML file run command execution', () => {
 
   tests.forEach( test =>
     it(`should execute task ${test.key} with command line vars ${test.cmdArgs.join(' ')}`, () => {
-      run(test.key, test.cmdArgs, {filepath: filename});
+      run(test.key, test.cmdArgs, {file: filename});
       _.map(test.expected, expected => {
         expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args);
       });
@@ -149,7 +149,7 @@ describe('Given a YAML file run command execution', () => {
   it('Should pass through environment variables merged with the parent environment', () => {
     let test = _.find(tests, {key: 'publish'});
 
-    run(test.key, test.cmdArgs, {filepath: filename});
+    run(test.key, test.cmdArgs, {file: filename});
     _.map(test.expected, expected => {
       expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args, expected.options);
     });
@@ -165,7 +165,7 @@ describe('Given a YAML file run command execution', () => {
     const test = _.find(tests, {key: 'build_seq'});
     const expected = test.expected[0];
 
-    expect(() => run(test.key, test.cmdArgs, {filepath: filename})).to.throw();
+    expect(() => run(test.key, test.cmdArgs, {file: filename})).to.throw();
     expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args);
     expect(spawnSyncStub).to.have.been.calledOnce;
   });
@@ -178,7 +178,7 @@ describe('Given a YAML file run command execution', () => {
 
     let test = _.find(tests, {key: 'build_seq_ignore_errors'});
 
-    run(test.key, test.cmdArgs, {filepath: filename});
+    run(test.key, test.cmdArgs, {file: filename});
     _.map(test.expected, expected => {
       expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args);
     });
@@ -212,7 +212,7 @@ describe('Given a YAML file run command execution', () => {
       stdout: expectedDeployTarget
     });
 
-    run(test.key, test.cmdArgs, {filepath: filename});
+    run(test.key, test.cmdArgs, {file: filename});
     _.map(test.expected, expected => {
       expect(spawnSyncStub).to.have.been.calledWith(expected.executable, expected.args);
     });
@@ -236,7 +236,7 @@ describe('Given a YAML file run command execution', () => {
       status: 0
     });
 
-    run(test.key, test.cmdArgs, {filepath: filename});
+    run(test.key, test.cmdArgs, {file: filename});
     expect(spawnSyncStub).to.have.been.calledWith(test.expected.executable, test.expected.args);
     expect(spawnSyncStub).to.have.been.calledTwice;
   });
@@ -260,7 +260,7 @@ describe('Given a YAML file run command execution', () => {
       error: new Error('Test Error')
     });
 
-    expect(() => run(test.key, test.cmdArgs, {filepath: filename})).to.throw();
+    expect(() => run(test.key, test.cmdArgs, {file: filename})).to.throw();
     expect(spawnSyncStub).to.have.been.calledWith(test.expected.executable, test.expected.args);
     expect(spawnSyncStub).to.have.been.calledTwice;
   });

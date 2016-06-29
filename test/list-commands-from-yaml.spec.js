@@ -36,7 +36,7 @@ describe('Given a YAML file, and a task with a description', () => {
     let expected = descriptions.build;
 
     list(key, {
-      filepath: filename
+      file: filename
     });
 
     expect(logger.info).to.have.been.calledWith(`${chalk.bold(key)} - ${chalk.underline(expected)}`);
@@ -51,7 +51,7 @@ describe('Given a YAML file, and a task with a description', () => {
     ];
 
     list(key, {
-      filepath: filename
+      file: filename
     });
 
     expect(logger.info).to.have.been.calledWith(`${chalk.bold(key)} - ${chalk.underline(expectedList[0])}`);
@@ -67,7 +67,7 @@ describe('Given a YAML file, and a task without a description', () => {
   let expected = '';
 
   list(key, {
-    filepath: filename
+    file: filename
   });
   it('Should not print anything', () => {
     expect(logger.info).not.to.have.been.calledWith(`${chalk.bold(key)} - ${chalk.underline(expected)}`);
@@ -76,7 +76,7 @@ describe('Given a YAML file, and a task without a description', () => {
 
 describe('Given a YAML file, and listing all commands', () => {
   list(undefined, {
-    filepath: filename
+    file: filename
   });
 
   it('Should print the first description of each task', () => {

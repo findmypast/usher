@@ -6,7 +6,7 @@ const _ = require('lodash');
 const logger = require('winston');
 
 module.exports = (taskName, taskVars, opts) => {
-  const usherFile = opts.filepath || '.usher.yml';
+  const usherFile = opts.file || '.usher.yml';
   logger.verbose(`Parsing ${usherFile}`);
   const config = parser.safeLoad(fs.readFileSync(usherFile, 'utf8'));
 
