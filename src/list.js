@@ -16,7 +16,6 @@ function getDescriptionsFromTask(task) {
 }
 
 function listAll(opts) {
-  console.log(opts);
   const usherFile = opts.file || '.usher.yml';
   const usherConfigs = parser.safeLoad(fs.readFileSync(usherFile, 'utf8'));
 
