@@ -20,6 +20,16 @@ describe('Given a YAML file run command execution', () => {
 
   let tests = [
     {
+      key: 'build_quotes',
+      cmdArgs: [],
+      expected: [{
+        executable: 'hello',
+        args: [
+          'world', 'hard rock', 'planet', 'rock', 'where rock lives!', 'docker-registry.dun.fh/findmypast/usher:latest'
+        ]
+      }]
+    },
+    {
       key: 'build',
       cmdArgs: ['version=latest'],
       expected: [{

@@ -61,9 +61,15 @@ class TaskRunner {
     return taskRunner.execute();
   }
 
+  extractArgs(cmd) {
+    const parsedCommand = this.expandTokens(cmd).match(/["'][^"']+["']|\S+/g);
+
+    return _.map(parsedCommand, pc => pc.replace(/['"]/g, ''));
+  }
+
   runCommand(command) {
-    const parsedCommand = _.map(command.cmd.split(' '), (param) =>
-      this.expandTokens(param));
+    // const parsedCommandl = this.expandTokens(command.cmd).split(' ');
+    const parsedCommand = this.extractArgs(command.cmd);
     const parsedEnv = this.resolveKeyValuePairs(command.environment);
     const spawnOptions = this.buildSpawnOptions(command, parsedEnv);
 

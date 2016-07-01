@@ -7,6 +7,10 @@ vars:
   green_tag: green
 
 tasks:
+  build_quotes:
+    - description: Test that quotes are expanded as expected
+    - cmd: hello world "hard rock" planet rock 'where rock lives!' docker-registry.dun.fh/findmypast/usher:latest
+
   build:
     - description: builds the docker container
     - cmd: docker build --force-rm -t <%=registry%>/<%=image%>:<%=version%> .
