@@ -95,12 +95,24 @@ class TaskRunner {
       return this.runCommand(command);
     }
 
-    logger.error(`Command exited with non-zero exit status [${result.error.code}]. Aborting.`);
+    if (result.error) {
+      logger.error(`Command exited with non-zero exit status [${result.error.code}]. Aborting.`);
+    }
+    else {
+      logger.error('Command exited with error. Aborting.');
+    }
+
     if (errno.code[result.error.code]) {
       logger.error(`Error description: ${errno.code[result.error.code].description}`);
+      logger.error(`Check the executable ${executable} exists.`);
     }
-    logger.error(`Check the executable ${executable} exists.`);
-    throw result.error;
+
+    if (result.error) {
+      throw result.error;
+    }
+    else {
+      throw new Error(`Command ${command.cmd} exited with error.`);
+    }
   }
 
   shouldExecutionContinue(result, command) {
