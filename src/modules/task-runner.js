@@ -93,8 +93,8 @@ class TaskRunner {
       return this.runCommand(command);
     }
 
-    logger.error('Command exited with non-zero exit status. Aborting.');
-    throw new Error(`Error in ${command.cmd}`);
+    logger.error(`Command exited with non-zero exit status [${result.error.code}]. Aborting.`);
+    throw result.error;
   }
 
   shouldExecutionContinue(result, command) {
