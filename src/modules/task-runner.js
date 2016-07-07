@@ -4,6 +4,7 @@ const _ = require('lodash');
 const logger = require('winston');
 const snuze = require('snuze');
 const getTaskConfig = require('./get-task-config');
+const errno = require('errno');
 
 let spawnSync = require('npm-run').spawnSync;
 
@@ -76,7 +77,8 @@ class TaskRunner {
     this.logCommand(parsedCommand, spawnOptions);
 
     this.attempts++;
-    const result = spawnSync(parsedCommand[0], _.tail(parsedCommand), spawnOptions);
+    const executable = parsedCommand[0];
+    const result = spawnSync(executable, _.tail(parsedCommand), spawnOptions);
 
     if (command.register && result.stdout) {
       const out = result.stdout.toString().trim();
@@ -94,6 +96,10 @@ class TaskRunner {
     }
 
     logger.error(`Command exited with non-zero exit status [${result.error.code}]. Aborting.`);
+    if (errno.code[result.error.code]) {
+      logger.error(`Error description: ${errno.code[result.error.code].description}`);
+    }
+    logger.error(`Check the executable ${executable} exists.`);
     throw result.error;
   }
 
