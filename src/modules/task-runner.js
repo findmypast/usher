@@ -102,7 +102,7 @@ class TaskRunner {
       logger.error('Command exited with error. Aborting.');
     }
 
-    if (errno.code[result.error.code]) {
+    if (result.error && errno.code[result.error.code]) {
       logger.error(`Error description: ${errno.code[result.error.code].description}`);
       logger.error(`Check the executable ${executable} exists.`);
     }
