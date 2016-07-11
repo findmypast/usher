@@ -96,23 +96,24 @@ class TaskRunner {
     }
 
     if (result.error) {
-      logger.error(`Command exited with non-zero exit status [${result.error.code}]. Aborting.`);
-    }
-    else {
-      logger.error('Command exited with error. Aborting.');
-    }
+      logger.error(`Command '${parsedCommand.join(' ')}' exited with non-zero exit status [${result.error.code}]. Aborting.`);
 
-    if (result.error && errno.code[result.error.code]) {
-      logger.error(`Error description: ${errno.code[result.error.code].description}`);
-      logger.error(`Check the executable ${executable} exists.`);
-    }
+      const errnoCode = this.getErrnoCode(result.error.code);
+      if (errnoCode) {
+        logger.error(`Error description: ${errnoCode.description}`);
+        logger.error(`Check the executable ${executable} exists.`);
+      }
 
-    if (result.error) {
       throw result.error;
     }
     else {
+      logger.error(`Command '${parsedCommand.join(' ')}' exited with error. Aborting.`);
       throw new Error('Command exited with error.');
     }
+  }
+
+  getErrnoCode(code) {
+    return errno.code[code];
   }
 
   shouldExecutionContinue(result, command) {
