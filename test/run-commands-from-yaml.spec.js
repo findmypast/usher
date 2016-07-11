@@ -295,6 +295,26 @@ describe('Given a YAML file run command execution', () => {
       expect(spawnSyncStub).to.have.been.calledWith(test.expected.executable, test.expected.args);
 
     });
+
+    it('Should throw with the error message when error is present', () => {
+      const test = {
+        key: 'boom',
+        cmdArgs: [],
+        expected: {
+          executable: 'echo',
+          args: ['hello']
+        }
+      };
+
+      spawnSyncStub.onFirstCall().returns({
+        status: 1,
+        error: new Error('Test Error')
+      });
+
+      expect(() => run(test.key, test.cmdArgs, {file: filename})).to.throw(Error, 'Test Error');
+      expect(spawnSyncStub).to.have.been.calledWith(test.expected.executable, test.expected.args);
+
+    });
   });
 
 
