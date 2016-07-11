@@ -1,4 +1,4 @@
-/* global describe it beforeEach */
+/* global describe context it beforeEach */
 /* eslint no-underscore-dangle: "off", no-unused-expressions: "off" */
 'use strict';
 
@@ -274,4 +274,28 @@ describe('Given a YAML file run command execution', () => {
     expect(spawnSyncStub).to.have.been.calledWith(test.expected.executable, test.expected.args);
     expect(spawnSyncStub).to.have.been.calledTwice;
   });
+
+  context('When the command exits with an error', () => {
+    it('Should throw with message "Command exited with error." when no error is present', () => {
+      const test = {
+        key: 'boom',
+        cmdArgs: [],
+        expected: {
+          executable: 'echo',
+          args: ['hello']
+        }
+      };
+
+      spawnSyncStub.onFirstCall().returns({
+        status: 1,
+        error: null
+      });
+
+      expect(() => run(test.key, test.cmdArgs, {file: filename})).to.throw(Error, 'Command exited with error.');
+      expect(spawnSyncStub).to.have.been.calledWith(test.expected.executable, test.expected.args);
+
+    });
+  });
+
+
 });

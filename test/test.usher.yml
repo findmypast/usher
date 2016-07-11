@@ -74,3 +74,6 @@ tasks:
     - task: nested_run_task
       vars:
         image: some_image
+
+  boom:
+    - cmd: echo hello

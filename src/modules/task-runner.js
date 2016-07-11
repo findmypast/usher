@@ -111,7 +111,7 @@ class TaskRunner {
       throw result.error;
     }
     else {
-      throw new Error(`Command ${command.cmd} exited with error.`);
+      throw new Error('Command exited with error.');
     }
   }
 
