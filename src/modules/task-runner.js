@@ -5,6 +5,7 @@ const logger = require('winston');
 const snuze = require('snuze');
 const getTaskConfig = require('./get-task-config');
 const errno = require('errno');
+const stringify = require('stringify-object');
 
 let spawnSync = require('npm-run').spawnSync;
 
@@ -36,7 +37,11 @@ class TaskRunner {
         }
       }
       else {
-        throw new Error('Task step contains no valid command');
+        const msg = `Task step contains no valid command
+          ${stringify(command)}
+        `
+        logger.error(msg);
+        throw new Error(msg);
       }
     });
     logger.verbose('Task completed successfully');
