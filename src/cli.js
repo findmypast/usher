@@ -24,6 +24,8 @@ program
   .option('-f, --file [filepath]', 'Filepath for .usher.yml')
   .action(list);
 
-program.parse(process.argv);
+program
+  .command('*')
+  .action(() => program.outputHelp());
 
-program.help();
+program.parse(process.argv);
