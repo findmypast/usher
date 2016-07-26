@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/findmypast/usher#readme",
   "dependencies": {
+    "bluebird": "^3.4.1",
     "chalk": "^1.1.3",
     "commander": "^2.9.0",
     "errno": "^0.1.4",

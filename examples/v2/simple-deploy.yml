@@ -1,0 +1,47 @@
+version: '2'
+vars:
+  registry: docker-registry
+  app: myapp
+  hosts:
+    - host1
+    - host2
+
+tasks:
+  - name: build
+    description: Build the docker image and push it to the registry
+    steps:
+      - description: Build the image
+        task: shell
+        command: docker build --force-rm -t <%=registry%>/<%=app%>
+      - description: Push it to the registry
+        task: shell
+        command: docker push <%=registry%>/<%=app%>
+
+  - name: deploy
+    description: Deploy container to a host
+    args:
+      host:
+        required: yes
+        type: string
+    steps:
+      - description: Host pulls the image
+        task: shell
+        command: docker pull <%=registry%>/<%=image%>
+        env:
+          DOCKER_HOST: <%=host%>
+          DOCKER_TLS_VERIFY: '1'
+      - description: Host starts container
+        task: shell
+        command: docker-compose up -d
+        env:
+          DOCKER_HOST: <%=host%>
+          DOCKER_TLS_VERIFY: '1'
+
+  - name: deploy_all
+    description: Deploy to all hosts listed
+    steps:
+      - for: host
+        in: <%=hosts%>
+        do:
+          task: deploy
+          host: <%=host%>
