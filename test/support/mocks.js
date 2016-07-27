@@ -9,6 +9,7 @@ module.exports = {
       begin: sinon.stub(),
       end: sinon.stub()
     },
+    info: sinon.stub(),
     error: sinon.stub()
   }
 };
