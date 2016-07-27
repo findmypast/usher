@@ -1,5 +1,3 @@
-/* globals before after beforeEach */
-
 'use strict';
 
 const chai = require('chai');
