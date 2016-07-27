@@ -7,41 +7,41 @@ vars:
     - host2
 
 tasks:
-  - name: build
+  build:
     description: Build the docker image and push it to the registry
+    do: series
     steps:
       - description: Build the image
-        task: shell
+        do: shell
         command: docker build --force-rm -t <%=registry%>/<%=app%>
       - description: Push it to the registry
-        task: shell
+        do: shell
         command: docker push <%=registry%>/<%=app%>
 
-  - name: deploy
+  deploy:
     description: Deploy container to a host
     args:
       host:
         required: yes
         type: string
+    do: series
     steps:
       - description: Host pulls the image
-        task: shell
+        do: shell
         command: docker pull <%=registry%>/<%=image%>
         env:
           DOCKER_HOST: <%=host%>
           DOCKER_TLS_VERIFY: '1'
       - description: Host starts container
-        task: shell
+        do: shell
         command: docker-compose up -d
         env:
           DOCKER_HOST: <%=host%>
           DOCKER_TLS_VERIFY: '1'
 
-  - name: deploy_all
+  deploy_all:
     description: Deploy to all hosts listed
-    steps:
-      - for: host
-        in: <%=hosts%>
-        do:
-          task: deploy
-          host: <%=host%>
+    do: for
+    every: host
+    in: <%=hosts%>
+    exec: deploy
