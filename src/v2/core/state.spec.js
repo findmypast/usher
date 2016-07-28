@@ -66,6 +66,17 @@ describe('core/state', function() {
       expect(sut.get('complex_ref')).to.equal(`${testString} and ${testObject}`);
     });
   });
+  describe('state.set()', function() {
+    const expected = 'expected';
+    it('sets a value', function() {
+      sut.set('string', expected);
+      expect(sut.get('string')).to.equal(expected);
+    });
+    it('sets a nested value', function() {
+      sut.set('object.new', expected);
+      expect(sut.get('object.new')).to.equal(expected);
+    });
+  });
   describe('state.push()', function() {
     it('merges state', function() {
       const newTestString = 'different';

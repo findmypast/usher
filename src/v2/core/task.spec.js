@@ -29,17 +29,23 @@ describe('factories/task', function() {
   });
   describe('given valid input', function() {
     const mockTask = sandbox.stub();
-    const state = new State({
+    const task = {
+      do: 'mock',
+      arg: 'test'
+    };
+    const inputState = {
       tasks: {
         mock: (...args) => Promise.try(() => mockTask(...args))
       }
-    }, logger);
-    const task = {
-      do: 'mock'
     };
-    it('calls a task', function() {
+    let state;
+    beforeEach(function() {
+      state = new State(inputState, logger);
+    });
+    it('calls a task with merged state', function() {
+      const mergedState = new State(inputState, logger).push(task);
       return sut(task, state)
-        .then(() => expect(mockTask).to.have.been.calledWith(state));
+        .then(() => expect(mockTask).to.have.been.calledWith(mergedState));
     });
     it('logs task start and end', function() {
       return sut(task, state)

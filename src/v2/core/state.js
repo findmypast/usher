@@ -11,8 +11,8 @@ module.exports = class State {
   get(path, defaultValue) {
     return this.dereference(_.get(this._state, path, defaultValue));
   }
-  set(path) {
-    throw 'Not Implemented';
+  set(path, value) {
+    _.set(this._state, path, value);
   }
   push(state) {
     this.stack.push(state);
