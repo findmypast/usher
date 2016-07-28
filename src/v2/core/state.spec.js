@@ -1,15 +1,9 @@
-/* global describe before after beforeEach it expect sandbox mockery mocks _*/
+/* global describe before beforeEach it expect sandbox mocks _*/
 /* eslint no-unused-expressions: "off" */
 'use strict';
 
 beforeEach(function() {
   sandbox.reset();
-});
-before(function() {
-  mockery.enable();
-});
-after(function() {
-  mockery.disable();
 });
 
 describe('core/state', function() {
@@ -28,10 +22,6 @@ describe('core/state', function() {
   };
   const logger = mocks.loggerMock;
   before(function() {
-    mockery.registerAllowable('lodash');
-    mockery.registerAllowable('../lib/errors');
-    mockery.registerAllowable('./state');
-
     Sut = require('./state');
   });
   beforeEach(function() {

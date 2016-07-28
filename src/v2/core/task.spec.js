@@ -6,6 +6,7 @@ beforeEach(function() {
 });
 before(function() {
   mockery.enable();
+  mockery.warnOnUnregistered(false);
 });
 after(function() {
   mockery.disable();
@@ -21,11 +22,6 @@ let sut;
 describe('factories/task', function() {
   before(function() {
     mockery.registerMock('uuid', idMock);
-    mockery.registerAllowable('lodash');
-    mockery.registerAllowable('promise-retry');
-    mockery.registerAllowable('./task');
-    mockery.registerAllowable('../lib/errors');
-
     sut = require('./task');
   });
   describe('given valid input', function() {
