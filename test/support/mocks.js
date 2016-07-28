@@ -7,7 +7,8 @@ module.exports = {
   logger: {
     task: {
       begin: sinon.stub(),
-      end: sinon.stub()
+      end: sinon.stub(),
+      fail: sinon.stub()
     },
     info: sinon.stub(),
     error: sinon.stub()

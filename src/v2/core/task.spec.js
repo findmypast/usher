@@ -22,13 +22,15 @@ describe('factories/task', function() {
   before(function() {
     mockery.registerMock('uuid', idMock);
     mockery.registerAllowable('lodash');
+    mockery.registerAllowable('promise-retry');
     mockery.registerAllowable('./task');
     mockery.registerAllowable('../lib/errors');
 
     sut = require('./task');
   });
   describe('given valid input', function() {
-    const mockTask = sandbox.stub();
+    const output = 'test-output';
+    const mockTask = sandbox.stub().returns(output);
     const inputState = {
       tasks: {
         mock: (state) => Promise.try(() => mockTask(_.cloneDeep(state)))
@@ -41,7 +43,7 @@ describe('factories/task', function() {
     let state;
     let task;
     beforeEach(function() {
-      task = Object.create(inputTask);
+      task = _.cloneDeep(inputTask);
       state = new State(inputState, logger);
     });
     it('adds an id to the task', function() {
@@ -71,6 +73,14 @@ describe('factories/task', function() {
           expect(state).to.deep.equal(new State(inputState, logger));
         });
     });
+    it('adds output to parent state if options.register is set', function() {
+      const refName = 'registered';
+      const registerTask = _.merge(task, {options: {register: refName}});
+      return sut(registerTask, state)
+        .then(() => {
+          expect(state.get(refName)).to.deep.equal(output);
+        });
+    });
   });
   describe('when task doesn\'t exist', function() {
     const task = {do: 'wrong'};
@@ -85,29 +95,41 @@ describe('factories/task', function() {
   });
   describe('when task rejects', function() {
     const taskError = new Error('test error');
-    const state = new State({
-      tasks: {
-        throws: () => Promise.try(() => {
-          throw taskError;
-        })
-      }
-    }, logger);
-    const task = {
+    const mockTask = sandbox.stub().throws(taskError);
+    let task = {
       do: 'throws'
     };
+    const inputState = {
+      tasks: {
+        throws: (state) => Promise.try(() => mockTask(_.cloneDeep(state)))
+      }
+    };
+    let state;
+    beforeEach(function() {
+      state = new State(inputState, logger);
+    });
     it('logs error and rejects', function() {
       const sutError = new errors.TaskFailedError(taskError, state);
-      return expect(sut(task, state)).to.be.rejectedWith(sutError.message)
+      return expect(sut(_.cloneDeep(task), state)).to.be.rejectedWith(sutError.message)
       .then(() => {
-        expect(logger.error).to.have.been.calledWithMatch(sutError);
+        expect(logger.task.fail).to.have.been.calledWithMatch(sutError);
       });
     });
     it('logs error and resolves if options.ignore_errors is true', function() {
       const ignoreErrorsTask = _.merge({}, task, {options: {ignore_errors: true}});
       const sutError = new errors.TaskFailedError(taskError, state);
-      return sut(ignoreErrorsTask, state)
+      return sut(_.cloneDeep(ignoreErrorsTask), state)
       .then(() => {
-        expect(logger.error).to.have.been.calledWithMatch(sutError);
+        expect(logger.task.fail).to.have.been.calledWithMatch(sutError);
+      });
+    });
+    it('retries the task 2 times if options.retry.retries = 2', function() {
+      const retries = 2;
+      const retryTask = _.merge({}, task, {options: {retry: {retries: retries, minTimeout: 5}}});
+      const sutError = new errors.TaskFailedError(taskError, state);
+      return expect(sut(_.cloneDeep(retryTask), state)).to.be.rejectedWith(sutError.message)
+      .then(() => {
+        expect(mockTask.callCount).to.equal(3);
       });
     });
   });

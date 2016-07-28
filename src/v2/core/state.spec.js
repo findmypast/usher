@@ -1,4 +1,4 @@
-/* global describe before after beforeEach it expect sandbox mockery mocks */
+/* global describe before after beforeEach it expect sandbox mockery mocks _*/
 /* eslint no-unused-expressions: "off" */
 'use strict';
 
@@ -71,10 +71,12 @@ describe('core/state', function() {
     it('sets a value', function() {
       sut.set('string', expected);
       expect(sut.get('string')).to.equal(expected);
+      expect(_.last(sut.stack).string).to.equal(expected);
     });
     it('sets a nested value', function() {
       sut.set('object.new', expected);
       expect(sut.get('object.new')).to.equal(expected);
+      expect(_.last(sut.stack).object.new).to.equal(expected);
     });
   });
   describe('state.push()', function() {

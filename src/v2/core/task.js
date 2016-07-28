@@ -3,6 +3,7 @@
 const uuid = require('uuid').v4;
 const _ = require('lodash');
 const errors = require('../lib/errors');
+const promiseRetry = require('promise-retry');
 
 module.exports = (task, state) => Promise.try(() => {
   const logger = state.logger;
@@ -21,16 +22,20 @@ module.exports = (task, state) => Promise.try(() => {
   }
   state.push(task);
   logger.task.begin();
-  return exec(state)
+  return promiseRetry((retry, number) => exec(state)
     .catch((e) => {
       const error = new errors.TaskFailedError(e, state);
-      logger.error(error, state);
+      logger.task.fail(e, number);
       if (!state.get('options.ignore_errors')) {
-        throw error;
+        retry(error);
       }
     })
-    .then(() => {
+    .then((output) => {
       logger.task.end();
+      const register = state.get('options.register');
       state.pop();
-    });
+      if (register) {
+        state.set(register, output);
+      }
+    }), state.get('options.retry', {retries: 0}));
 });

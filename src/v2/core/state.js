@@ -13,6 +13,7 @@ module.exports = class State {
   }
   set(path, value) {
     _.set(this._state, path, _.cloneDeep(value));
+    _.set(_.last(this.stack), path, _.cloneDeep(value));
   }
   push(state) {
     this.stack.push(_.cloneDeep(state));
