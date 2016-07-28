@@ -19,7 +19,9 @@ module.exports = class State {
     this._state = _.merge(this._state, state);
   }
   pop() {
-    throw 'Not Implemented';
+    const lastState = this.stack.pop();
+    this._state = _.merge(...this.stack);
+    return lastState;
   }
   dereference(object) {
     if (!_.isString(object)) {
