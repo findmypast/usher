@@ -8,7 +8,7 @@ module.exports = {
   },
   TaskFailedError: class extends Error {
     constructor(error, state) {
-      super(`Task ${state.name} failed with ${error.message}.`);
+      super(`Task ${state.get('name')} failed with ${error.message}.`);
     }
   }
 };
