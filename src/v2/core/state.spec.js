@@ -39,7 +39,7 @@ describe('core/state', function() {
   });
   describe('new State()', function() {
     it('sets the initial state', function() {
-      expect(sut._state).to.equal(initialState);
+      expect(sut._state).to.deep.equal(initialState);
     });
     it('initializes the stack with the initial state', function() {
       expect(sut.stack).to.deep.equal([initialState]);
@@ -60,7 +60,7 @@ describe('core/state', function() {
       expect(sut.get('object.not_found')).to.be.undefined;
     });
     it('looks up a reference', function() {
-      expect(sut.get('object_ref')).to.equal(testObject);
+      expect(sut.get('object_ref')).to.deep.equal(testObject);
     });
     it('interpolates references onto a string', function() {
       expect(sut.get('complex_ref')).to.equal(`${testString} and ${testObject}`);
@@ -82,7 +82,7 @@ describe('core/state', function() {
       const newTestString = 'different';
       sut.push({ string: newTestString});
       expect(sut.get('string')).to.equal(newTestString);
-      expect(sut.get('object')).to.equal(testObject);
+      expect(sut.get('object')).to.deep.equal(testObject);
     });
     it('merges state deeply', function() {
       const newTestString = 'different';
@@ -104,7 +104,7 @@ describe('core/state', function() {
       sut.push(state2);
     });
     it('returns the last state on the stack', function() {
-      expect(sut.pop()).to.equal(state2);
+      expect(sut.pop()).to.deep.equal(state2);
     });
     it('removes the last state from the stack', function() {
       sut.pop();

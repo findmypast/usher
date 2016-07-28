@@ -29,5 +29,8 @@ module.exports = (task, state) => Promise.try(() => {
         throw error;
       }
     })
-    .then(() => logger.task.end());
+    .then(() => {
+      logger.task.end();
+      state.pop();
+    });
 });

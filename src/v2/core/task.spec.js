@@ -29,29 +29,46 @@ describe('factories/task', function() {
   });
   describe('given valid input', function() {
     const mockTask = sandbox.stub();
-    const task = {
+    const inputState = {
+      tasks: {
+        mock: (state) => Promise.try(() => mockTask(_.cloneDeep(state)))
+      }
+    };
+    const inputTask = {
       do: 'mock',
       arg: 'test'
     };
-    const inputState = {
-      tasks: {
-        mock: (...args) => Promise.try(() => mockTask(...args))
-      }
-    };
     let state;
+    let task;
     beforeEach(function() {
+      task = Object.create(inputTask);
       state = new State(inputState, logger);
     });
-    it('calls a task with merged state', function() {
-      const mergedState = new State(inputState, logger).push(task);
+    it('adds an id to the task', function() {
       return sut(task, state)
-        .then(() => expect(mockTask).to.have.been.calledWith(mergedState));
+        .then(() => {
+          expect(task.id).to.equal(id);
+        });
+    });
+    it('calls a task with merged state', function() {
+      return sut(task, state)
+        .then(() => {
+          const mergedState = new State(inputState, logger);
+          mergedState.push(task);
+          expect(mockTask).to.have.been.calledWithMatch(mergedState);
+        });
     });
     it('logs task start and end', function() {
       return sut(task, state)
         .then(() => {
           expect(logger.task.begin).to.have.been.calledWith();
           expect(logger.task.end).to.have.been.calledWith();
+        });
+    });
+    it('pops state after completion', function() {
+      return sut(task, state)
+        .then(() => {
+          expect(state).to.deep.equal(new State(inputState, logger));
         });
     });
   });
