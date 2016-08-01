@@ -18,7 +18,7 @@ const validators = {
     }
   },
   includeIsArray: config => {
-    if (!_.isArray(config.include)) {
+    if (config.include && !_.isArray(config.include)) {
       throw new InvalidConfigError('include must be an array');
     }
   },

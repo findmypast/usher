@@ -1,7 +1,7 @@
 /* global describe before after beforeEach it expect sandbox mockery errors mocks _*/
 'use strict';
 
-describe('factories/task', function() {
+describe('core/task', function() {
   const State = require('../core/state');
   const logger = mocks.logger;
   const id = 'test-id';

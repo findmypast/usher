@@ -1,0 +1,6 @@
+version: '2'
+tasks:
+  test:
+    description: Test
+    do: shell
+    command: echo test

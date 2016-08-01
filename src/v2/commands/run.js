@@ -28,5 +28,5 @@ module.exports = (taskName, taskVars, opts) => Promise.try(() => {
   }
   const config = _.merge({}, parsedFile, parseVars(taskVars));
   return setup(config, logger)
-  .then(state => task(state.get(taskName), state));
+  .then(state => task(state.get(`tasks.${taskName}`), state));
 });

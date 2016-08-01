@@ -1,7 +1,7 @@
 /* global describe before after beforeEach it expect sandbox mockery mocks _*/
 'use strict';
 
-describe('factories/task', function() {
+describe('commands/run', function() {
   let sut;
   const setup = sandbox.stub();
   const parse = sandbox.stub();
@@ -44,7 +44,7 @@ describe('factories/task', function() {
       }
     };
     parse.returns(config);
-    setup.returns(Promise.resolve({get: name => _.get(config.tasks, name)}));
+    setup.returns(Promise.resolve({get: path => _.get(config, path)}));
     it('calls parse on the file name defined in opts', function() {
       return sut(taskName, taskVars, opts).then(() => expect(parse).to.be.calledWith(opts.file));
     });

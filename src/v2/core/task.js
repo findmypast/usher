@@ -1,5 +1,6 @@
 'use strict';
 
+const Promise = require('bluebird');
 const uuid = require('uuid').v4;
 const _ = require('lodash');
 const errors = require('../lib/errors');
