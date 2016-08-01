@@ -4,6 +4,37 @@ const _ = require('lodash');
 const Promise = require('bluebird');
 const exec = Promise.promisify(require('child_process').exec);
 const State = require('../core/state');
+const InvalidConfigError = require('../lib/errors').InvalidConfigError;
+
+const validators = {
+  varsIsObject: config => {
+    if (!_.isPlainObject(config.vars)) {
+      throw new InvalidConfigError('vars not a valid object');
+    }
+  },
+  tasksIsObject: config => {
+    if (!_.isPlainObject(config.tasks)) {
+      throw new InvalidConfigError('tasks not a valid object');
+    }
+  },
+  includeIsArray: config => {
+    if (!_.isArray(config.include)) {
+      throw new InvalidConfigError('include must be an array');
+    }
+  },
+  includesHaveProperties: config => {
+    if (!_.every(config.include, object => _.has(object, 'from') && _.has(object, 'import'))) {
+      throw new InvalidConfigError('includes must all have "from" and "import" properties');
+    }
+  },
+  tasksHaveDo: config => {
+    _.mapValues(config.tasks, (task, key) => {
+      if (!_.has(task, 'do')) {
+        throw new InvalidConfigError(`task ${key} missing "do" property`);
+      }
+    });
+  }
+};
 
 function installModule(moduleName) {
   return exec(`npm install ${moduleName}`);
@@ -21,6 +52,7 @@ function requireTask(taskList, taskConfig) {
 }
 
 module.exports = (config, logger) => Promise.try(() => {
+  _.mapValues(validators, validator => validator(config));
   const modulesToInstall = _.map(config.include, (include) => _.get(include, 'from'));
   return Promise.all(_.map(modulesToInstall, installModule))
   .then(() => {
