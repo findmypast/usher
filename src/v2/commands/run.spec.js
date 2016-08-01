@@ -46,13 +46,10 @@ describe('factories/task', function() {
     parse.returns(config);
     setup.returns(Promise.resolve({get: name => _.get(config.tasks, name)}));
     it('calls parse on the file name defined in opts', function() {
-      return sut(taskName, taskVars, opts).then(() => expect(parse).to.be.calledWith(opts.file, otherLogger));
+      return sut(taskName, taskVars, opts).then(() => expect(parse).to.be.calledWith(opts.file));
     });
     it('calls parse on "usher.yml" if no file option', function() {
-      return sut(taskName, taskVars, {}).then(() => expect(parse).to.be.calledWith('usher.yml', logger));
-    });
-    it('calls parse with console logger if no logger option', function() {
-      return sut(taskName, taskVars, {}).then(() => expect(parse).to.be.calledWith('usher.yml', logger));
+      return sut(taskName, taskVars, {}).then(() => expect(parse).to.be.calledWith('usher.yml'));
     });
     it('parses CLI vars and merges them into config before calling setup', function() {
       return sut(taskName, taskVars, {}).then(() => expect(setup).to.be.calledWith({
@@ -69,6 +66,10 @@ describe('factories/task', function() {
     });
     it('runs the named task', function() {
       return sut(taskName, taskVars, {}).then(() => expect(task).to.be.calledWith(_.get(config.tasks, taskName)));
+    });
+    it('rejects if file fails to parse', function() {
+      parse.throws(new Error('Test Error'));
+      return expect(sut(taskName, [], {})).to.be.rejectedWith(/usher\.yml.*Test Error/);
     });
   });
 });

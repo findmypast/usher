@@ -15,5 +15,10 @@ module.exports = {
     constructor(message) {
       super(`Error in configuration: ${message}. Please check your config file.`);
     }
+  },
+  ParsingError: class extends Error {
+    constructor(error, file) {
+      super(`Error parsing ${file}: ${error.message}`);
+    }
   }
 };
