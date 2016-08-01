@@ -1,18 +1,19 @@
 /* global describe before after beforeEach it expect sandbox mockery errors mocks _*/
 'use strict';
 
-beforeEach(function() {
-  sandbox.reset();
-});
-before(function() {
-  mockery.enable();
-});
-after(function() {
-  mockery.disable();
-});
-
-let sut;
 describe('tasks/shell', function() {
+  beforeEach(function() {
+    sandbox.reset();
+  });
+  before(function() {
+    mockery.enable();
+  });
+  after(function() {
+    mockery.deregisterAll();
+    mockery.disable();
+  });
+
+  let sut;
   const stdout = 'test message';
   const child = {
     exec: sandbox.stub().callsArgWith(2, null, stdout, null)

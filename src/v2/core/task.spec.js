@@ -1,28 +1,27 @@
 /* global describe before after beforeEach it expect sandbox mockery errors mocks _*/
 'use strict';
 
-beforeEach(function() {
-  sandbox.reset();
-});
-before(function() {
-  mockery.enable();
-  mockery.warnOnUnregistered(false);
-});
-after(function() {
-  mockery.disable();
-});
-const State = require('../core/state');
-const logger = mocks.logger;
-const id = 'test-id';
-const idMock = {
-  v4: () => id
-};
-
-let sut;
 describe('factories/task', function() {
+  const State = require('../core/state');
+  const logger = mocks.logger;
+  const id = 'test-id';
+  const idMock = {
+    v4: () => id
+  };
+  let sut;
+  beforeEach(function() {
+    sandbox.reset();
+  });
   before(function() {
+    mockery.enable();
+    mockery.warnOnUnregistered(false);
+
     mockery.registerMock('uuid', idMock);
     sut = require('./task');
+  });
+  after(function() {
+    mockery.deregisterAll();
+    mockery.disable();
   });
   describe('given valid input', function() {
     const output = 'test-output';
