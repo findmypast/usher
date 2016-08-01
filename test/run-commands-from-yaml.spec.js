@@ -11,8 +11,8 @@ const sinonChai = require('sinon-chai');
 const rewire = require('rewire');
 const _ = require('lodash');
 
-let taskRunner = rewire('../src/modules/task-runner');
-let run = rewire('../src/run');
+let taskRunner = rewire('../src/v1/modules/task-runner');
+let run = rewire('../src/v1/run');
 chai.use(sinonChai);
 
 describe('Given a YAML file run command execution', () => {

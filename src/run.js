@@ -1,23 +1,28 @@
 'use strict';
 
-let TaskRunner = require('./modules/task-runner');
-const _ = require('lodash');
-const getTaskConfig = require('./modules/get-task-config');
-const logger = require('winston');
+const firstline = require('firstline');
+const v1 = require('./v1/run');
+const v2 = require('./v2/commands/run');
+
+function isV2(file) {
+  return firstline(file).then(line => line.match(/version.*'2'/));
+}
 
 module.exports = (taskName, taskVars, opts) => {
-  logger.cli();
-  if (opts.verbose) {
-    logger.level = 'verbose';
+  function checkVersion(fileName) {
+    return isV2(fileName)
+    .then(result => {
+      if (result) {
+        return v2(taskName, taskVars, opts);
+      }
+      return v1(taskName, taskVars, opts);
+    });
   }
-  if (opts.quiet) {
-    logger.level = 'error';
+  if (opts.file) {
+    return checkVersion(opts.file);
   }
-
-  const splitVars = _.map(taskVars, a => a.split('='));
-  const parsedVars = _.fromPairs(splitVars);
-  const taskConfig = getTaskConfig(taskName, parsedVars, opts);
-  const taskRunner = new TaskRunner(taskConfig.task, taskConfig.vars, opts);
-
-  taskRunner.execute();
+  return checkVersion('usher.yml')
+  .catch(() => {
+    return checkVersion('.usher.yml');
+  });
 };
