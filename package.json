@@ -6,9 +6,8 @@
     "usher": "./src/cli.js"
   },
   "scripts": {
-    "test": "mocha --reporter nyan --recursive",
-    "test:v2": "mocha --opts test/config/local.opts src/**/*spec.js",
-    "test:ci": "mocha --reporter mocha-teamcity-reporter --recursive",
+    "test": "mocha --opts test/config/local.opts test/*.js src/**/*spec.js",
+    "test:ci": "mocha --opts test/config/teamcity.opts test/*.js src/**/*spec.js",
     "prepublish-to-npm": "supersoaker squirt -r https://registry.npmjs.org",
     "publish-to-npm": "publish",
     "usher-test": "node src/cli.js"
