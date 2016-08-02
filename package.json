@@ -6,7 +6,7 @@
     "usher": "./src/cli.js"
   },
   "scripts": {
-    "test": "mocha --opts test/config/local.opts test/*.js src/**/*spec.js",
+    "test": "istanbul cover node_modules/mocha/bin/_mocha -- --opts test/config/local.opts test/*.js src/**/*spec.js",
     "test:ci": "mocha --opts test/config/teamcity.opts test/*.js src/**/*spec.js",
     "prepublish-to-npm": "supersoaker squirt -r https://registry.npmjs.org",
     "publish-to-npm": "publish",
@@ -44,6 +44,7 @@
     "chai-as-promised": "^5.3.0",
     "eslint": "^2.10.2",
     "eslint-config-eslint": "^3.0.0",
+    "istanbul": "^0.4.4",
     "mocha": "^2.4.5",
     "mocha-teamcity-reporter": "^1.0.0",
     "mockery": "^1.7.0",

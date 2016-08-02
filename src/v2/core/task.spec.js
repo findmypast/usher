@@ -54,7 +54,7 @@ describe('core/task', function() {
         .then(() => {
           const mergedState = new State(inputState, Logger);
           mergedState.push(task);
-          expect(mockTask).to.have.been.calledWithMatch(sinon.match({_state: mergedState._state}));
+          expect(mockTask).to.have.been.calledWithMatch(sinon.match({_state: mergedState._state, stack: [inputState, task]}));
         });
     });
     it('logs task start and end', function() {
@@ -106,25 +106,22 @@ describe('core/task', function() {
       state = new State(inputState, Logger);
     });
     it('logs error and rejects', function() {
-      const sutError = new errors.TaskFailedError(taskError, state);
-      return expect(sut(_.cloneDeep(task), state)).to.be.rejectedWith(sutError.message)
+      return expect(sut(_.cloneDeep(task), state)).to.be.rejectedWith(taskError.message)
       .then(() => {
-        expect(Logger.fail).to.have.been.calledWithMatch(sutError);
+        expect(Logger.fail).to.have.been.calledWithMatch(taskError);
       });
     });
     it('logs error and resolves if options.ignore_errors is true', function() {
       const ignoreErrorsTask = _.merge({}, task, {options: {ignore_errors: true}});
-      const sutError = new errors.TaskFailedError(taskError, state);
       return sut(_.cloneDeep(ignoreErrorsTask), state)
       .then(() => {
-        expect(Logger.fail).to.have.been.calledWithMatch(sutError);
+        expect(Logger.fail).to.have.been.calledWithMatch(taskError);
       });
     });
     it('retries the task 2 times if options.retry.retries = 2', function() {
       const retries = 2;
       const retryTask = _.merge({}, task, {options: {retry: {retries: retries, minTimeout: 5}}});
-      const sutError = new errors.TaskFailedError(taskError, state);
-      return expect(sut(_.cloneDeep(retryTask), state)).to.be.rejectedWith(sutError.message)
+      return expect(sut(_.cloneDeep(retryTask), state)).to.be.rejectedWith(taskError.message)
       .then(() => {
         expect(mockTask.callCount).to.equal(3);
       });

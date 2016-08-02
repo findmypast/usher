@@ -18,7 +18,7 @@ describe('commands/run', function() {
     mockery.registerMock('./parse', parse);
     mockery.registerMock('../core/task', task);
     mockery.registerMock('../lib/errors', errors);
-    mockery.registerMock('../loggers', {default: Logger, other: otherLogger});
+    mockery.registerMock('../loggers', {default: Logger, verbose: otherLogger});
 
     sut = require('./run');
   });
@@ -64,6 +64,9 @@ describe('commands/run', function() {
     });
     it('given no vars calls setup with config', function() {
       return sut(taskName, [], {}).then(() => expect(setup).to.be.calledWith(config, Logger));
+    });
+    it('if passed the option verbose use verbose logger', function() {
+      return sut(taskName, [], {verbose: true}).then(() => expect(setup).to.be.calledWith(config, otherLogger));
     });
     it('runs the named task', function() {
       return sut(taskName, taskVars, {}).then(() => expect(task).to.be.calledWith(_.get(config.tasks, taskName)));
