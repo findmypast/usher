@@ -1,6 +1,9 @@
 version: '2'
 tasks:
   test:
-    description: Test
+    description: running tests
     do: shell
-    command: npm test
+    command: error
+    options:
+      retry:
+        retries: 3

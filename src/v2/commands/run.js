@@ -10,16 +10,21 @@ const ParsingError = require('../lib/errors').ParsingError;
 const TaskNotFoundError = require('../lib/errors').TaskNotFoundError;
 
 const DEFAULT_FILE = 'usher.yml';
-const DEFAULT_LOGGER = 'default';
 
 function parseVars(varList) {
   return {vars: _.fromPairs(_.map(varList, varPair => _.split(varPair, '=')))};
 }
 
+function getLogger(opts) {
+  if (opts.verbose) {
+    return loggers.verbose;
+  }
+  return loggers.default;
+}
+
 module.exports = (taskName, taskVars, opts) => Promise.try(() => {
   const file = opts.file || DEFAULT_FILE;
-  const loggerName = opts.logger || DEFAULT_LOGGER;
-  const Logger = _.get(loggers, loggerName);
+  const Logger = getLogger(opts);
   let parsedFile;
   try {
     parsedFile = parse(file);

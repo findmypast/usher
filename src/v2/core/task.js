@@ -22,11 +22,12 @@ module.exports = (task, state) => Promise.try(() => {
     throw error;
   }
   state.push(task);
-  logger.begin();
-  return promiseRetry((retry, number) => exec(state)
+  return promiseRetry((retry, number) => {
+    logger.begin(number, state.get('options.retry.retries') + 1);
+    return exec(state)
     .catch((e) => {
       const error = new errors.TaskFailedError(e, state);
-      logger.fail(e, number);
+      logger.fail(e, number, state.get('options.retry.retries') + 1);
       if (!state.get('options.ignore_errors')) {
         retry(error);
       }
@@ -38,5 +39,6 @@ module.exports = (task, state) => Promise.try(() => {
       if (register) {
         state.set(register, output);
       }
-    }), state.get('options.retry', {retries: 0}));
+    });
+  }, state.get('options.retry', {retries: 0}));
 });
