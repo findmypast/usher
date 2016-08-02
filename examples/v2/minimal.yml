@@ -3,7 +3,4 @@ tasks:
   test:
     description: running tests
     do: shell
-    command: error
-    options:
-      retry:
-        retries: 3
+    command: npm test
