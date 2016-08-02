@@ -1,5 +1,6 @@
 'use strict';
 
 module.exports = {
-  shell: require('./shell')
+  shell: require('./shell'),
+  sequence: require('./sequence')
 };

@@ -6,7 +6,6 @@ winston.cli();
 module.exports = class Logger {
   constructor(state) {
     this.state = state;
-    this.tasks = [];
   }
   logTask(name, description, attempt, tries) {
     const retries = attempt > 1 ? `| retrying ${attempt}/${tries}` : '';
@@ -14,19 +13,13 @@ module.exports = class Logger {
     winston.info(`Running ${name} ${suffix} ${retries}`);
   }
   begin(attempt, tries) {
-    this.tasks.push({
-      id: this.state.get('id'),
-      name: this.state.get('name')
-    });
-    this.logTask(this.tasks[0].name, this.state.get('description'), attempt, tries);
+    this.logTask(this.state.get('name'), this.state.get('description'), attempt, tries);
   }
   end() {
-    winston.info(`Completed ${this.tasks[0].name}`);
-    this.tasks.pop();
+    winston.info(`Completed ${this.state.get('name')}`);
   }
   fail(error) {
-    winston.error(`Failed ${this.tasks[0].name}: ${error.message}`);
-    this.tasks.pop();
+    winston.error(`Failed ${this.state.get('name')}: ${error.message}`);
   }
   info(message) {
     winston.info(message);

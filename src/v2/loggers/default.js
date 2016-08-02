@@ -27,8 +27,8 @@ module.exports = class Logger {
   end() {
     if (this.tasks.length === 1) {
       log(`${emoji.heavy_check_mark} Completed ${this.tasks[0].name}`);
-      this.tasks.pop();
     }
+    this.tasks.pop();
   }
   fail(error, attempt, tries) {
     if (this.tasks.length === 1 && attempt === tries) {
