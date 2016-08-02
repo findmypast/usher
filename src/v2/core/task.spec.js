@@ -13,7 +13,7 @@ describe('core/task', function() {
     sandbox.reset();
   });
   before(function() {
-    mockery.enable();
+    mockery.enable({ useCleanCache: true });
     mockery.warnOnUnregistered(false);
 
     mockery.registerMock('uuid', idMock);
@@ -81,7 +81,7 @@ describe('core/task', function() {
     const task = {do: 'wrong'};
     const state = new State({}, logger);
     it('logs error and rejects', function() {
-      const error = new errors.TaskNotFoundError(state.do);
+      const error = new errors.TaskNotFoundError(task.do);
       return expect(sut(task, state)).to.be.rejectedWith(error.message)
       .then(() => {
         expect(logger.error).to.have.been.calledWithMatch(error);
@@ -107,7 +107,7 @@ describe('core/task', function() {
       const sutError = new errors.TaskFailedError(taskError, state);
       return expect(sut(_.cloneDeep(task), state)).to.be.rejectedWith(sutError.message)
       .then(() => {
-        expect(logger.task.fail).to.have.been.calledWithMatch(sutError);
+        expect(logger.task.fail).to.have.been.calledWithMatch(state, sutError);
       });
     });
     it('logs error and resolves if options.ignore_errors is true', function() {
@@ -115,7 +115,7 @@ describe('core/task', function() {
       const sutError = new errors.TaskFailedError(taskError, state);
       return sut(_.cloneDeep(ignoreErrorsTask), state)
       .then(() => {
-        expect(logger.task.fail).to.have.been.calledWithMatch(sutError);
+        expect(logger.task.fail).to.have.been.calledWithMatch(state, sutError);
       });
     });
     it('retries the task 2 times if options.retry.retries = 2', function() {

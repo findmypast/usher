@@ -2,7 +2,7 @@
 'use strict';
 const uuid = require('uuid').v4;
 
-describe('factories/task', function() {
+describe('commands/setup', function() {
   let sut;
   let result;
   let input;
@@ -38,10 +38,11 @@ describe('factories/task', function() {
     sandbox.reset();
   });
   before(function() {
-    mockery.enable();
+    mockery.enable({ useCleanCache: true });
     mockery.warnOnUnregistered(false);
     mockery.registerMock('child_process', { exec: execMock });
     mockery.registerMock('mock-import', mockImport);
+    mockery.registerMock('../lib/errors', errors);
 
     sut = require('./setup');
   });
@@ -64,6 +65,9 @@ describe('factories/task', function() {
     });
     it('puts tasks into initial state', function() {
       expect(result.get('tasks.test')).to.deep.equal(input.tasks.test);
+    });
+    it('puts default tasks into initial state', function() {
+      expect(result.get('tasks.shell')).to.deep.equal(require('../tasks').shell);
     });
     it('installs includes to cache', function() {
       expect(execMock).to.have.been.calledWith('npm install mock-import');

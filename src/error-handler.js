@@ -1,10 +1,9 @@
 'use strict';
 
-
 module.exports = fn =>
   (...args) =>
     fn(...args)
-    .catch(error => {
-      console.error(error);
+    .catch((e) => {
+      console.error(e)
       process.exit(1);
     });

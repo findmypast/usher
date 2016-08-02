@@ -15,11 +15,11 @@ const ACCEPTED_OPTIONS = [
   'gid'
 ];
 
-module.exports = (state, logger) => Promise.try(() => {
+module.exports = (state) => Promise.try(() => {
   const options = _.pick(state, ACCEPTED_OPTIONS);
-  return exec(state.command, options)
+  return exec(state.get('command'), options)
     .then(output => {
-      logger.info(state, output);
+      state.logger.info(output);
       return output;
     });
 });

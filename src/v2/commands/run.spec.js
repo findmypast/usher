@@ -1,4 +1,4 @@
-/* global describe before after beforeEach it expect sandbox mockery mocks _*/
+/* global describe before after beforeEach it expect sandbox mockery mocks _ errors*/
 'use strict';
 
 describe('commands/run', function() {
@@ -12,11 +12,12 @@ describe('commands/run', function() {
     sandbox.reset();
   });
   before(function() {
-    mockery.enable();
+    mockery.enable({ useCleanCache: true });
     mockery.warnOnUnregistered(false);
     mockery.registerMock('./setup', setup);
     mockery.registerMock('./parse', parse);
     mockery.registerMock('../core/task', task);
+    mockery.registerMock('../lib/errors', errors);
     mockery.registerMock('../loggers', {console: logger, other: otherLogger});
 
     sut = require('./run');
@@ -66,6 +67,9 @@ describe('commands/run', function() {
     });
     it('runs the named task', function() {
       return sut(taskName, taskVars, {}).then(() => expect(task).to.be.calledWith(_.get(config.tasks, taskName)));
+    });
+    it('rejects if named task is not found', function() {
+      return expect(sut('wrong', taskVars, {})).to.be.rejectedWith(errors.TaskNotFoundError, /wrong/);
     });
     it('rejects if file fails to parse', function() {
       parse.throws(new Error('Test Error'));

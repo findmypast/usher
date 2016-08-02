@@ -7,6 +7,7 @@ const setup = require('./setup');
 const task = require('../core/task');
 const loggers = require('../loggers');
 const ParsingError = require('../lib/errors').ParsingError;
+const TaskNotFoundError = require('../lib/errors').TaskNotFoundError;
 
 const DEFAULT_FILE = 'usher.yml';
 const DEFAULT_LOGGER = 'console';
@@ -28,5 +29,12 @@ module.exports = (taskName, taskVars, opts) => Promise.try(() => {
   }
   const config = _.merge({}, parsedFile, parseVars(taskVars));
   return setup(config, logger)
-  .then(state => task(state.get(`tasks.${taskName}`), state));
+  .then(state => {
+    const taskConfig = state.get(`tasks.${taskName}`);
+    if (!taskConfig) {
+      throw new TaskNotFoundError(taskName);
+    }
+    taskConfig.name = taskName;
+    return task(taskConfig, state);
+  });
 });

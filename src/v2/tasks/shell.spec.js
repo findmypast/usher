@@ -1,30 +1,27 @@
 /* global describe before after beforeEach it expect sandbox mockery errors mocks _*/
 'use strict';
 
+const State = require('../core/state');
+
 describe('tasks/shell', function() {
   beforeEach(function() {
     sandbox.reset();
   });
   before(function() {
-    mockery.enable();
+    mockery.enable({ useCleanCache: true });
+    mockery.warnOnUnregistered(false);
   });
   after(function() {
     mockery.deregisterAll();
     mockery.disable();
   });
-
   let sut;
   const stdout = 'test message';
   const child = {
-    exec: sandbox.stub().callsArgWith(2, null, stdout, null)
+    exec: sandbox.stub().yields(null, stdout, null)
   };
   const logger = mocks.logger;
   before(function() {
-    mockery.registerAllowable('lodash');
-    mockery.registerAllowable('bluebird');
-    mockery.registerAllowable('./shell');
-    mockery.registerAllowable('../lib/errors');
-
     mockery.registerMock('child_process', child);
 
     sut = require('./shell');
@@ -42,22 +39,22 @@ describe('tasks/shell', function() {
       uid: 1,
       gid: 1
     };
-    const state = {
+    const state = new State({
       name: 'shell-test',
       command: 'test command'
-    };
+    }, logger);
     it('executes the command in a shell', function() {
       return sut(state, logger)
-        .then(() => expect(child.exec).to.have.been.calledWith(state.command));
+        .then(() => expect(child.exec).to.have.been.calledWith(state.get('command')));
     });
     it('logs child stdout and returns it', function() {
       return sut(state, logger)
         .then(output => expect(output).to.equal(stdout))
-        .then(() => expect(logger.info).to.have.been.calledWith(state, stdout));
+        .then(() => expect(logger.info).to.have.been.calledWith(stdout));
     });
     it('passes in options', function() {
       return sut(_.merge(state, options), logger)
-        .then(() => expect(child.exec).to.have.been.calledWith(state.command, options));
+        .then(() => expect(child.exec).to.have.been.calledWith(state.get('command'), options));
     });
   });
 });

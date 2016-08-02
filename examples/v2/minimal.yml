@@ -3,4 +3,4 @@ tasks:
   test:
     description: Test
     do: shell
-    command: echo test
+    command: npm test

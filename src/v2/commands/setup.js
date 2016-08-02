@@ -4,6 +4,7 @@ const _ = require('lodash');
 const Promise = require('bluebird');
 const exec = Promise.promisify(require('child_process').exec);
 const State = require('../core/state');
+const defaultTasks = {tasks: require('../tasks')};
 const InvalidConfigError = require('../lib/errors').InvalidConfigError;
 
 const validators = {
@@ -57,7 +58,7 @@ module.exports = (config, logger) => Promise.try(() => {
   return Promise.all(_.map(modulesToInstall, installModule))
   .then(() => {
     const includedTasks = _.reduce(config.include, requireTask, {});
-    const initialState = _.merge({}, includedTasks, config.vars, _.pick(config, 'tasks'), {tasks: includedTasks});
+    const initialState = _.merge({}, defaultTasks, includedTasks, config.vars, _.pick(config, 'tasks'), {tasks: includedTasks});
     const state = new State(initialState, logger);
     return state;
   });
