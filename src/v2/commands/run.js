@@ -10,7 +10,7 @@ const ParsingError = require('../lib/errors').ParsingError;
 const TaskNotFoundError = require('../lib/errors').TaskNotFoundError;
 
 const DEFAULT_FILE = 'usher.yml';
-const DEFAULT_LOGGER = 'console';
+const DEFAULT_LOGGER = 'default';
 
 function parseVars(varList) {
   return {vars: _.fromPairs(_.map(varList, varPair => _.split(varPair, '=')))};
@@ -19,7 +19,7 @@ function parseVars(varList) {
 module.exports = (taskName, taskVars, opts) => Promise.try(() => {
   const file = opts.file || DEFAULT_FILE;
   const loggerName = opts.logger || DEFAULT_LOGGER;
-  const logger = _.get(loggers, loggerName);
+  const Logger = _.get(loggers, loggerName);
   let parsedFile;
   try {
     parsedFile = parse(file);
@@ -28,7 +28,7 @@ module.exports = (taskName, taskVars, opts) => Promise.try(() => {
     throw new ParsingError(error, file);
   }
   const config = _.merge({}, parsedFile, parseVars(taskVars));
-  return setup(config, logger)
+  return setup(config, Logger)
   .then(state => {
     const taskConfig = state.get(`tasks.${taskName}`);
     if (!taskConfig) {

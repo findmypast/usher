@@ -1,5 +1,5 @@
 'use strict';
 
 module.exports = {
-  console: require('./console')
+  default: require('./default')
 };

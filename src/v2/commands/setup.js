@@ -52,14 +52,14 @@ function requireTask(taskList, taskConfig) {
   return taskList;
 }
 
-module.exports = (config, logger) => Promise.try(() => {
+module.exports = (config, Logger) => Promise.try(() => {
   _.mapValues(validators, validator => validator(config));
   const modulesToInstall = _.map(config.include, (include) => _.get(include, 'from'));
   return Promise.all(_.map(modulesToInstall, installModule))
   .then(() => {
     const includedTasks = _.reduce(config.include, requireTask, {});
     const initialState = _.merge({}, defaultTasks, includedTasks, config.vars, _.pick(config, 'tasks'), {tasks: includedTasks});
-    const state = new State(initialState, logger);
+    const state = new State(initialState, Logger);
     return state;
   });
 });

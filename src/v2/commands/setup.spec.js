@@ -28,7 +28,7 @@ describe('commands/setup', function() {
       }
     }
   };
-  const logger = mocks.logger;
+  const Logger = mocks.Logger;
   const execMock = sandbox.stub().yields();
   const mockImport = {
     mock1: sandbox.stub(),
@@ -55,7 +55,7 @@ describe('commands/setup', function() {
       input = _.cloneDeep(validInput);
     });
     beforeEach(function() {
-      return sut(input, logger)
+      return sut(input, Logger)
       .then(value => {
         result = value;
       });
@@ -84,7 +84,7 @@ describe('commands/setup', function() {
       input.vars = ['wrong'];
     });
     it('rejects', function() {
-      return expect(sut(input, logger)).to.be.rejectedWith(errors.InvalidConfigError);
+      return expect(sut(input, Logger)).to.be.rejectedWith(errors.InvalidConfigError);
     });
   });
   describe('if tasks is not an object', function() {
@@ -93,7 +93,7 @@ describe('commands/setup', function() {
       input.tasks = ['wrong'];
     });
     it('rejects', function() {
-      return expect(sut(input, logger)).to.be.rejectedWith(errors.InvalidConfigError);
+      return expect(sut(input, Logger)).to.be.rejectedWith(errors.InvalidConfigError);
     });
   });
   describe('if include is not an array', function() {
@@ -102,7 +102,7 @@ describe('commands/setup', function() {
       input.include = validInput.include[0];
     });
     it('rejects', function() {
-      return expect(sut(input, logger)).to.be.rejectedWith(errors.InvalidConfigError);
+      return expect(sut(input, Logger)).to.be.rejectedWith(errors.InvalidConfigError);
     });
   });
   describe('if an include is lacking from/import', function() {
@@ -115,7 +115,7 @@ describe('commands/setup', function() {
       ];
     });
     it('rejects', function() {
-      return expect(sut(input, logger)).to.be.rejectedWith(errors.InvalidConfigError);
+      return expect(sut(input, Logger)).to.be.rejectedWith(errors.InvalidConfigError);
     });
   });
   describe('if a task is lacking do', function() {
@@ -128,7 +128,7 @@ describe('commands/setup', function() {
       ];
     });
     it('rejects indicating which task is wrong', function() {
-      return expect(sut(input, logger)).to.be.rejectedWith(errors.InvalidConfigError, /bad_task/);
+      return expect(sut(input, Logger)).to.be.rejectedWith(errors.InvalidConfigError, /bad_task/);
     });
   });
 });

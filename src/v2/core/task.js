@@ -22,17 +22,17 @@ module.exports = (task, state) => Promise.try(() => {
     throw error;
   }
   state.push(task);
-  logger.task.begin(state);
+  logger.begin();
   return promiseRetry((retry, number) => exec(state)
     .catch((e) => {
       const error = new errors.TaskFailedError(e, state);
-      logger.task.fail(state, e, number);
+      logger.fail(e, number);
       if (!state.get('options.ignore_errors')) {
         retry(error);
       }
     })
     .then((output) => {
-      logger.task.end(state);
+      logger.end();
       const register = state.get('options.register');
       state.pop();
       if (register) {

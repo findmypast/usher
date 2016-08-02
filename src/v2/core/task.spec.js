@@ -1,9 +1,11 @@
 /* global describe before after beforeEach it expect sandbox mockery errors mocks _*/
 'use strict';
 
+const sinon = require('sinon');
+
 describe('core/task', function() {
   const State = require('../core/state');
-  const logger = mocks.logger;
+  const Logger = mocks.Logger;
   const id = 'test-id';
   const idMock = {
     v4: () => id
@@ -39,7 +41,7 @@ describe('core/task', function() {
     let task;
     beforeEach(function() {
       task = _.cloneDeep(inputTask);
-      state = new State(inputState, logger);
+      state = new State(inputState, Logger);
     });
     it('adds an id to the task', function() {
       return sut(task, state)
@@ -50,22 +52,22 @@ describe('core/task', function() {
     it('calls a task with merged state', function() {
       return sut(task, state)
         .then(() => {
-          const mergedState = new State(inputState, logger);
+          const mergedState = new State(inputState, Logger);
           mergedState.push(task);
-          expect(mockTask).to.have.been.calledWithMatch(mergedState);
+          expect(mockTask).to.have.been.calledWithMatch(sinon.match({_state: mergedState._state}));
         });
     });
     it('logs task start and end', function() {
       return sut(task, state)
         .then(() => {
-          expect(logger.task.begin).to.have.been.calledWith();
-          expect(logger.task.end).to.have.been.calledWith();
+          expect(Logger.begin).to.have.been.calledWith();
+          expect(Logger.end).to.have.been.calledWith();
         });
     });
     it('pops state after completion', function() {
       return sut(task, state)
         .then(() => {
-          expect(state).to.deep.equal(new State(inputState, logger));
+          expect(state).to.deep.equal(new State(inputState, Logger));
         });
     });
     it('adds output to parent state if options.register is set', function() {
@@ -79,12 +81,12 @@ describe('core/task', function() {
   });
   describe('when task doesn\'t exist', function() {
     const task = {do: 'wrong'};
-    const state = new State({}, logger);
+    const state = new State({}, Logger);
     it('logs error and rejects', function() {
       const error = new errors.TaskNotFoundError(task.do);
       return expect(sut(task, state)).to.be.rejectedWith(error.message)
       .then(() => {
-        expect(logger.error).to.have.been.calledWithMatch(error);
+        expect(Logger.error).to.have.been.calledWithMatch(error);
       });
     });
   });
@@ -101,13 +103,13 @@ describe('core/task', function() {
     };
     let state;
     beforeEach(function() {
-      state = new State(inputState, logger);
+      state = new State(inputState, Logger);
     });
     it('logs error and rejects', function() {
       const sutError = new errors.TaskFailedError(taskError, state);
       return expect(sut(_.cloneDeep(task), state)).to.be.rejectedWith(sutError.message)
       .then(() => {
-        expect(logger.task.fail).to.have.been.calledWithMatch(state, sutError);
+        expect(Logger.fail).to.have.been.calledWithMatch(sutError);
       });
     });
     it('logs error and resolves if options.ignore_errors is true', function() {
@@ -115,7 +117,7 @@ describe('core/task', function() {
       const sutError = new errors.TaskFailedError(taskError, state);
       return sut(_.cloneDeep(ignoreErrorsTask), state)
       .then(() => {
-        expect(logger.task.fail).to.have.been.calledWithMatch(state, sutError);
+        expect(Logger.fail).to.have.been.calledWithMatch(sutError);
       });
     });
     it('retries the task 2 times if options.retry.retries = 2', function() {

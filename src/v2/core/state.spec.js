@@ -20,12 +20,12 @@ describe('core/state', function() {
     object_ref: '<%=object%>',
     complex_ref: '<%=string%> and <%=object_ref%>'
   };
-  const logger = mocks.loggerMock;
+  const Logger = mocks.Logger;
   before(function() {
     Sut = require('./state');
   });
   beforeEach(function() {
-    sut = new Sut(initialState, logger);
+    sut = new Sut(initialState, Logger);
   });
   describe('new State()', function() {
     it('sets the initial state', function() {

@@ -6,7 +6,7 @@ describe('commands/run', function() {
   const setup = sandbox.stub();
   const parse = sandbox.stub();
   const task = sandbox.stub();
-  const logger = mocks.logger;
+  const Logger = mocks.Logger;
   const otherLogger = sandbox.stub();
   beforeEach(function() {
     sandbox.reset();
@@ -18,7 +18,7 @@ describe('commands/run', function() {
     mockery.registerMock('./parse', parse);
     mockery.registerMock('../core/task', task);
     mockery.registerMock('../lib/errors', errors);
-    mockery.registerMock('../loggers', {console: logger, other: otherLogger});
+    mockery.registerMock('../loggers', {default: Logger, other: otherLogger});
 
     sut = require('./run');
   });
@@ -60,10 +60,10 @@ describe('commands/run', function() {
           var2: 'value2',
           var3: 'value3'
         }
-      }, logger));
+      }, Logger));
     });
     it('given no vars calls setup with config', function() {
-      return sut(taskName, [], {}).then(() => expect(setup).to.be.calledWith(config, logger));
+      return sut(taskName, [], {}).then(() => expect(setup).to.be.calledWith(config, Logger));
     });
     it('runs the named task', function() {
       return sut(taskName, taskVars, {}).then(() => expect(task).to.be.calledWith(_.get(config.tasks, taskName)));

@@ -20,7 +20,7 @@ describe('tasks/shell', function() {
   const child = {
     exec: sandbox.stub().yields(null, stdout, null)
   };
-  const logger = mocks.logger;
+  const Logger = mocks.Logger;
   before(function() {
     mockery.registerMock('child_process', child);
 
@@ -42,18 +42,18 @@ describe('tasks/shell', function() {
     const state = new State({
       name: 'shell-test',
       command: 'test command'
-    }, logger);
+    }, Logger);
     it('executes the command in a shell', function() {
-      return sut(state, logger)
+      return sut(state, Logger)
         .then(() => expect(child.exec).to.have.been.calledWith(state.get('command')));
     });
     it('logs child stdout and returns it', function() {
-      return sut(state, logger)
+      return sut(state, Logger)
         .then(output => expect(output).to.equal(stdout))
-        .then(() => expect(logger.info).to.have.been.calledWith(stdout));
+        .then(() => expect(Logger.info).to.have.been.calledWith(stdout));
     });
     it('passes in options', function() {
-      return sut(_.merge(state, options), logger)
+      return sut(_.merge(state, options), Logger)
         .then(() => expect(child.exec).to.have.been.calledWith(state.get('command'), options));
     });
   });

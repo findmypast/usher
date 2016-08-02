@@ -3,10 +3,10 @@
 const _ = require('lodash');
 
 module.exports = class State {
-  constructor(initialState, logger) {
+  constructor(initialState, Logger) {
     this._state = _.cloneDeep(initialState);
     this.stack = [_.cloneDeep(initialState)];
-    this.logger = logger;
+    this.logger = new Logger(this);
   }
   get(path, defaultValue) {
     return this.dereference(_.get(this._state, path, defaultValue));

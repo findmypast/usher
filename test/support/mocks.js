@@ -1,16 +1,32 @@
+/* global sandbox */
 'use strict';
 
-const sinon = require('sinon').sandbox.create();
+const Logger = class MockLogger {
+  constructor(state) {
+    this.state = state;
+  }
+  begin(...args) {
+    Logger.begin(...args);
+  }
+  end(...args) {
+    Logger.end(...args);
+  }
+  fail(...args) {
+    Logger.fail(...args);
+  }
+  info(...args) {
+    Logger.info(...args);
+  }
+  error(...args) {
+    Logger.error(...args);
+  }
+};
+Logger.begin = sandbox.stub();
+Logger.end = sandbox.stub();
+Logger.fail = sandbox.stub();
+Logger.info = sandbox.stub();
+Logger.error = sandbox.stub();
 
 module.exports = {
-  sandbox: sinon,
-  logger: {
-    task: {
-      begin: sinon.stub(),
-      end: sinon.stub(),
-      fail: sinon.stub()
-    },
-    info: sinon.stub(),
-    error: sinon.stub()
-  }
+  Logger: Logger
 };
