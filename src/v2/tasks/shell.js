@@ -2,7 +2,7 @@
 
 const Promise = require('bluebird');
 const _ = require('lodash');
-const exec = Promise.promisify(require('child_process').exec);
+const exec = require('child_process').exec;
 
 const ACCEPTED_OPTIONS = [
   'cwd',
@@ -15,11 +15,13 @@ const ACCEPTED_OPTIONS = [
   'gid'
 ];
 
-module.exports = (state) => Promise.try(() => {
+module.exports = (state) => new Promise((resolve, reject) => {
   const options = _.reduce(ACCEPTED_OPTIONS, (result, value) => _.set(result, value, state.get(value)), {});
-  return exec(state.get('command'), options)
-    .then(output => {
-      state.logger.info(output);
-      return output;
-    });
+  exec(state.get('command'), options, (err, stdout) => {
+    state.logger.info(stdout);
+    if (err) {
+      reject(err);
+    }
+    resolve(stdout);
+  });
 });

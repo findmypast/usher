@@ -44,17 +44,30 @@ describe('tasks/shell', function() {
       command: 'test command'
     }, options), Logger);
     it('executes the command in a shell', function() {
-      return sut(state, Logger)
+      return sut(state)
         .then(() => expect(child.exec).to.have.been.calledWith(state.get('command')));
     });
     it('logs child stdout and returns it', function() {
-      return sut(state, Logger)
+      return sut(state)
         .then(output => expect(output).to.equal(stdout))
         .then(() => expect(Logger.info).to.have.been.calledWith(stdout));
     });
     it('passes in options', function() {
-      return sut(state, Logger)
+      return sut(state)
         .then(() => expect(child.exec).to.have.been.calledWith(state.get('command'), options));
+    });
+    describe('if the command fails', function() {
+      const expectedError = new Error('Test error');
+      before(function() {
+        child.exec.yields(expectedError, stdout, null);
+      });
+      it('should log output anyway', function() {
+        return expect(sut(state)).to.be.rejectedWith(expectedError)
+        .then(() => expect(Logger.info).to.have.been.calledWith(stdout));
+      });
+      after(function() {
+        child.exec.reset();
+      });
     });
   });
 });

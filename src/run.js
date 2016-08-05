@@ -13,16 +13,15 @@ module.exports = (taskName, taskVars, opts) => {
     return isV2(fileName)
     .then(result => {
       if (result) {
-        return v2(taskName, taskVars, opts);
+        return v2;
       }
-      return v1(taskName, taskVars, opts);
+      return v1;
     });
   }
   if (opts.file) {
     return checkVersion(opts.file);
   }
   return checkVersion('usher.yml')
-  .catch(() => {
-    return checkVersion('.usher.yml');
-  });
+  .catch(() => checkVersion('.usher.yml'))
+  .then(run => run(taskName, taskVars, opts));
 };
