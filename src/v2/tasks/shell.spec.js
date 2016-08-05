@@ -39,10 +39,10 @@ describe('tasks/shell', function() {
       uid: 1,
       gid: 1
     };
-    const state = new State({
+    const state = new State(_.merge({}, {
       name: 'shell-test',
       command: 'test command'
-    }, Logger);
+    }, options), Logger);
     it('executes the command in a shell', function() {
       return sut(state, Logger)
         .then(() => expect(child.exec).to.have.been.calledWith(state.get('command')));

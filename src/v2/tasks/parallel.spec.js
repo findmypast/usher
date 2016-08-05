@@ -3,7 +3,7 @@
 
 const State = require('../core/state');
 
-describe('tasks/sequence', function() {
+describe('tasks/parallel', function() {
   beforeEach(function() {
     sandbox.reset();
   });
@@ -21,21 +21,20 @@ describe('tasks/sequence', function() {
   before(function() {
     mockery.registerMock('../core/task', task);
 
-    sut = require('./sequence');
+    sut = require('./parallel');
   });
   describe('given valid input', function() {
     const options = {
       actions: [
         {
-          do: 'first-thing'
+          description: 'a task',
+          do: 'mock'
         },
-        {
-          do: 'second-thing'
-        }
+        () => true
       ]
     };
     const state = new State(options, Logger);
-    it('executes the tasks in order', function() {
+    it('executes the tasks', function() {
       return sut(state)
         .then(() => {
           expect(task.firstCall).to.have.been.calledWithMatch(options.actions[0]);
@@ -47,9 +46,8 @@ describe('tasks/sequence', function() {
       before(function() {
         task.onFirstCall().rejects(expectedError);
       });
-      it('should not execute the next step', function() {
-        return expect(sut(state)).to.be.rejectedWith(expectedError)
-        .then(() => expect(task).to.not.have.been.calledWithMatch(options.actions[1]));
+      it('should reject', function() {
+        return expect(sut(state)).to.be.rejectedWith(expectedError);
       });
       after(function() {
         task.onFirstCall().resolves();

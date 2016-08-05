@@ -16,7 +16,7 @@ const ACCEPTED_OPTIONS = [
 ];
 
 module.exports = (state) => Promise.try(() => {
-  const options = _.pick(state, ACCEPTED_OPTIONS);
+  const options = _.reduce(ACCEPTED_OPTIONS, (result, value) => _.set(result, value, state.get(value)), {});
   return exec(state.get('command'), options)
     .then(output => {
       state.logger.info(output);

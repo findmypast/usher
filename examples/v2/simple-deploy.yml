@@ -10,7 +10,7 @@ tasks:
   build:
     description: Build the docker image and push it to the registry
     do: series
-    steps:
+    actions:
       - description: Build the image
         do: shell
         command: docker build --force-rm -t <%=registry%>/<%=app%>
@@ -25,7 +25,7 @@ tasks:
         required: yes
         type: string
     do: series
-    steps:
+    actions:
       - description: Host pulls the image
         do: shell
         command: docker pull <%=registry%>/<%=image%>

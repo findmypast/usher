@@ -1,9 +1,9 @@
 version: '2'
 tasks:
   test:
-    description: running steps
+    description: running actions
     do: sequence
-    steps:
+    actions:
       - description: running tests
         do: shell
         command: npm test

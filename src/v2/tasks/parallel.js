@@ -10,5 +10,5 @@ const ACCEPTED_OPTIONS = [
 
 module.exports = (state) => Promise.try(() => {
   const options = _.reduce(ACCEPTED_OPTIONS, (result, value) => _.set(result, value, state.get(value)), {});
-  return Promise.mapSeries(options.actions, step => task(step, state));
+  return Promise.map(options.actions, action => task(action, state));
 });
