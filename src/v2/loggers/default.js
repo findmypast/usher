@@ -37,7 +37,9 @@ module.exports = class Logger {
     }
     this.tasks.pop();
   }
-  info() {}
+  info(message) {
+    log(message);
+  }
   error(error) {
     this.errors.concat(error.message + '\n');
   }
