@@ -21,24 +21,24 @@ describe('tasks/parallel', function() {
   before(function() {
     mockery.registerMock('../core/task', task);
 
-    sut = require('./parallel');
+    sut = require('./for');
   });
   describe('given valid input', function() {
     const options = {
-      actions: [
-        {
-          description: 'a task',
-          do: 'mock'
-        },
-        () => true
-      ]
+      do: 'for',
+      every: 'thing',
+      in: [
+        'first-thing',
+        'second-thing'
+      ],
+      exec: 'task'
     };
     const state = new State(options, Logger);
-    it('executes the tasks', function() {
+    it('executes the tasks with each value', function() {
       return sut(state)
         .then(() => {
-          expect(task.firstCall).to.have.been.calledWithMatch(options.actions[0]);
-          expect(task.secondCall).to.have.been.calledWithMatch(options.actions[1]);
+          expect(task.firstCall).to.have.been.calledWithMatch({do: options.exec, thing: options.in[0]});
+          expect(task.secondCall).to.have.been.calledWithMatch({do: options.exec, thing: options.in[1]});
         });
     });
     describe('if one step fails', function() {
