@@ -53,7 +53,7 @@ describe('tasks/shell', function() {
         .then(() => expect(Logger.info).to.have.been.calledWith(stdout));
     });
     it('passes in options', function() {
-      return sut(_.merge(state, options), Logger)
+      return sut(state, Logger)
         .then(() => expect(child.exec).to.have.been.calledWith(state.get('command'), options));
     });
   });
