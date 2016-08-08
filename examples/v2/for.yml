@@ -1,0 +1,16 @@
+version: '2'
+tasks:
+  test:
+    description: running actions
+    do: for
+    every: string
+    in:
+      - one
+      - two
+      - three
+      - four
+      - five
+    exec: echo
+  echo:
+    do: shell
+    command: echo <%=string%>

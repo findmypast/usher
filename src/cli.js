@@ -4,7 +4,8 @@
 
 const program = require('commander');
 const version = require('./../package.json').version;
-const run = require('./run');
+const handle = require('./error-handler');
+const run = handle(require('./run'));
 const list = require('./list');
 
 program

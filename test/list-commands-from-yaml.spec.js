@@ -18,7 +18,7 @@ const logger = {
   info: sinon.spy()
 };
 
-const list = rewire('../src/list');
+const list = rewire('../src/v1/list');
 list.__set__({
   logger: logger
 });

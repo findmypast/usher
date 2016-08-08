@@ -1,0 +1,29 @@
+version: '2'
+vars:
+  registry: docker-registry.dun.fh
+  image: findmypast/usher
+
+tasks:
+  build:
+    description: build the docker image
+    do: shell
+    command: docker build --force-rm -t <%=registry%>/<%=image%> .
+
+  push:
+    description: push the docker iamge to the registry
+    do: shell
+    command: docker push <%=registry%>/<%=image%>
+
+  test:
+    description: run unit tests (in container)
+    do: shell
+    command: docker run --name usher-test-runner --rm <%=registry%>/<%=image%> npm run test:ci
+
+  publish:
+    description: publish package to npm
+    do: shell
+    command: docker run -e NPM_USER -e NPM_PASSWORD -e NPM_EMAIL --name usher-publisher --rm <%=registry%>/<%=image%> npm run publish-to-npm
+    env:
+      - NPM_USER=<%=user%>
+      - NPM_PASSWORD=<%=password%>
+      - NPM_EMAIL=<%=email%>

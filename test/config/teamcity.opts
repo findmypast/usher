@@ -1,0 +1,3 @@
+--recursive
+--reporter mocha-teamcity-reporter
+--require test/support/common

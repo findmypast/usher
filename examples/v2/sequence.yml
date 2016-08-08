@@ -1,0 +1,12 @@
+version: '2'
+tasks:
+  test:
+    description: running actions
+    do: sequence
+    actions:
+      - description: running tests
+        do: shell
+        command: npm test
+      - description: printing done
+        do: shell
+        command: echo done

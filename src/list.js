@@ -1,54 +1,27 @@
 'use strict';
 
-const parser = require('js-yaml');
-const chalk = require('chalk');
-const fs = require('fs');
-const _ = require('lodash');
-const getTaskConfig = require('./modules/get-task-config');
-let logger = require('winston');
+const firstline = require('firstline');
+const v1 = require('./v1/list');
+const v2 = require('./v2/commands/list');
 
-function onlyDescription(task) {
-  return _.isEqual(_.keys(task), ['description']);
-}
-
-function getDescriptionsFromTask(task) {
-  return _.filter(_.map(task, (t) => t.description), (description) => description);
-}
-
-function listAll(opts) {
-  const usherFile = opts.file || '.usher.yml';
-  const usherConfigs = parser.safeLoad(fs.readFileSync(usherFile, 'utf8'));
-
-  logger.info(chalk.bold(`All tasks for ${usherFile}:`));
-  _.forOwn(usherConfigs.tasks, (config, key) => {
-    const descriptionTask = _.find(config, (t) => t.description);
-    const description = _.get(descriptionTask, 'description', '');
-    logger.info(`${chalk.underline(key)} - ${description}`);
-  });
-}
-
-function listTask(taskName, opts) {
-  const taskConfig = getTaskConfig(taskName, {}, opts);
-  const descriptionTask = _.find(taskConfig.task, (t) => t.description);
-  const description = _.get(descriptionTask, 'description', '');
-
-  const stepDescriptions = getDescriptionsFromTask(taskConfig.task);
-
-  if (onlyDescription(descriptionTask)) {
-    stepDescriptions.shift();
-    logger.info(`${chalk.bold(taskName)} - ${chalk.underline(description)}`);
-  }
-
-  _.forEach(stepDescriptions, (desc) => {
-    logger.info(`- ${desc}`);
-  });
+function isV2(file) {
+  return firstline(file).then(line => line.match(/version.*'2'/));
 }
 
 module.exports = (taskName, opts) => {
-  if (!taskName) {
-    listAll(opts);
+  function checkVersion(fileName) {
+    return isV2(fileName)
+    .then(result => {
+      if (result) {
+        return v2;
+      }
+      return v1;
+    });
   }
-  else {
-    listTask(taskName, opts);
+  if (opts.file) {
+    return checkVersion(opts.file);
   }
+  return checkVersion('usher.yml')
+  .catch(() => checkVersion('.usher.yml'))
+  .then(list => list(taskName, opts));
 };
