@@ -19,7 +19,8 @@ module.exports = (taskName, taskVars, opts) => {
     });
   }
   if (opts.file) {
-    return checkVersion(opts.file);
+    return checkVersion(opts.file)
+    .then(run => run(taskName, taskVars, opts));
   }
   return checkVersion('usher.yml')
   .catch(() => checkVersion('.usher.yml'))
