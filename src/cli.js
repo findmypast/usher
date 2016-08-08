@@ -20,6 +20,14 @@ program
   .action(run);
 
 program
+  .command('* <preset> [args...]')
+  .description('Run an Usher preset')
+  .option('-f, --file [filepath]', 'Filepath for .usher.yml')
+  .option('-v, --verbose', 'Enable verbose output')
+  .option('-q, --quiet', 'Disable stdout logging (will still log errors)')
+  .action(run);
+
+program
   .command('list [preset]')
   .description('List all or specific task description')
   .option('-f, --file [filepath]', 'Filepath for .usher.yml')
