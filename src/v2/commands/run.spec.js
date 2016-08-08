@@ -8,6 +8,7 @@ describe('commands/run', function() {
   const task = sandbox.stub();
   const Logger = mocks.Logger;
   const otherLogger = sandbox.stub();
+  const quietLogger = sandbox.stub();
   beforeEach(function() {
     sandbox.reset();
   });
@@ -18,7 +19,7 @@ describe('commands/run', function() {
     mockery.registerMock('./parse', parse);
     mockery.registerMock('../core/task', task);
     mockery.registerMock('../lib/errors', errors);
-    mockery.registerMock('../loggers', {default: Logger, verbose: otherLogger});
+    mockery.registerMock('../loggers', {default: Logger, verbose: otherLogger, quiet: quietLogger});
 
     sut = require('./run');
   });
@@ -67,6 +68,9 @@ describe('commands/run', function() {
     });
     it('if passed the option verbose use verbose logger', function() {
       return sut(taskName, [], {verbose: true}).then(() => expect(setup).to.be.calledWith(config, otherLogger));
+    });
+    it('if passed the option quiet use quiet logger', function() {
+      return sut(taskName, [], {quiet: true}).then(() => expect(setup).to.be.calledWith(config, quietLogger));
     });
     it('runs the named task', function() {
       return sut(taskName, taskVars, {}).then(() => expect(task).to.be.calledWith(_.get(config.tasks, taskName)));

@@ -19,6 +19,9 @@ function getLogger(opts) {
   if (opts.verbose) {
     return loggers.verbose;
   }
+  if (opts.quiet) {
+    return loggers.quiet;
+  }
   return loggers.default;
 }
 
