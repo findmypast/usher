@@ -1,4 +1,4 @@
-/* global describe before after beforeEach it expect sandbox mockery errors mocks _*/
+/* global describe before after beforeEach it expect sandbox mockery mocks _*/
 'use strict';
 
 const State = require('../core/state');
@@ -47,10 +47,9 @@ describe('tasks/shell', function() {
       return sut(state)
         .then(() => expect(child.exec).to.have.been.calledWith(state.get('command')));
     });
-    it('logs child stdout and returns it', function() {
+    it('resolves with stdout', function() {
       return sut(state)
-        .then(output => expect(output).to.equal(stdout))
-        .then(() => expect(Logger.info).to.have.been.calledWith(stdout));
+        .then(output => expect(output).to.equal(stdout));
     });
     it('passes in options', function() {
       return sut(state)
@@ -61,9 +60,8 @@ describe('tasks/shell', function() {
       before(function() {
         child.exec.yields(expectedError, stdout, null);
       });
-      it('should log output anyway', function() {
-        return expect(sut(state)).to.be.rejectedWith(expectedError)
-        .then(() => expect(Logger.info).to.have.been.calledWith(stdout));
+      it('should reject with the error', function() {
+        return expect(sut(state)).to.be.rejectedWith(expectedError);
       });
       after(function() {
         child.exec.reset();
