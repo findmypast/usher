@@ -59,10 +59,10 @@ tasks:
 
 Tasks are named objects with the properties:
 
-- do(required): The name of the function to execute. This may be a default function, an imported function, or even another task defined in the same file.
-- description: A string describing the task. Will be displayed in `usher list`. Optional, for documentation purposes only.
-- options: Task-level options like retry. See below for available options.
-- [arguments...]: Any other properties will be passed onto the do function. Each function will define its own set of named arguments that it will use.
+- `do <String>` Required. The name of the function to execute. This may be a default function, an imported function, or even another task defined in the same file.
+- `description <String>` A string describing the task. Will be displayed in `usher list`. Optional, for documentation purposes only.
+- `options <Object>` Task-level options like retry. See below for available options.
+- Any other properties will be passed onto the do function. Each function will define its own set of named arguments that it will use.
 
 #### Task options
 
@@ -70,11 +70,11 @@ Tasks are named objects with the properties:
 
 Retries the task if it fails. Uses the [promise-retry](https://www.npmjs.com/package/promise-retry) package and takes all of its arguments:
 
-- `retries`: The maximum amount of times to retry the operation. Default is `10`.
-- `factor`: The exponential factor to use. Default is `2`.
-- `minTimeout`: The number of milliseconds before starting the first retry. Default is `1000`.
-- `maxTimeout`: The maximum number of milliseconds between two retries. Default is `Infinity`.
-- `randomize`: Randomizes the timeouts by multiplying with a factor between `1` to `2`. Default is `false`.
+- `retries <Number>`: The maximum amount of times to retry the operation. Default is `10`.
+- `factor <Number>`: The exponential factor to use. Default is `2`.
+- `minTimeout <Number>`: The number of milliseconds before starting the first retry. Default is `1000`.
+- `maxTimeout <Number>`: The maximum number of milliseconds between two retries. Default is `Infinity`.
+- `randomize <Bool>`: Randomizes the timeouts by multiplying with a factor between `1` to `2`. Default is `false`.
 
 ##### Register
 
