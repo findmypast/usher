@@ -96,16 +96,16 @@ These tasks are always available without having to be imported. Think of them as
 
 Uses [child_process.exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback) to run a command in a shell. Takes the same arguments as `exec`, that is:
 
-- command <String> Required. The command to run, with space-separated arguments
-- cwd <String> Current working directory of the child process
-- env <Object> Environment key-value pairs
-- encoding <String> (Default: 'utf8')
-- shell <String> Shell to execute the command with (Default: '/bin/sh' on UNIX, 'cmd.exe' on Windows, The shell should understand the -c switch on UNIX or /s /c on Windows. On Windows, command line parsing should be compatible with cmd.exe.)
-- timeout <Number> (Default: 0)
-- maxBuffer <Number> largest amount of data (in bytes) allowed on stdout or stderr - if exceeded child process is killed (Default: 200*1024)
-- killSignal <String> (Default: 'SIGTERM')
-- uid <Number> Sets the user identity of the process. (See setuid(2).)
-- gid <Number> Sets the group identity of the process. (See setgid(2).)
+- `command <String>` Required. The command to run, with space-separated arguments
+- `cwd <String>` Current working directory of the child process
+- `env <Object>` Environment key-value pairs
+- `encoding <String>` (Default: 'utf8')
+- `shell <String>` Shell to execute the command with (Default: '/bin/sh' on UNIX, 'cmd.exe' on Windows, The shell should understand the -c switch on UNIX or /s /c on Windows. On Windows, command line parsing should be compatible with cmd.exe.)
+- `timeout <Number>` (Default: 0)
+- `maxBuffer <Number>` largest amount of data (in bytes) allowed on stdout or stderr - if exceeded child process is killed (Default: 200*1024)
+- `killSignal <String>` (Default: 'SIGTERM')
+- `uid <Number>` Sets the user identity of the process.
+- `gid <Number>` Sets the group identity of the process.
 
 stdout/stderr will be logged to output. If the command exits with an exit code other than 0, the task will fail.
 
@@ -121,7 +121,7 @@ If any task fails, the sequence will immediately be interrupted and fail. Follow
 
 Runs an array of tasks in parallel. Takes a single argument:
 
-- actions <Array> Required. The tasks to run. Must be valid task objects (that is, objects with a `do` attribute) or references to valid functions.
+- `actions <Array>` Required. The tasks to run. Must be valid task objects (that is, objects with a `do` attribute) or references to valid functions.
 
 The tasks will not be run in order. All tasks will be attempted, but if any one fails the parallel will be marked as failed.
 
@@ -129,9 +129,9 @@ The tasks will not be run in order. All tasks will be attempted, but if any one 
 
 Runs a task once for each item in an array, putting that item into a given variable. Essentially, this works like a standard foreach loop. Takes the following arguments:
 
-- every <String> Required. The variable name to replace with the array item on each iteration.
-- in <Array> Required. The array to iterate over.
-- exec <String> Required. The name of the task to run on each iteration.
+- `every <String>` Required. The variable name to replace with the array item on each iteration.
+- `in <Array>` Required. The array to iterate over.
+- `exec <String>` Required. The name of the task to run on each iteration.
 
 ### Variables
 
@@ -195,5 +195,5 @@ include:
 
 `include` takes an array of import statements. These are composed of:
 
-- from <String> Required. The source to import from. Accepts any string that `npm install` does, so relative paths, npm modules, git urls...
-- import <Array> Required. The functions to import. May be simply the names of the functions, or optionally include an `as [local-name]` suffix to import them with a different name than they are declared with in their module.
+- `from <String>` Required. The source to import from. Accepts any string that `npm install` does, so relative paths, npm modules, git urls...
+- `import <Array>` Required. The functions to import. May be simply the names of the functions, or optionally include an `as [local-name]` suffix to import them with a different name than they are declared with in their module.
