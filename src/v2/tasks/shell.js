@@ -35,7 +35,7 @@ module.exports = (state) => new Promise((resolve, reject) => {
     .pipe(split())
     .on('data', line => {
       if (line) {
-        state.logger.error(line);
+        state.logger.error({message: line});
       }
     });
 });
