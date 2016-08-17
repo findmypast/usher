@@ -24,6 +24,6 @@ tasks:
     do: shell
     command: docker run -e NPM_USER -e NPM_PASSWORD -e NPM_EMAIL --name usher-publisher --rm <%=registry%>/<%=image%> npm run publish-to-npm
     env:
-      - NPM_USER=<%=user%>
-      - NPM_PASSWORD=<%=password%>
-      - NPM_EMAIL=<%=email%>
+      NPM_USER: <%=user%>
+      NPM_PASSWORD: <%=password%>
+      NPM_EMAIL: <%=email%>
