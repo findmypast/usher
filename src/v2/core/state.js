@@ -24,6 +24,14 @@ module.exports = class State {
     this._state = _.merge({}, ...this.stack);
     return lastState;
   }
+
+  peek() {
+    const lastState = this.stack.pop();
+    this.stack.push(lastState);
+
+    return lastState;
+  }
+
   dereference(object) {
     if (!_.isString(object)) {
       return object;
