@@ -33,9 +33,14 @@ module.exports = class State {
   }
 
   dereference(object) {
+    if (_.isObject(object)) {
+      return this.dereferenceObject(object);
+    }
+
     if (!_.isString(object)) {
       return object;
     }
+
     const refPattern = /<%=(.*?)%>/;
     const refs = object.match(refPattern);
     if (!refs) {
@@ -45,5 +50,12 @@ module.exports = class State {
       return this.get(refs[1]);
     }
     return this.dereference(_.template(object)(this._state));
+  }
+
+  dereferenceObject(object) {
+    _.forOwn(object, (value, key) => {
+      object[key] = this.dereference(value);
+    })
+    return object;
   }
 };

@@ -14,11 +14,24 @@ describe('core/state', function() {
     test: 'correct!',
     other: 'thing'
   };
+  const expectedComplexObject = {
+    user: 'username',
+    password: 'password',
+    email: 'email@somewhere.com'
+  };
   const initialState = {
     string: testString,
     object: testObject,
     object_ref: '<%=object%>',
-    complex_ref: '<%=string%> and <%=object_ref%>'
+    complex_ref: '<%=string%> and <%=object_ref%>',
+    complex_object: {
+      user: '<%=user%>',
+      password: '<%=password%>',
+      email: '<%=email%>'
+    },
+    email: 'email@somewhere.com',
+    password: 'password',
+    user: 'username'
   };
   const Logger = mocks.Logger;
   before(function() {
@@ -54,6 +67,9 @@ describe('core/state', function() {
     });
     it('interpolates references onto a string', function() {
       expect(sut.get('complex_ref')).to.equal(`${testString} and ${testObject}`);
+    });
+    it('interpolates references within a complex object', function() {
+      expect(sut.get('complex_object')).to.deep.equal(expectedComplexObject);
     });
   });
   describe('state.set()', function() {
