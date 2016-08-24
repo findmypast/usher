@@ -1,6 +1,6 @@
 {
   "name": "usher-cli",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "A command line app to usher other command line applications",
   "bin": {
     "usher": "./src/cli.js"
