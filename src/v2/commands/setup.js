@@ -7,6 +7,19 @@ const State = require('../core/state');
 const defaultTasks = {tasks: require('../tasks')};
 const InvalidConfigError = require('../lib/errors').InvalidConfigError;
 
+function tasksHaveDo(config) {
+  _.mapValues(config.tasks, (task, key) => {
+    if (_.has(task, 'tasks')) {
+      tasksHaveDo(task.tasks);
+    }
+    else {
+      if (!_.has(task, 'do')) {
+        throw new InvalidConfigError(`task ${key} missing "do" property`);
+      }
+    }
+  });
+}
+
 const validators = {
   varsIsObject: config => {
     if (!_.isPlainObject(config.vars)) {
@@ -29,37 +42,60 @@ const validators = {
     }
   },
   tasksHaveDo: config => {
-    _.mapValues(config.tasks, (task, key) => {
-      if (!_.has(task, 'do')) {
-        throw new InvalidConfigError(`task ${key} missing "do" property`);
-      }
-    });
+    tasksHaveDo(config);
   }
 };
 
 function installModule(moduleName) {
+  if (_.endsWith(moduleName, '.yml')) {
+    return Promise.resolve();
+  }
   return exec(`npm install ${moduleName}`);
 }
 
 function requireTask(taskList, taskConfig) {
-  const task = require(taskConfig.from);
+  return require(taskConfig.name);
+}
+
+function loadAndParseYmlFile(taskList, taskConfig) {
+  const file = require('./parse')(taskConfig.from);
+
+  return file.tasks;
+}
+
+function importTasklist(taskList, taskConfig) {
+  const importName = taskConfig.name || taskConfig.from;
+  const tasks = _.endsWith(taskConfig.from, '.yml')
+    ? loadAndParseYmlFile(taskList, taskConfig)
+    : requireTask(taskList, taskConfig);
+
+  const builtTasks = {};
+
   _.each(taskConfig.import, taskImport => {
     let requireName, taskName;
     const split = _.split(taskImport, ' as ');
     [requireName, taskName] = split.length === 2 ? split : [taskImport, taskImport];
-    _.set(taskList, taskName, _.get(task, requireName));
+    _.set(builtTasks, taskName, _.get(tasks, requireName));
   });
+
+  taskList[importName] = {
+    tasks: builtTasks
+  };
+
   return taskList;
 }
+
 
 module.exports = (config, Logger) => Promise.try(() => {
   _.mapValues(validators, validator => validator(config));
   const modulesToInstall = _.map(config.include, (include) => _.get(include, 'from'));
   return Promise.all(_.map(modulesToInstall, installModule))
   .then(() => {
-    const includedTasks = _.reduce(config.include, requireTask, {});
-    const initialState = _.merge({}, defaultTasks, includedTasks, config.vars, _.pick(config, 'tasks'), {tasks: includedTasks});
+    const reducedTasks = _.reduce(config.include, importTasklist, {});
+    const initialState = _.merge({}, defaultTasks, config.vars, _.pick(config, 'tasks'), {tasks: reducedTasks});
     const state = new State(initialState, Logger);
+
+    console.log(initialState);
     return state;
   });
 });

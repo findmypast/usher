@@ -12,12 +12,14 @@ describe('commands/setup', function() {
     },
     include: [
       {
-        from: 'mock-import',
-        import: ['mock1', 'mock2']
+        from: 'mockInclude',
+        name: 'mockInclude',
+        import: ['mock1 as renamed_mock1', 'mock2']
       },
       {
-        from: 'mock-import',
-        import: ['mock1 as other_mock']
+        from: 'bastion.yml',
+        name: 'bastion',
+        import: ['create_project', 'create_parameter']
       }
     ],
     tasks: {
@@ -25,9 +27,28 @@ describe('commands/setup', function() {
         description: uuid(),
         do: 'other_mock',
         arg: 'test-var'
+      },
+      bastion: {
+        tasks: {
+          create_project: {
+            description: 'Create a TeamCity project and associated configurations',
+            'do': 'shell',
+            command: 'bastion create microservice test_service service_description'
+          },
+          create_parameter: {
+            description: 'Adds a parameter to a TeamCity project',
+            'do': 'shell',
+            command: 'bastion parameter test_service build_id parameter_name secret_key_base -p'
+          }
+        }
       }
     }
   };
+
+  function parseMock() {
+    return validInput.tasks.bastion;
+  }
+
   const Logger = mocks.Logger;
   const execMock = sandbox.stub().yields();
   const mockImport = {
@@ -41,7 +62,8 @@ describe('commands/setup', function() {
     mockery.enable({ useCleanCache: true });
     mockery.warnOnUnregistered(false);
     mockery.registerMock('child_process', { exec: execMock });
-    mockery.registerMock('mock-import', mockImport);
+    mockery.registerMock('mockInclude', mockImport);
+    mockery.registerMock('./parse', parseMock);
     mockery.registerMock('../lib/errors', errors);
 
     sut = require('./setup');
@@ -66,16 +88,18 @@ describe('commands/setup', function() {
     it('puts tasks into initial state', function() {
       expect(result.get('tasks.test')).to.deep.equal(input.tasks.test);
     });
+    it('puts child tasks into initial state', function() {
+      expect(result.get('tasks.bastion')).to.deep.equal(input.tasks.bastion);
+    });
     it('puts default tasks into initial state', function() {
       expect(result.get('tasks.shell')).to.deep.equal(require('../tasks').shell);
     });
     it('installs includes to cache', function() {
-      expect(execMock).to.have.been.calledWith('npm install mock-import');
+      expect(execMock).to.have.been.calledWith('npm install mockInclude');
     });
     it('merges required include to tasks', function() {
-      expect(result.get('tasks.mock1')).to.equal(mockImport.mock1);
-      expect(result.get('tasks.mock2')).to.equal(mockImport.mock2);
-      expect(result.get('tasks.other_mock')).to.equal(mockImport.mock1);
+      expect(result.get('tasks.mockInclude.tasks.mock2')).to.equal(mockImport.mock2);
+      expect(result.get('tasks.mockInclude.tasks.renamed_mock1')).to.equal(mockImport.mock1);
     });
   });
   describe('if vars is not an object', function() {
