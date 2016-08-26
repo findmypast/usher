@@ -7,19 +7,39 @@ const errors = require('../lib/errors');
 const promiseRetry = require('promise-retry');
 
 function getTask(task, state) {
-  const foundTask = state.get('tasks.' + task.do);
+  // Use the state to get the current path in the task tree and attempt to find
+  // the task in that path. Do this first incase of name conflicts with other
+  // tasks in the root of the tree.
+
+  const currentPath = state.get('currentPath', '');
+
+  let foundTask = state.get(`${currentPath}.${task.do}`);
 
   if (foundTask) {
     return foundTask;
   }
 
-  // shared_tasks.yeomon => tasks.shared_tasks.tasks.yeoman
+  foundTask = state.get('tasks.' + task.do);
+
+  if (foundTask) {
+    return foundTask;
+  }
+
+
+  // Attempt to find the task in the task tree - inject 'tasks' property
+  // E.g.: shared_tasks.yeomon => tasks.shared_tasks.tasks.yeoman
 
   const path = _.reduce(task.do.split('.'), (acc, p) => {
     return `${acc}.tasks.${p}`;
   }, '');
-
   console.log(`Trying path ${path}`);
+
+  // Save the current path to the state
+
+  const arr = path.split('.');
+  arr.pop();
+
+  state.set('currentPath', arr.join('.'));
   return state.get(path);
 }
 

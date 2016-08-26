@@ -37,9 +37,9 @@ const validators = {
     }
   },
   includesHaveProperties: config => {
-    if (!_.every(config.include, object => _.has(object, 'from') && _.has(object, 'import'))) {
-      throw new InvalidConfigError('includes must all have "from" and "import" properties');
-    }
+    // if (!_.every(config.include, object => _.has(object, 'from') && _.has(object, 'import'))) {
+    //   throw new InvalidConfigError('includes must all have "from" and "import" properties');
+    // }
   },
   tasksHaveDo: config => {
     tasksHaveDo(config);
@@ -63,24 +63,37 @@ function loadAndParseYmlFile(taskList, taskConfig) {
   return file.tasks;
 }
 
+function importTasks(tasks) {
+  const builtTasks = {};
+
+  _.each(_.keys(tasks), taskName => {
+    _.set(builtTasks, taskName, _.get(tasks, taskName));
+  });
+
+  return builtTasks;
+}
+
 function importTasklist(taskList, taskConfig) {
   const importName = taskConfig.name || taskConfig.from;
   const tasks = _.endsWith(taskConfig.from, '.yml')
     ? loadAndParseYmlFile(taskList, taskConfig)
     : requireTask(taskList, taskConfig);
 
-  const builtTasks = {};
-
-  _.each(taskConfig.import, taskImport => {
-    let requireName, taskName;
-    const split = _.split(taskImport, ' as ');
-    [requireName, taskName] = split.length === 2 ? split : [taskImport, taskImport];
-    _.set(builtTasks, taskName, _.get(tasks, requireName));
-  });
-
-  taskList[importName] = {
-    tasks: builtTasks
-  };
+  if (!taskConfig.import) {
+    taskList[importName] = {
+      tasks: importTasks(tasks)
+    };
+  }
+  else {
+    taskList[importName] = {
+      tasks: {}
+    };
+    _.each(taskConfig.import, taskImport => {
+      taskList[importName].tasks[taskImport] = {
+        tasks: importTasks(tasks[taskImport])
+      };
+    });
+  }
 
   return taskList;
 }
@@ -95,7 +108,6 @@ module.exports = (config, Logger) => Promise.try(() => {
     const initialState = _.merge({}, defaultTasks, config.vars, _.pick(config, 'tasks'), {tasks: reducedTasks});
     const state = new State(initialState, Logger);
 
-    console.log(initialState);
     return state;
   });
 });
