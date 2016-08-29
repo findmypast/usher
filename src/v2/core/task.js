@@ -30,9 +30,10 @@ function getTask(task, state) {
   // E.g.: shared_tasks.yeomon => tasks.shared_tasks.tasks.yeoman
 
   const path = _.reduce(task.do.split('.'), (acc, p) => {
-    return `${acc}.tasks.${p}`;
+    const task = (acc === '') ? 'tasks.' : '.tasks.';
+    return `${acc}${task}${p}`;
   }, '');
-  console.log(`Trying path ${path}`);
+
 
   // Save the current path to the state
 
@@ -40,6 +41,7 @@ function getTask(task, state) {
   arr.pop();
 
   state.set('currentPath', arr.join('.'));
+  console.log(`Trying path ${path}`);
   return state.get(path);
 }
 
