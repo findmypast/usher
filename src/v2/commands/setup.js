@@ -37,9 +37,9 @@ const validators = {
     }
   },
   includesHaveProperties: config => {
-    // if (!_.every(config.include, object => _.has(object, 'from') && _.has(object, 'import'))) {
-    //   throw new InvalidConfigError('includes must all have "from" and "import" properties');
-    // }
+    if (!_.every(config.include, object => _.has(object, 'from'))) {
+      throw new InvalidConfigError('includes must all have "from" and "import" properties');
+    }
   },
   tasksHaveDo: config => {
     tasksHaveDo(config);

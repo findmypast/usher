@@ -14,7 +14,7 @@ describe('commands/setup', function() {
       {
         from: 'mockInclude',
         name: 'mockInclude',
-        import: ['mock1 as renamed_mock1', 'mock2']
+        import: ['mock1', 'mock2']
       },
       {
         from: 'bastion.yml',
@@ -28,7 +28,7 @@ describe('commands/setup', function() {
         do: 'other_mock',
         arg: 'test-var'
       },
-      bastion: {
+      teamcity: {
         tasks: {
           create_project: {
             description: 'Create a TeamCity project and associated configurations',
@@ -46,15 +46,20 @@ describe('commands/setup', function() {
   };
 
   function parseMock() {
-    return validInput.tasks.bastion;
+    return validInput.tasks.teamcity;
   }
 
   const Logger = mocks.Logger;
   const execMock = sandbox.stub().yields();
   const mockImport = {
-    mock1: sandbox.stub(),
-    mock2: sandbox.stub()
+    mock1: {
+      clean_up: 'Test task name'
+    },
+    mock2: {
+      clean_up: 'Test task name 2'
+    }
   };
+
   beforeEach(function() {
     sandbox.reset();
   });
@@ -89,7 +94,7 @@ describe('commands/setup', function() {
       expect(result.get('tasks.test')).to.deep.equal(input.tasks.test);
     });
     it('puts child tasks into initial state', function() {
-      expect(result.get('tasks.bastion')).to.deep.equal(input.tasks.bastion);
+      expect(result.get('tasks.teamcity')).to.deep.equal(input.tasks.teamcity);
     });
     it('puts default tasks into initial state', function() {
       expect(result.get('tasks.shell')).to.deep.equal(require('../tasks').shell);
@@ -98,8 +103,8 @@ describe('commands/setup', function() {
       expect(execMock).to.have.been.calledWith('npm install mockInclude');
     });
     it('merges required include to tasks', function() {
-      expect(result.get('tasks.mockInclude.tasks.mock2')).to.equal(mockImport.mock2);
-      expect(result.get('tasks.mockInclude.tasks.renamed_mock1')).to.equal(mockImport.mock1);
+      expect(result.get('tasks.mockInclude.tasks.mock2').tasks).to.deep.equal(mockImport.mock2);
+      expect(result.get('tasks.mockInclude.tasks.mock1').tasks).to.deep.equal(mockImport.mock1);
     });
   });
   describe('if vars is not an object', function() {
@@ -134,7 +139,7 @@ describe('commands/setup', function() {
       input = _.cloneDeep(validInput);
       input.include = [
         {
-          from: 'mock-input'
+          not_from: 'mock-input'
         }
       ];
     });
