@@ -8,6 +8,7 @@ const task = require('../core/task');
 const loggers = require('../loggers');
 const ParsingError = require('../lib/errors').ParsingError;
 const TaskNotFoundError = require('../lib/errors').TaskNotFoundError;
+const path = require('path');
 
 const DEFAULT_FILE = 'usher.yml';
 
@@ -35,8 +36,10 @@ module.exports = (taskName, taskVars, opts) => Promise.try(() => {
   catch (error) {
     throw new ParsingError(error, file);
   }
+  const usherFileInfo = path.parse(file);
   const config = _.merge({}, parsedFile, parseVars(taskVars));
-  return setup(config, Logger)
+
+  return setup(config, Logger, usherFileInfo.dir)
   .then(state => {
     const taskConfig = state.get(`tasks.${taskName}`);
     if (!taskConfig) {

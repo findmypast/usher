@@ -6,6 +6,7 @@ const exec = Promise.promisify(require('child_process').exec);
 const State = require('../core/state');
 const defaultTasks = {tasks: require('../tasks')};
 const InvalidConfigError = require('../lib/errors').InvalidConfigError;
+const path = require('path');
 
 function tasksHaveDo(config) {
   _.mapValues(config.tasks, (task, key) => {
@@ -57,8 +58,8 @@ function requireTask(taskList, requireName) {
   return require(requireName);
 }
 
-function loadAndParseYmlFile(taskList, taskConfig) {
-  const file = require('./parse')(taskConfig.from);
+function loadAndParseYmlFile(taskList, filename) {
+  const file = require('./parse')(filename);
 
   return file.tasks;
 }
@@ -83,10 +84,10 @@ function getAlias(name) {
   return split;
 }
 
-function importTasklist(taskList, taskConfig) {
+function importTasklist(taskList, taskConfig, usherFilePath) {
   const [importName, aliasName] = getAlias(taskConfig.name || taskConfig.from);
   const tasks = _.endsWith(taskConfig.from, '.yml')
-    ? loadAndParseYmlFile(taskList, taskConfig)
+    ? loadAndParseYmlFile(taskList, path.join(usherFilePath, taskConfig.from))
     : requireTask(taskList, importName);
 
   if (!taskConfig.import) {
@@ -110,12 +111,13 @@ function importTasklist(taskList, taskConfig) {
 }
 
 
-module.exports = (config, Logger) => Promise.try(() => {
+module.exports = (config, Logger, usherFilePath) => Promise.try(() => {
   _.mapValues(validators, validator => validator(config));
   const modulesToInstall = _.map(config.include, (include) => _.get(include, 'from'));
   return Promise.all(_.map(modulesToInstall, installModule))
   .then(() => {
-    const reducedTasks = _.reduce(config.include, importTasklist, {});
+    const reducedTasks = _.reduce(config.include, (acc, includeConfig) =>
+      importTasklist(acc, includeConfig, usherFilePath), {});
     const initialState = _.merge({}, defaultTasks, config.vars, _.pick(config, 'tasks'), {tasks: reducedTasks});
     const state = new State(initialState, Logger);
 

@@ -89,7 +89,7 @@ describe('commands/setup', function() {
       input = _.cloneDeep(validInput);
     });
     beforeEach(function() {
-      return sut(input, Logger)
+      return sut(input, Logger, '')
       .then(value => {
         result = value;
       });
