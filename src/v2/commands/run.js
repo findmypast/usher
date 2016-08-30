@@ -38,8 +38,9 @@ module.exports = (taskName, taskVars, opts) => Promise.try(() => {
   }
   const usherFileInfo = path.parse(file);
   const config = _.merge({}, parsedFile, parseVars(taskVars));
+  const nodeModulesPath = `${process.cwd()}/node_modules/`;
 
-  return setup(config, Logger, usherFileInfo.dir)
+  return setup(config, Logger, usherFileInfo.dir, nodeModulesPath)
   .then(state => {
     const taskConfig = state.get(`tasks.${taskName}`);
     if (!taskConfig) {
