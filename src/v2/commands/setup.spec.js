@@ -14,11 +14,11 @@ describe('commands/setup', function() {
       {
         from: 'mockInclude',
         name: 'mockInclude',
-        import: ['mock1', 'mock2']
+        import: ['mock1 as aliasMock1', 'mock2']
       },
       {
         from: 'bastion.yml',
-        name: 'bastion',
+        name: 'bastion as ci',
         import: ['create_project', 'create_parameter']
       }
     ],
@@ -45,14 +45,21 @@ describe('commands/setup', function() {
     }
   };
 
-  function parseMock() {
-    return validInput.tasks.teamcity;
+  function bastionYmlParseMock() {
+    return {
+      tasks: {
+        ci: {
+          create_project: {},
+          create_parameter: {}
+        }
+      }
+    };
   }
 
   const Logger = mocks.Logger;
   const execMock = sandbox.stub().yields();
   const mockImport = {
-    mock1: {
+    aliasMock1: {
       clean_up: 'Test task name'
     },
     mock2: {
@@ -68,7 +75,7 @@ describe('commands/setup', function() {
     mockery.warnOnUnregistered(false);
     mockery.registerMock('child_process', { exec: execMock });
     mockery.registerMock('mockInclude', mockImport);
-    mockery.registerMock('./parse', parseMock);
+    mockery.registerMock('./parse', bastionYmlParseMock);
     mockery.registerMock('../lib/errors', errors);
 
     sut = require('./setup');
@@ -104,7 +111,7 @@ describe('commands/setup', function() {
     });
     it('merges required include to tasks', function() {
       expect(result.get('tasks.mockInclude.tasks.mock2').tasks).to.deep.equal(mockImport.mock2);
-      expect(result.get('tasks.mockInclude.tasks.mock1').tasks).to.deep.equal(mockImport.mock1);
+      expect(result.get('tasks.mockInclude.tasks.aliasMock1').tasks).to.deep.equal(mockImport.aliasMock1);
     });
   });
   describe('if vars is not an object', function() {

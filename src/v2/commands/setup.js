@@ -53,8 +53,8 @@ function installModule(moduleName) {
   return exec(`npm install ${moduleName}`);
 }
 
-function requireTask(taskList, taskConfig) {
-  return require(taskConfig.name);
+function requireTask(taskList, requireName) {
+  return require(requireName);
 }
 
 function loadAndParseYmlFile(taskList, taskConfig) {
@@ -73,24 +73,35 @@ function importTasks(tasks) {
   return builtTasks;
 }
 
+function getAlias(name) {
+  const split = _.split(name, ' as ');
+
+  if (split.length === 1) {
+    split.push(name); // Alias name same as name if no alias specified
+  }
+
+  return split;
+}
+
 function importTasklist(taskList, taskConfig) {
-  const importName = taskConfig.name || taskConfig.from;
+  const [importName, aliasName] = getAlias(taskConfig.name || taskConfig.from);
   const tasks = _.endsWith(taskConfig.from, '.yml')
     ? loadAndParseYmlFile(taskList, taskConfig)
-    : requireTask(taskList, taskConfig);
+    : requireTask(taskList, importName);
 
   if (!taskConfig.import) {
-    taskList[importName] = {
+    taskList[aliasName] = {
       tasks: importTasks(tasks)
     };
   }
   else {
-    taskList[importName] = {
+    taskList[aliasName] = {
       tasks: {}
     };
-    _.each(taskConfig.import, taskImport => {
-      taskList[importName].tasks[taskImport] = {
-        tasks: importTasks(tasks[taskImport])
+    _.each(taskConfig.import, taskImportName => {
+      const propertyAliasName = getAlias(taskImportName)[1];
+      taskList[aliasName].tasks[propertyAliasName] = {
+        tasks: importTasks(tasks[propertyAliasName])
       };
     });
   }
