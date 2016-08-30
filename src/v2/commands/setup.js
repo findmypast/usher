@@ -55,7 +55,7 @@ function installModule(moduleName) {
 }
 
 function requireTask(taskList, requireName) {
-  return require(requireName);
+  return require(`${process.cwd()}/node_modules/${requireName}`);
 }
 
 function loadAndParseYmlFile(taskList, filename) {
