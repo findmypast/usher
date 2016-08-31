@@ -12,8 +12,10 @@ const path = require('path');
 
 const DEFAULT_FILE = 'usher.yml';
 
+const FIRST_EQUALS_CHARACTER = /=([\s\S]+)/;
+
 function parseVars(varList) {
-  return {vars: _.fromPairs(_.map(varList, varPair => _.split(varPair, '=')))};
+  return {vars: _.fromPairs(_.map(varList, varPair => _.split(varPair, FIRST_EQUALS_CHARACTER)))};
 }
 
 function getLogger(opts) {

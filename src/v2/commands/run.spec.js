@@ -29,7 +29,7 @@ describe('commands/run', function() {
   });
   describe('given valid input', function() {
     const taskName = 'test_task';
-    const taskVars = ['var=value', 'var2=value2'];
+    const taskVars = ['var=value', 'var2=value2', 'var4="multiline=is\nsomething"'];
     const opts = {
       file: 'foo.yml',
       logger: 'other'
@@ -59,7 +59,8 @@ describe('commands/run', function() {
         vars: {
           var: 'value',
           var2: 'value2',
-          var3: 'value3'
+          var3: 'value3',
+          var4: '"multiline=is\nsomething"'
         }
       }, Logger));
     });
