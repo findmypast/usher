@@ -8,6 +8,7 @@ const task = require('../core/task');
 const loggers = require('../loggers');
 const ParsingError = require('../lib/errors').ParsingError;
 const TaskNotFoundError = require('../lib/errors').TaskNotFoundError;
+const secretValues = require('../lib/secrets');
 const path = require('path');
 
 const DEFAULT_FILE = 'usher.yml';
@@ -30,7 +31,7 @@ function getLogger(opts) {
 
 module.exports = (taskName, taskVars, opts) => Promise.try(() => {
   const file = opts.file || DEFAULT_FILE;
-  const Logger = getLogger(opts);
+
   let parsedFile;
   try {
     parsedFile = parse(file);
@@ -41,6 +42,9 @@ module.exports = (taskName, taskVars, opts) => Promise.try(() => {
   const usherFileInfo = path.parse(file);
   const config = _.merge({}, parsedFile, parseVars(taskVars));
   const nodeModulesPath = `${process.cwd()}/node_modules/`;
+
+  const valuesToHide = secretValues(config);
+  const Logger = getLogger(opts);
 
   return setup(config, Logger, usherFileInfo.dir, nodeModulesPath)
   .then(state => {
