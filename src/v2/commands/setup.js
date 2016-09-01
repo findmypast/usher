@@ -51,13 +51,11 @@ function installModule(moduleName) {
   if (_.endsWith(moduleName, '.yml')) {
     return Promise.resolve();
   }
-
-  const usherExePath = path.parse(__filename);
-  return exec(`npm install ${moduleName} --prefix ${usherExePath.dir}`);
+  return exec(`npm install ${moduleName}`);
 }
 
-function requireTask(taskList, requireName) {
-  return require(requireName);
+function requireTask(taskList, requireName, nodeModulesPath) {
+  return require(`${nodeModulesPath}${requireName}`);
 }
 
 function loadAndParseYmlFile(taskList, filename) {
