@@ -6,9 +6,6 @@ vars:
   blue_tag: blue
   green_tag: green
 
-hide_vars:
-  - secret_variable
-
 tasks:
   build_quotes:
     - description: Test that quotes are expanded as expected
