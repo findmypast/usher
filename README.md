@@ -14,7 +14,7 @@ Essentially it allows orchestration of lots of different command line applicatio
 Usher can be installed globally with `npm install -g usher-cli`, allowing presets
 to be run by inputting `usher run <preset-name>` on the command line.
 
-If you'd rather not install globally, Usher's runtime is in `src/cli.js`, and `node <path-to-cli.js>` can replace `usher` in all examples.
+If you'd rather not install it globally, Usher's runtime is in `src/cli.js`, and `node <path-to-cli.js>` can replace `usher` in all examples.
 
 ## Usage
 
