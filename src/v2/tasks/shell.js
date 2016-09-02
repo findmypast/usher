@@ -17,7 +17,7 @@ const ACCEPTED_OPTIONS = [
 ];
 
 function reduceEnvArrayToObject(envs) {
-  if (!envs) {
+  if (!_.isArray(envs)) {
     return envs;
   }
 
@@ -32,7 +32,6 @@ function reduceEnvArrayToObject(envs) {
 module.exports = (state) => new Promise((resolve, reject) => {
   const options = _.reduce(ACCEPTED_OPTIONS, (result, value) => _.set(result, value, state.get(value)), {});
   state.logger.info(`Executing: ${state.get('command')}`);
-  state.logger.info(`Environment vars: ${options.env}`);
   options.env = reduceEnvArrayToObject(options.env);
 
   const child = exec(state.get('command'), options, (err, stdout) => {
