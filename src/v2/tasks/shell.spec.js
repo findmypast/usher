@@ -29,6 +29,17 @@ describe('tasks/shell', function() {
   describe('given valid input', function() {
     const options = {
       cwd: 'path',
+      env: ['ENV=env'],
+      shell: 'shelly',
+      timeout: 0,
+      maxBuffer: 200,
+      killSignal: 'SIGTERM',
+      uid: 1,
+      gid: 1
+    };
+
+    const expected = {
+      cwd: 'path',
       env: {
         ENV: 'env'
       },
@@ -53,7 +64,7 @@ describe('tasks/shell', function() {
     });
     it('passes in options', function() {
       return sut(state)
-        .then(() => expect(child.exec).to.have.been.calledWith(state.get('command'), options));
+        .then(() => expect(child.exec).to.have.been.calledWith(state.get('command'), expected));
     });
     describe('if the command fails', function() {
       const expectedError = new Error('Test error');
