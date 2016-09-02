@@ -51,11 +51,13 @@ function installModule(moduleName) {
   if (_.endsWith(moduleName, '.yml')) {
     return Promise.resolve();
   }
-  return exec(`npm install ${moduleName}`);
+
+  const usherExePath = path.parse(__filename);
+  return exec(`npm install ${moduleName} --prefix ${usherExePath.dir}`);
 }
 
-function requireTask(taskList, requireName, nodeModulesPath) {
-  return require(`${nodeModulesPath}${requireName}`);
+function requireTask(taskList, requireName) {
+  return require(requireName);
 }
 
 function loadAndParseYmlFile(taskList, filename) {
@@ -84,11 +86,11 @@ function getAlias(name) {
   return split;
 }
 
-function importTasklist(taskList, taskConfig, usherFilePath, nodeModulesPath) {
+function importTasklist(taskList, taskConfig, usherFilePath) {
   const [importName, aliasName] = getAlias(taskConfig.name || taskConfig.from);
   const tasks = _.endsWith(taskConfig.from, '.yml')
     ? loadAndParseYmlFile(taskList, path.join(usherFilePath, taskConfig.from))
-    : requireTask(taskList, importName, nodeModulesPath);
+    : requireTask(taskList, importName);
 
   if (!taskConfig.import) {
     taskList[aliasName] = {
