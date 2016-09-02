@@ -89,7 +89,7 @@ describe('commands/setup', function() {
       input = _.cloneDeep(validInput);
     });
     beforeEach(function() {
-      return sut(input, Logger, '', '')
+      return sut(input, Logger, '')
       .then(value => {
         result = value;
       });
@@ -107,7 +107,10 @@ describe('commands/setup', function() {
       expect(result.get('tasks.shell')).to.deep.equal(require('../tasks').shell);
     });
     it('installs includes to cache', function() {
-      expect(execMock).to.have.been.calledWith('npm install mockInclude');
+      const path = require('path');
+      const usherExePath = path.parse(__filename);
+
+      expect(execMock).to.have.been.calledWith(`npm install mockInclude --prefix ${usherExePath.dir}`);
     });
     it('merges required include to tasks', function() {
       expect(result.get('tasks.mockInclude.tasks.mock2').tasks).to.deep.equal(mockImport.mock2);
