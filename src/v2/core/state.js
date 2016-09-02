@@ -43,19 +43,22 @@ module.exports = class State {
 
     const refPattern = /<%=(.*?)%>/;
     const refs = object.match(refPattern);
+
     if (!refs) {
       return object;
     }
     if (`<%=${refs[1]}%>` === object) {
       return this.get(refs[1]);
     }
+
     return this.dereference(_.template(object)(this._state));
   }
 
   dereferenceObject(object) {
     _.forOwn(object, (value, key) => {
       object[key] = this.dereference(value);
-    })
+    });
+
     return object;
   }
 };
