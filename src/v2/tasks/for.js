@@ -12,7 +12,7 @@ const ACCEPTED_OPTIONS = [
 
 module.exports = (state) => Promise.try(() => {
   const options = _.reduce(ACCEPTED_OPTIONS, (result, value) => _.set(result, value, state.get(value)), {});
-  return Promise.map(options.in, value => task({
+  return Promise.map(options.in.split(','), value => task({
     description: `${options.exec} with ${options.every}=${value}`,
     do: options.exec,
     [options.every]: value}, _.cloneDeep(state)));
