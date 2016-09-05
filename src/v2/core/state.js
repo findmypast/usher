@@ -33,9 +33,12 @@ module.exports = class State {
   }
 
   dereference(object) {
-    // if (_.isObject(object)) {
-    //   return this.dereferenceObject(object);
-    // }
+    if (_.isArray(object)) {
+       const result = this.dereferenceArray(object);
+       console.log(result);
+
+       return result;
+    }
 
     if (!_.isString(object)) {
       return object;
@@ -48,7 +51,11 @@ module.exports = class State {
       console.log(`DEREF DONE: ${object}`);
       return object;
     }
+    var x = `<%=${refs[1]}%>`;
+    console.log(`DEBUG: <%=${refs[1]}%> (${x === object})`);
     if (`<%=${refs[1]}%>` === object) {
+      console.log(`DEBUG: ${this._state[refs[1]]} (${typeof this._state[refs[1]]})`);
+      console.log(!_.isString(this._state[refs[1]]));
       return this.get(refs[1]);
     }
 
@@ -65,5 +72,11 @@ module.exports = class State {
     });
 
     return object;
+  }
+
+  dereferenceArray(arr) {
+    return _.map(arr, element => {
+      return this.dereference(element);
+    });
   }
 };
