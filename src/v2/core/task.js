@@ -57,6 +57,9 @@ function runTask(task, state) {
     const retry = _.get(task.options, 'retry', {retries: 0});
     state.push(task);
     const subTask = getTask(task, state);
+    console.log("Task found -----");
+    console.log(subTask);
+    console.log("-----");
     if (!subTask) {
       const error = new errors.TaskNotFoundError(task.do);
       logger.error(error);

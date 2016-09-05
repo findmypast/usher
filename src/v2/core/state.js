@@ -9,6 +9,7 @@ module.exports = class State {
     this.logger = new Logger(this);
   }
   get(path, defaultValue) {
+    console.log(`DEBUG: Get state: ${path}`);
     return this.dereference(_.get(this._state, path, defaultValue));
   }
   set(path, value) {
@@ -35,17 +36,14 @@ module.exports = class State {
   dereference(object) {
     if (_.isArray(object)) {
       const result = this.dereferenceArray(object);
+      console.log('DEBUG: Result of array transformation');
       console.log(result);
 
       return result;
     }
 
-    // if (!_.isString(object)) {
-    //   return this.dereferenceObject(object);
-    // }
-
     if (!_.isString(object)) {
-      return object;
+      return this.dereferenceObject(object);
     }
 
 
@@ -53,7 +51,7 @@ module.exports = class State {
     const refs = object.match(refPattern);
 
     if (!refs) {
-      console.log(`DEREF DONE: ${object}`);
+      console.log(`DEREF DONE: "${object}"`);
       return object;
     }
     var x = `<%=${refs[1]}%>`;
@@ -73,5 +71,15 @@ module.exports = class State {
     return _.map(arr, element => {
       return this.dereference(element);
     });
+  }
+
+  dereferenceObject(obj) {
+    _.forOwn(obj, (value, key) => {
+      if (_.isString(value)) {
+        obj[key] = _.template(value)(this._state)
+      }
+    });
+
+    return obj;
   }
 };
