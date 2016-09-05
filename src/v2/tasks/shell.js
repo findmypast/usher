@@ -33,7 +33,8 @@ module.exports = (state) => new Promise((resolve, reject) => {
   const options = _.reduce(ACCEPTED_OPTIONS, (result, value) => _.set(result, value, state.get(value)), {});
   state.logger.info(`Executing: ${state.get('command')}`);
   options.env = reduceEnvArrayToObject(options.env);
-
+  console.log('ENV****');
+  console.log(options.env);
   const child = exec(state.get('command'), options, (err, stdout) => {
     if (err) {
       reject(err);
