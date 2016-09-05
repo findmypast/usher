@@ -56,7 +56,9 @@ module.exports = class State {
 
   dereferenceObject(object) {
     _.forOwn(object, (value, key) => {
-      object[key] = this.dereference(value);
+      if (_.isString(value)) {
+        object[key] = this.dereference(value);
+      }
     });
 
     return object;
