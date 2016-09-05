@@ -9,7 +9,6 @@ module.exports = class State {
     this.logger = new Logger(this);
   }
   get(path, defaultValue) {
-    console.log(`DEBUG: Get state: ${path}`);
     return this.dereference(_.get(this._state, path, defaultValue));
   }
   set(path, value) {
@@ -36,8 +35,6 @@ module.exports = class State {
   dereference(object) {
     if (_.isArray(object)) {
       const result = this.dereferenceArray(object);
-      console.log('DEBUG: Result of array transformation');
-      console.log(result);
 
       return result;
     }
@@ -51,18 +48,12 @@ module.exports = class State {
     const refs = object.match(refPattern);
 
     if (!refs) {
-      console.log(`DEREF DONE: "${object}"`);
       return object;
     }
-    var x = `<%=${refs[1]}%>`;
-    console.log(`DEBUG: <%=${refs[1]}%> (${x === object})`);
+
     if (`<%=${refs[1]}%>` === object) {
-      console.log(`DEBUG: ${this._state[refs[1]]} (${typeof this._state[refs[1]]})`);
-      console.log(!_.isString(this._state[refs[1]]));
       return this.get(refs[1]);
     }
-
-    console.log(`DEREF: ${object} (${this._state.service_tag})`);
 
     return this.dereference(_.template(object)(this._state));
   }
