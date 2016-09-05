@@ -77,7 +77,6 @@ function runTask(task, state) {
         state.pop();
         if (register) {
           state.set(register, output.trim());
-          console.log(state);
         }
         return output;
       });

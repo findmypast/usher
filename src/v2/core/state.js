@@ -33,9 +33,9 @@ module.exports = class State {
   }
 
   dereference(object) {
-    if (_.isObject(object)) {
-      return this.dereferenceObject(object);
-    }
+    // if (_.isObject(object)) {
+    //   return this.dereferenceObject(object);
+    // }
 
     if (!_.isString(object)) {
       return object;
@@ -45,20 +45,23 @@ module.exports = class State {
     const refs = object.match(refPattern);
 
     if (!refs) {
+      console.log(`DEREF DONE: ${object}`);
       return object;
     }
     if (`<%=${refs[1]}%>` === object) {
       return this.get(refs[1]);
     }
 
+    console.log(`DEREF: ${object} (${this._state.service_tag})`);
+
     return this.dereference(_.template(object)(this._state));
   }
 
   dereferenceObject(object) {
     _.forOwn(object, (value, key) => {
-      if (_.isString(value)) {
+      // if (_.isString(value)) {
         object[key] = this.dereference(value);
-      }
+      // }
     });
 
     return object;
