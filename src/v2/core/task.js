@@ -76,7 +76,8 @@ function runTask(task, state) {
         const register = state.get('options.register');
         state.pop();
         if (register) {
-          state.set(register, output);
+          state.set(register, output.trim());
+          console.log(state);
         }
         return output;
       });
