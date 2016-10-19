@@ -47,13 +47,17 @@ const validators = {
   }
 };
 
+function getUserHome() {
+  return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+}
+
 function installModule(moduleName) {
   if (_.endsWith(moduleName, '.yml')) {
     return Promise.resolve();
   }
 
-  const usherExePath = path.parse(__filename);
-  return exec(`npm install ${moduleName} --prefix ${usherExePath.dir}`);
+  const sharedTaskDir = `${getUserHome()}/.usher-cli/src/v2/commands`
+  return exec(`npm install ${moduleName} --prefix ${sharedTaskDir}`);
 }
 
 function requireTask(taskList, requireName) {
