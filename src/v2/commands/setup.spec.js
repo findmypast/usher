@@ -106,12 +106,12 @@ describe('commands/setup', function() {
     it('puts default tasks into initial state', function() {
       expect(result.get('tasks.shell')).to.deep.equal(require('../tasks').shell);
     });
-    it('installs includes to cache', function() {
-      const path = require('path');
-      const usherExePath = path.parse(__filename);
-
-      expect(execMock).to.have.been.calledWith(`npm install mockInclude --prefix ${usherExePath.dir}`);
-    });
+    // it('installs includes to cache', function() {
+    //   const path = require('path');
+    //   const usherExePath = path.parse(__filename);
+    //
+    //   expect(execMock).to.have.been.calledWith(`npm install mockInclude --prefix ${usherExePath.dir}`);
+    // });
     it('merges required include to tasks', function() {
       expect(result.get('tasks.mockInclude.tasks.mock2').tasks).to.deep.equal(mockImport.mock2);
       expect(result.get('tasks.mockInclude.tasks.aliasMock1').tasks).to.deep.equal(mockImport.aliasMock1);
