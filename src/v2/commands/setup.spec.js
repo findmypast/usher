@@ -1,6 +1,7 @@
 /* global describe before after beforeEach it expect sandbox mockery errors mocks _*/
 'use strict';
 const uuid = require('uuid').v4;
+const installDir = require('../core/installed-modules').installDir;
 
 describe('commands/setup', function() {
   let sut;
@@ -74,7 +75,7 @@ describe('commands/setup', function() {
     mockery.enable({ useCleanCache: true });
     mockery.warnOnUnregistered(false);
     mockery.registerMock('child_process', { exec: execMock });
-    mockery.registerMock('mockInclude', mockImport);
+    mockery.registerMock(`${installDir()}/node_modules/mockInclude`, mockImport);
     mockery.registerMock('./parse', bastionYmlParseMock);
     mockery.registerMock('../lib/errors', errors);
 
@@ -106,12 +107,9 @@ describe('commands/setup', function() {
     it('puts default tasks into initial state', function() {
       expect(result.get('tasks.shell')).to.deep.equal(require('../tasks').shell);
     });
-    // it('installs includes to cache', function() {
-    //   const path = require('path');
-    //   const usherExePath = path.parse(__filename);
-    //
-    //   expect(execMock).to.have.been.calledWith(`npm install mockInclude --prefix ${usherExePath.dir}`);
-    // });
+    it('installs includes to cache', function() {
+      expect(execMock).to.have.been.calledWith(`npm install mockInclude --prefix ${installDir()}`);
+    });
     it('merges required include to tasks', function() {
       expect(result.get('tasks.mockInclude.tasks.mock2').tasks).to.deep.equal(mockImport.mock2);
       expect(result.get('tasks.mockInclude.tasks.aliasMock1').tasks).to.deep.equal(mockImport.aliasMock1);

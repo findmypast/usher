@@ -4,6 +4,7 @@ const _ = require('lodash');
 const Promise = require('bluebird');
 const exec = Promise.promisify(require('child_process').exec);
 const State = require('../core/state');
+const installDir = require('../core/installed-modules').installDir;
 const defaultTasks = {tasks: require('../tasks')};
 const InvalidConfigError = require('../lib/errors').InvalidConfigError;
 const path = require('path');
@@ -47,21 +48,16 @@ const validators = {
   }
 };
 
-function getUserHome() {
-  return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-}
-
 function installModule(moduleName) {
   if (_.endsWith(moduleName, '.yml')) {
     return Promise.resolve();
   }
 
-  const sharedTaskDir = `${getUserHome()}/.usher-cli/src/v2/commands`
-  return exec(`npm install ${moduleName} --prefix ${sharedTaskDir}`);
+  return exec(`npm install ${moduleName} --prefix ${installDir()}`);
 }
 
-function requireTask(taskList, requireName) {
-  return require(requireName);
+function requireModule(requireName) {
+  return require(`${installDir()}/node_modules/${requireName}`);
 }
 
 function loadAndParseYmlFile(taskList, filename) {
@@ -94,7 +90,7 @@ function importTasklist(taskList, taskConfig, usherFilePath) {
   const [importName, aliasName] = getAlias(taskConfig.name || taskConfig.from);
   const tasks = _.endsWith(taskConfig.from, '.yml')
     ? loadAndParseYmlFile(taskList, path.join(usherFilePath, taskConfig.from))
-    : requireTask(taskList, importName);
+    : requireModule(importName);
 
   if (!taskConfig.import) {
     taskList[aliasName] = {
