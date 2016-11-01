@@ -113,13 +113,13 @@ function importTasklist(taskList, taskConfig, usherFilePath) {
 }
 
 
-module.exports = (config, Logger, usherFilePath, nodeModulesPath) => Promise.try(() => {
+module.exports = (config, Logger, usherFilePath) => Promise.try(() => {
   _.mapValues(validators, validator => validator(config));
   const modulesToInstall = _.map(config.include, (include) => _.get(include, 'from'));
   return Promise.all(_.map(modulesToInstall, installModule))
   .then(() => {
     const reducedTasks = _.reduce(config.include, (acc, includeConfig) =>
-      importTasklist(acc, includeConfig, usherFilePath, nodeModulesPath), {});
+      importTasklist(acc, includeConfig, usherFilePath), {});
     const initialState = _.merge({}, defaultTasks, config.vars, _.pick(config, 'tasks'), {tasks: reducedTasks});
     const state = new State(initialState, Logger);
 
