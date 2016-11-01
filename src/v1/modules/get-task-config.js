@@ -6,12 +6,18 @@ const _ = require('lodash');
 const logger = require('winston');
 
 module.exports = (taskName, taskVars, opts) => {
+
   const usherFile = opts.file || '.usher.yml';
   logger.verbose(`Parsing ${usherFile}`);
   const config = parser.safeLoad(fs.readFileSync(usherFile, 'utf8'));
-
+  
   logger.verbose(`Loading task ${taskName}`);
-  if (!_.isArray(config.tasks[taskName])) {
+
+  const task = config.tasks[taskName];
+  if (!task) {
+    throw new Error(`Task: ${taskName} does not exist!`);
+  }
+  if (!_.isArray(task)) {
     throw new Error('Tasks should be array of commands');
   }
 
