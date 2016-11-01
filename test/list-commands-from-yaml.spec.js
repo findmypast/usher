@@ -30,35 +30,37 @@ const descriptions = {
 };
 
 describe('Given a YAML file, and a task with a description', () => {
-
-  it('Should print the tasks first description', () => {
+  it('Should list the tasks first description', () => {
     let key = 'build';
     let expected = descriptions.build;
 
-    list(key, {
+    const listedTasks = list(key, {
       file: filename
     });
 
-    expect(logger.info).to.have.been.calledWith(`${chalk.bold(key)} - ${chalk.underline(expected)}`);
+    expect(listedTasks).to.include.keys(key);
+    expect(listedTasks[key]).to.include(expected);
   });
 
-  it('Should print the tasks sub-description', () => {
+  it('Should list the tasks sub-description', () => {
     let key = 'build_seq';
-    let expectedList = [
-      'kills the running container then builds the docker container',
-      'remove container',
-      'build container'
-    ];
+    let taskDescriptions = {
+      [key]: [
+        'kills the running container then builds the docker container',
+        'remove container',
+        'build container']
+    };
 
-    list(key, {
+    const listedTasks = list('build_seq', {
       file: filename
     });
 
-    expect(logger.info).to.have.been.calledWith(`${chalk.bold(key)} - ${chalk.underline(expectedList[0])}`);
-    expectedList.shift();
-    _.forEach(expectedList, (expected) => {
-      expect(logger.info).to.have.been.calledWith(`- ${expected}`);
-    });
+    expect(listedTasks).to.deep.equal(taskDescriptions);
+    // expect(logger.info).to.have.been.calledWith(`${chalk.bold(key)} - ${chalk.underline(expectedList[0])}`);
+    // expectedList.shift();
+    // _.forEach(expectedList, (expected) => {
+    //   expect(logger.info).to.have.been.calledWith(`- ${expected}`);
+    // });
   });
 });
 
