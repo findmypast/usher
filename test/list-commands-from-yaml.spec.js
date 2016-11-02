@@ -1,26 +1,10 @@
-/* global describe it */
+/* global describe it expect*/
 /* eslint no-underscore-dangle: "off", no-unused-expressions: "off" */
 'use strict';
 
-const chai = require('chai');
-const sinon = require('sinon');
-const sinonChai = require('sinon-chai');
-const rewire = require('rewire');
 const _ = require('lodash');
-
+const list = require('../src/v1/list');
 const filename = 'test/test.usher.yml';
-
-const expect = chai.expect;
-chai.use(sinonChai);
-
-const logger = {
-  info: sinon.spy()
-};
-
-const list = rewire('../src/v1/list');
-list.__set__({
-  logger: logger
-});
 
 const descriptions = {
   build: 'builds the docker container',
