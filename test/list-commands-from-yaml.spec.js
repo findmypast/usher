@@ -7,7 +7,6 @@ const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
 const rewire = require('rewire');
 const _ = require('lodash');
-const chalk = require('chalk');
 
 const filename = 'test/test.usher.yml';
 
@@ -56,22 +55,17 @@ describe('Given a YAML file, and a task with a description', () => {
     });
 
     expect(listedTasks).to.deep.equal(taskDescriptions);
-    // expect(logger.info).to.have.been.calledWith(`${chalk.bold(key)} - ${chalk.underline(expectedList[0])}`);
-    // expectedList.shift();
-    // _.forEach(expectedList, (expected) => {
-    //   expect(logger.info).to.have.been.calledWith(`- ${expected}`);
-    // });
   });
 });
 
 describe('Given a YAML file, and listing all commands', () => {
-  list(null, {
-    file: filename
-  });
-
   it('Should print the first description of each task', () => {
+    const taskDescriptionList = list(null, {
+      file: filename
+    });
     _.forOwn(descriptions, (value, key) => {
-      expect(logger.info).to.have.been.calledWith(`${chalk.underline(key)} - ${value}`);
+      expect(taskDescriptionList).to.include.keys(key);
+      expect(taskDescriptionList[key]).to.include(value);
     });
   });
 });

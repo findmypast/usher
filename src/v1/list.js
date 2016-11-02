@@ -7,10 +7,6 @@ const _ = require('lodash');
 const getTaskConfig = require('./modules/get-task-config');
 let logger = require('winston');
 
-function onlyDescription(task) {
-  return _.isEqual(_.keys(task), ['description']);
-}
-
 function getDescriptionsFromTask(task) {
   return _.filter(_.map(task, (t) => t.description), (description) => description);
 }
@@ -20,11 +16,15 @@ function listAll(opts) {
   const usherConfigs = parser.safeLoad(fs.readFileSync(usherFile, 'utf8'));
 
   logger.info(chalk.bold(`All tasks for ${usherFile}:`));
+  const taskList = {};
+
   _.forOwn(usherConfigs.tasks, (config, key) => {
     const descriptionTask = _.find(config, (t) => t.description);
     const description = _.get(descriptionTask, 'description', '');
-    logger.info(`${chalk.underline(key)} - ${description}`);
+    taskList[key] = description;
   });
+
+  return taskList;
 }
 
 function listTask(taskName, opts) {
@@ -36,14 +36,6 @@ function listTask(taskName, opts) {
   };
 
   return task;
-  // if (onlyDescription(descriptionTask)) {
-  //   stepDescriptions.shift();
-  //   logger.info(`${chalk.bold(taskName)} - ${chalk.underline(description)}`);
-  // }
-  //
-  // _.forEach(stepDescriptions, (desc) => {
-  //   logger.info(`- ${desc}`);
-  // });
 }
 
 module.exports = (taskName, opts) => {
