@@ -28,6 +28,9 @@ function extractTasksAndHighLevelDescriptions(acc, configs, prefix) {
     if (value.description) {
       acc[prefix ? prefix + key : key] = [`${value.description}`];
     }
+    else if (!value.tasks) {
+      acc[prefix ? prefix + key : key] = [''];
+    }
     if (value.tasks) {
       acc = extractTasksAndHighLevelDescriptions(acc, value.tasks, prefix ? prefix + key + '.tasks.' : (key + '.tasks.'));
     }
