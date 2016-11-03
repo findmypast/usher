@@ -19,6 +19,16 @@ describe('core/state', function() {
     password: 'password',
     email: 'email@somewhere.com'
   };
+  const nest = [
+    {
+      embryo1: 'mark'
+    },
+    {
+      embryo2: {
+        eyeball: 'blue'
+      }
+    }
+  ];
   const initialState = {
     string: testString,
     object: testObject,
@@ -31,7 +41,8 @@ describe('core/state', function() {
     },
     email: 'email@somewhere.com',
     password: 'password',
-    user: 'username'
+    user: 'username',
+    nest: nest
   };
   const Logger = mocks.Logger;
   before(function() {

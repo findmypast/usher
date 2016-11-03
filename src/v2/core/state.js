@@ -24,7 +24,6 @@ module.exports = class State {
     this._state = _.merge({}, ...this.stack);
     return lastState;
   }
-
   peek() {
     const lastState = this.stack.pop();
     this.stack.push(lastState);
@@ -67,10 +66,28 @@ module.exports = class State {
   dereferenceObject(obj) {
     _.forOwn(obj, (value, key) => {
       if (_.isString(value)) {
-        obj[key] = _.template(value)(this._state)
+        obj[key] = _.template(value)(this._state);
       }
     });
 
     return obj;
   }
 };
+
+
+
+
+
+
+
+
+/*
+function find(object, key)
+  _.forOwn(object, (value, key)) {
+
+  }
+
+
+
+
+*/

@@ -38,6 +38,7 @@ module.exports = (taskName, taskVars, opts) => Promise.try(() => {
   catch (error) {
     throw new ParsingError(error, file);
   }
+
   const usherFileInfo = path.parse(file);
   const config = _.merge({}, parsedFile, parseVars(taskVars));
 

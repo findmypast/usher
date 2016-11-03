@@ -25,9 +25,10 @@ function checkVersion(fileName) {
 module.exports = (taskName, opts) => {
   return checkVersion(opts.file)
     .catch(() => checkVersion('.usher.yml'))
-    .then(list => {
-      const tasksAndTheirDescriptions = list(taskName, opts);
-      logger.info(chalk.bold(`All tasks for ${opts.file || '.usher.yml'}:`));
+    .catch(() => checkVersion('usher.yml'))
+    .then(list => list(taskName, opts))
+    .then(tasksAndTheirDescriptions => {
+      logger.info(chalk.bold(`Listing tasks under ${taskName ? taskName : (opts.file || '.usher.yml')}:`));
       listView(logger.info, tasksAndTheirDescriptions);
     });
 };
