@@ -25,6 +25,14 @@ $ usher list [-f config-file]
 -f config-file: File that will be used for configuration. Default usher.yml.
 ```
 
+To list a preset with further detail (any sub-tasks or sub-actions with descriptions will be listed):
+
+```
+$ usher list [-f config-file] [preset]
+-f config-file: File that will be used for configuration. Default usher.yml.
+[preset]: Preset to list in further detail. Preset must match name as listed by usher list.
+```
+
 To run a preset:
 
 ```
