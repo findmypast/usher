@@ -73,21 +73,3 @@ module.exports = class State {
     return obj;
   }
 };
-
-
-
-
-
-
-
-
-/*
-function find(object, key)
-  _.forOwn(object, (value, key)) {
-
-  }
-
-
-
-
-*/
