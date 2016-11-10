@@ -42,6 +42,17 @@ describe('commands/run', function() {
       tasks: {
         test_task: {
           do: 'test'
+        },
+        global: {
+          tasks: {
+            mr_remote: {
+              tasks: {
+                keep_changing: {
+                  do: 'change'
+                }
+              }
+            }
+          }
         }
       }
     };
@@ -82,6 +93,16 @@ describe('commands/run', function() {
     it('rejects if file fails to parse', function() {
       parse.throws(new Error('Test Error'));
       return expect(sut(taskName, [], {})).to.be.rejectedWith(/usher\.yml.*Test Error/);
+    });
+
+    it('runs the named remote task', function() {
+
+      parse.returns(config);
+      setup.returns(Promise.resolve({get: path => _.get(config, path)}));
+
+      return sut('global.mr_remote.keep_changing', taskVars, {})
+      .then(() => expect(task).to.be
+        .calledWith(_.get(config.tasks, 'global.tasks.mr_remote.tasks.keep_changing')));
     });
   });
 });

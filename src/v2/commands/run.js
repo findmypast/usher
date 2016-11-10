@@ -28,6 +28,10 @@ function getLogger(opts) {
   return loggers.default;
 }
 
+function replace(string, needle, replacement) {
+  return string.split(needle).join(replacement);
+}
+
 module.exports = (taskName, taskVars, opts) => Promise.try(() => {
   const file = opts.file || DEFAULT_FILE;
   const Logger = getLogger(opts);
@@ -44,9 +48,11 @@ module.exports = (taskName, taskVars, opts) => Promise.try(() => {
 
   return setup(config, Logger, usherFileInfo.dir)
   .then(state => {
-    const taskConfig = state.get(`tasks.${taskName}`);
+
+    var fullTaskName = `tasks.${replace(taskName, '.', '.tasks.')}`;
+    const taskConfig = state.get(fullTaskName);
     if (!taskConfig) {
-      throw new TaskNotFoundError(taskName);
+      throw new TaskNotFoundError(fullTaskName);
     }
     taskConfig.name = taskName;
     return task(taskConfig, state);
