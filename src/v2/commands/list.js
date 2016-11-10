@@ -10,8 +10,12 @@ const Logger = require('../loggers/quiet');
 
 const DEFAULT_FILE = 'usher.yml';
 
+function replace(string, needle, replacement) {
+  return string.split(needle).join(replacement);
+}
+
 function getTasksFromConfig(state, taskName, file) {
-  const taskConfigs = taskName ? {[taskName]: state.get(taskName)} : state.get('tasks');
+  const taskConfigs = taskName ? {[taskName]: state.get(`tasks.${replace(taskName, '.', '.tasks.')}`)} : state.get('tasks');
 
   if (!taskConfigs && taskName) {
     throw new TaskNotFoundError(taskName);
@@ -26,13 +30,13 @@ function getTasksFromConfig(state, taskName, file) {
 function extractTasksAndHighLevelDescriptions(acc, configs, prefix) {
   _.forOwn(configs, (value, key) => {
     if (value.description) {
-      acc[prefix ? prefix + key : key] = [`${value.description}`];
+      acc[prefix ? prefix + '.' + key : key] = [`${value.description}`];
     }
     else if (!value.tasks) {
-      acc[prefix ? prefix + key : key] = [''];
+      acc[prefix ? prefix + '.' + key : key] = [''];
     }
     if (value.tasks) {
-      acc = extractTasksAndHighLevelDescriptions(acc, value.tasks, prefix ? prefix + key + '.tasks.' : (key + '.tasks.'));
+      acc = extractTasksAndHighLevelDescriptions(acc, value.tasks, prefix ? prefix + '.' + key : (key));
     }
   });
   return acc;
@@ -73,7 +77,7 @@ module.exports = (taskName, opts) => {
   .then(state => {
     const acc = {};
     const taskConfigs = getTasksFromConfig(state, taskName, file);
-    const tasksWithDescriptions = taskName ? extractTaskAndAllDescriptions(acc, taskConfigs, taskName) : extractTasksAndHighLevelDescriptions(acc, taskConfigs, 'tasks.');
+    const tasksWithDescriptions = taskName ? extractTaskAndAllDescriptions(acc, taskConfigs, taskName) : extractTasksAndHighLevelDescriptions(acc, taskConfigs);
     return tasksWithDescriptions;
   });
 };
