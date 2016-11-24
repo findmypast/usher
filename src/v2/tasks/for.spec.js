@@ -51,4 +51,32 @@ describe('tasks/parallel', function() {
       });
     });
   });
+  describe('given valid input, and in as an array', function() {
+    const options = {
+      do: 'for',
+      every: 'thing',
+      in: ['first-thing', 'second-thing'],
+      exec: 'task'
+    };
+    const state = new State(options, Logger);
+    it('executes the tasks with each value', function() {
+      return sut(state)
+        .then(() => {
+          expect(task.firstCall).to.have.been.calledWithMatch({do: options.exec, thing: options.in[0]});
+          expect(task.secondCall).to.have.been.calledWithMatch({do: options.exec, thing: options.in[1]});
+        });
+    });
+    describe('if one step fails', function() {
+      const expectedError = new Error('Test error');
+      before(function() {
+        task.onFirstCall().rejects(expectedError);
+      });
+      it('should reject', function() {
+        return expect(sut(state)).to.be.rejectedWith(expectedError);
+      });
+      after(function() {
+        task.onFirstCall().resolves();
+      });
+    });
+  });
 });
