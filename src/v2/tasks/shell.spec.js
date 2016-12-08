@@ -22,7 +22,7 @@ describe('tasks/shell', function() {
   };
   const Logger = mocks.Logger;
   before(function() {
-    mockery.registerMock('npm-run', child);
+    mockery.registerMock('child_process', child);
 
     sut = require('./shell');
   });

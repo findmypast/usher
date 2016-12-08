@@ -2,7 +2,7 @@
 
 const Promise = require('bluebird');
 const _ = require('lodash');
-const exec = require('npm-run').exec;
+const exec = require('child_process').exec;
 const split = require('split');
 
 const ACCEPTED_OPTIONS = [
