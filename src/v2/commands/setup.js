@@ -60,10 +60,10 @@ function requireModule(requireName) {
   return require(`${installDir()}/node_modules/${requireName}`);
 }
 
-function loadAndParseYmlFile(taskList, filename) {
+function loadAndParseYmlFile(taskList, filename, propertyName) {
   const file = require('./parse')(filename);
 
-  return file.tasks;
+  return file[propertyName];
 }
 
 function importTasks(tasks) {
@@ -89,7 +89,7 @@ function getAlias(name) {
 function importTasklist(taskList, taskConfig, usherFilePath) {
   const [importName, aliasName] = getAlias(taskConfig.name || taskConfig.from);
   const tasks = _.endsWith(taskConfig.from, '.yml')
-    ? loadAndParseYmlFile(taskList, path.join(usherFilePath, taskConfig.from))
+    ? loadAndParseYmlFile(taskList, path.join(usherFilePath, taskConfig.from), 'tasks')
     : requireModule(importName);
 
   if (!taskConfig.import) {
@@ -112,6 +112,14 @@ function importTasklist(taskList, taskConfig, usherFilePath) {
   return taskList;
 }
 
+function importVariables(varList, config, usherFilePath) {
+  const [importName] = getAlias(config.name || config.from);
+  const variables = _.endsWith(config.from, '.yml')
+    ? loadAndParseYmlFile(varList, path.join(usherFilePath, config.from), 'vars')
+    : requireModule(importName).vars;
+
+  return variables || {};
+}
 
 module.exports = (config, Logger, usherFilePath) => Promise.try(() => {
   _.mapValues(validators, validator => validator(config));
@@ -120,7 +128,9 @@ module.exports = (config, Logger, usherFilePath) => Promise.try(() => {
   .then(() => {
     const reducedTasks = _.reduce(config.include, (acc, includeConfig) =>
       importTasklist(acc, includeConfig, usherFilePath), {});
-    const initialState = _.merge({}, defaultTasks, config.vars, _.pick(config, 'tasks'), {tasks: reducedTasks});
+    const reducedArgs = _.reduce(config.include, (acc, includeConfig) =>
+      importVariables(acc, includeConfig, usherFilePath), {});
+    const initialState = _.merge({}, defaultTasks, config.vars, reducedArgs, _.pick(config, 'tasks'), {tasks: reducedTasks});
     const state = new State(initialState, Logger);
 
     return state;

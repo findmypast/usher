@@ -48,6 +48,9 @@ describe('commands/setup', function() {
 
   function bastionYmlParseMock() {
     return {
+      vars: {
+        name: 'default_name'
+      },
       tasks: {
         ci: {
           create_project: {},
@@ -97,6 +100,9 @@ describe('commands/setup', function() {
     });
     it('puts vars into initial state', function() {
       expect(result.get('test_var')).to.equal(input.vars.test_var);
+    });
+    it('imports vars from include files', () => {
+      expect(result.get('name')).to.equal('default_name');
     });
     it('puts tasks into initial state', function() {
       expect(result.get('tasks.test')).to.deep.equal(input.tasks.test);
