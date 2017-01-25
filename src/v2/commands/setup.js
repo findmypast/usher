@@ -103,8 +103,10 @@ function importTasklist(taskList, taskConfig, usherFilePath) {
     };
     _.each(taskConfig.import, taskImportName => {
       const propertyAliasName = getAlias(taskImportName)[1];
+      const propertyTaskName = getAlias(taskImportName)[0];
+
       taskList[aliasName].tasks[propertyAliasName] = {
-        tasks: importTasks(tasks[propertyAliasName].tasks)
+        tasks: importTasks(tasks[propertyTaskName].tasks)
       };
     });
   }
@@ -114,16 +116,18 @@ function importTasklist(taskList, taskConfig, usherFilePath) {
 
 function importVariables(varList, config, usherFilePath) {
   const [importName] = getAlias(config.name || config.from);
-  const variables = _.endsWith(config.from, '.yml')
+  const isYmlFile = _.endsWith(config.from, '.yml');
+  const variables = isYmlFile
     ? loadAndParseYmlFile(varList, path.join(usherFilePath, config.from), 'vars')
     : requireModule(importName);
 
-  if (!config.import) {
+  if (isYmlFile) {
     varList = _.merge(varList, variables || {});
   }
   else {
     _.each(config.import, taskImportName => {
-      _.merge(varList, variables[taskImportName].vars || {});
+      const propertyTaskName = getAlias(taskImportName)[0];
+      _.merge(varList, variables[propertyTaskName].vars || {});
     });
   }
 

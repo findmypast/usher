@@ -52,10 +52,8 @@ describe('commands/setup', function() {
         name: 'default_name'
       },
       tasks: {
-        ci: {
-          create_project: {},
-          create_parameter: {}
-        }
+        create_project: {},
+        create_parameter: {}
       }
     };
   }
@@ -63,11 +61,15 @@ describe('commands/setup', function() {
   const Logger = mocks.Logger;
   const execMock = sandbox.stub().yields();
   const mockImport = {
-    aliasMock1: {
-      clean_up: 'Test task name'
+    mock1: {
+      tasks: {
+        clean_up: 'Test task name'
+      }
     },
     mock2: {
-      clean_up: 'Test task name 2'
+      tasks: {
+        clean_up: 'Test task name 2'
+      }
     }
   };
 
@@ -117,8 +119,8 @@ describe('commands/setup', function() {
       expect(execMock).to.have.been.calledWith(`npm install mockInclude --prefix ${installDir()}`);
     });
     it('merges required include to tasks', function() {
-      expect(result.get('tasks.mockInclude.tasks.mock2').tasks).to.deep.equal(mockImport.mock2);
-      expect(result.get('tasks.mockInclude.tasks.aliasMock1').tasks).to.deep.equal(mockImport.aliasMock1);
+      expect(result.get('tasks.mockInclude.tasks.mock2').tasks).to.deep.equal(mockImport.mock2.tasks);
+      expect(result.get('tasks.mockInclude.tasks.aliasMock1').tasks).to.deep.equal(mockImport.mock1.tasks);
     });
   });
   describe('if vars is not an object', function() {
