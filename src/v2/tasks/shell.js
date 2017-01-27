@@ -34,6 +34,9 @@ module.exports = (state) => new Promise((resolve, reject) => {
   const options = _.reduce(ACCEPTED_OPTIONS, (result, value) => _.set(result, value, state.get(value)), {});
   state.logger.info(`Executing: ${state.get('command')}`);
   options.env = reduceEnvArrayToObject(options.env);
+  if(!options.env){
+    options.env = {};
+  }
   options.env['PYTHONIOENCODING'] = 'utf-8'; // Filthy hack to satistfy python environments which lose encoding when piping output
 
   const child = exec(state.get('command'), options, (err, stdout) => {

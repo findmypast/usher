@@ -38,6 +38,16 @@ describe('tasks/shell', function() {
       gid: 1
     };
 
+    const options_no_env = {
+      cwd: 'path',
+      shell: 'shelly',
+      timeout: 0,
+      maxBuffer: 200,
+      killSignal: 'SIGTERM',
+      uid: 1,
+      gid: 1
+    };
+
     const expected = {
       cwd: 'path',
       env: {
@@ -51,10 +61,30 @@ describe('tasks/shell', function() {
       uid: 1,
       gid: 1
     };
+
+    const expected_no_env = {
+      cwd: 'path',
+      env: {
+        PYTHONIOENCODING: 'utf-8'
+      },
+      shell: 'shelly',
+      timeout: 0,
+      maxBuffer: 200,
+      killSignal: 'SIGTERM',
+      uid: 1,
+      gid: 1
+    };
+
     const state = new State(_.merge({}, {
       name: 'shell-test',
       command: 'test command'
     }, options), Logger);
+
+    const state_no_env = new State(_.merge({}, {
+      name: 'shell-test',
+      command: 'test command'
+    }, options_no_env), Logger);
+
     it('executes the command in a shell', function() {
       return sut(state)
         .then(() => expect(child.exec).to.have.been.calledWith(state.get('command')));
@@ -66,6 +96,12 @@ describe('tasks/shell', function() {
     it('passes in options', function() {
       return sut(state)
         .then(() => expect(child.exec).to.have.been.calledWith(state.get('command'), expected));
+    });
+    describe('if no environment is given', function() {
+      it('it adds the environment with python variable', function() {
+        return sut(state_no_env)
+          .then(() => expect(child.exec).to.have.been.calledWith(state.get('command'), expected_no_env));
+      });
     });
     describe('if the command fails', function() {
       const expectedError = new Error('Test error');
