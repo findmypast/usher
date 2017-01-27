@@ -41,7 +41,8 @@ describe('tasks/shell', function() {
     const expected = {
       cwd: 'path',
       env: {
-        ENV: 'env'
+        ENV: 'env',
+        PYTHONIOENCODING: 'utf-8'
       },
       shell: 'shelly',
       timeout: 0,
