@@ -230,12 +230,12 @@ describe('commands/list', function() {
                 publish_dashboard: {
                   description: 'Publish the latest dashboards config to the santa api',
                   do: 'shell',
-                  command: 'curl -X PUT -F file=@<%=service_folder%>/<%=config_filepath%> santa.proxy.fh/<%=service_name%>'
+                  command: 'curl -X PUT -F file=@<%=service_folder%>/<%=config_filepath%> production.santa.service.consul:3333/<%=service_name%>'
                 },
                 delete_dashboard: {
                   description: 'Delete the project\'s dashboards',
                   do: 'shell',
-                  command: 'curl -X DELETE santa.proxy.fh/<%=service_name%>'
+                  command: 'curl -X DELETE production.santa.service.consul:3333/<%=service_name%>'
                 }
               }
             }
