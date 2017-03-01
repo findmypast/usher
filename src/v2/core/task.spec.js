@@ -25,9 +25,10 @@ describe('core/task', function() {
     mockery.deregisterAll();
     mockery.disable();
   });
+
   describe('given valid input', function() {
     const output = 'test-output';
-    const mockTask = sandbox.stub().returns(output);
+    const mockTask = sandbox.stub().returns([output]);
     const inputState = {
       tasks: {
         mock: (state) => Promise.try(() => mockTask(_.cloneDeep(state)))
@@ -76,6 +77,44 @@ describe('core/task', function() {
       return sut(registerTask, state)
         .then(() => {
           expect(state.get(refName)).to.deep.equal(output);
+        });
+    });
+  });
+
+  describe('given valid input that returns results from multiple subtasks', function() {
+    const output = ['output-from-task-1', 'output-from-task-2'];
+    const mockTask = sandbox.stub().returns(output);
+    const inputState = {
+      tasks: {
+        mock: (state) => Promise.try(() => mockTask(_.cloneDeep(state)))
+      }
+    };
+    const inputTask = {
+      do: 'mock',
+      arg: 'test'
+    };
+    let state;
+    let task;
+    beforeEach(function() {
+      task = _.cloneDeep(inputTask);
+      state = new State(inputState, Logger);
+    });
+
+    it('adds all output to parent state if options.register is set', function() {
+      const refName = 'registered';
+      const registerTask = _.merge(task, {options: {register: refName}});
+      return sut(registerTask, state)
+        .then(() => {
+          expect(state.get(refName)).to.deep.equal('output-from-task-1,output-from-task-2');
+        });
+    });
+
+    it('adds the last tasks output to parent state if options.register_all is set', function() {
+      const refName = 'last_registered';
+      const registerTask = _.merge(task, {options: {register_last: refName}});
+      return sut(registerTask, state)
+        .then(() => {
+          expect(state.get(refName)).to.deep.equal('output-from-task-2');
         });
     });
   });
