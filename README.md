@@ -71,6 +71,7 @@ Tasks are named objects with the properties:
 - `description <String>` A string describing the task. Will be displayed in `usher list`. Optional, for documentation purposes only.
 - `options <Object>` Task-level options like retry. See below for available options.
 - Any other properties will be passed onto the do function. Each function will define its own set of named arguments that it will use.
+**For the `shell` command, beware that the properties defined in the usher file can overwrite those used by [child_process.exec](https://nodejs.org/api/child_process.html) module. For example, if you define an Usher property called `uid` then the value of this will be used when the  shell command executes (regardless of where the property is defined - it could be defined in a separate task). To avoid confusion, it's best not to create property names that match those used by `child_process.exec`. See the `shell` task below which also lists these properties.**
 
 #### Task options
 

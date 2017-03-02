@@ -75,9 +75,15 @@ function runTask(task, state) {
       .then(output => {
         logger.end();
         const register = state.get('options.register');
+        const registerLast = state.get('options.register_last');
+
         state.pop();
+
         if (register) {
           state.set(register, output.toString().trim());
+        }
+        if (registerLast) {
+          state.set(registerLast, output.slice(-1)[0].toString().trim());
         }
         return output;
       });
