@@ -93,6 +93,39 @@ Saves the output of the task in a variable. Takes one value, the name of the var
 register: var_name
 ```
 
+##### Register last
+
+Saves the output of the last task to be run in a variable. Takes one value, the name of the variable to register to.
+
+```yaml
+register_last: var_name
+```
+
+This will only produce a noticable difference from register when the task it is attached to calls several subtasks. Can be used alongside register.
+e.g.
+```yaml
+version: '2'
+
+tasks:
+
+  subtask:
+    do: sequence
+    actions:
+      - do: shell
+        command: echo "foo"
+      - do: shell
+        command: echo "bar"
+
+  register_task:
+    do: sequence
+    actions:
+      - do: subtask
+        options:
+          register: everything
+          register: last_only
+```
+In the above example the variable everything will be `foo,\nbar` whereas last_only will be `bar`
+
 ##### Ignore errors
 
 Errors in this task won't mark it as failed. This is mainly useful for tasks like sequence where execution stops if a task fails. Takes one value, `true` if errors should be ignored, `false` if not (which is the same as the option not being present at all).
