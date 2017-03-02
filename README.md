@@ -122,7 +122,7 @@ tasks:
       - do: subtask
         options:
           register: everything
-          register: last_only
+          register_last: last_only
 ```
 In the above example the variable everything will be `foo,\nbar` whereas last_only will be `bar`
 
