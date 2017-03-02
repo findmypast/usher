@@ -5,7 +5,7 @@ describe('commands/run', function() {
   let sut;
   const setup = sandbox.stub();
   const parse = sandbox.stub();
-  const task = sandbox.stub();
+  const task = sandbox.stub().resolves();
   const Logger = mocks.Logger;
   const otherLogger = sandbox.stub();
   const quietLogger = sandbox.stub();
@@ -53,11 +53,21 @@ describe('commands/run', function() {
               }
             }
           }
+        },
+        catch: {
+          do: 'error_handling'
+        },
+        finally: {
+          do: 'final_cleanup'
         }
       }
     };
-    parse.returns(config);
-    setup.returns(Promise.resolve({get: path => _.get(config, path)}));
+
+    before(() => {
+      parse.returns(config);
+      setup.returns(Promise.resolve({get: path => _.get(config, path)}));
+    });
+
     it('calls parse on the file name defined in opts', function() {
       return sut(taskName, taskVars, opts).then(() => expect(parse).to.be.calledWith(opts.file));
     });
@@ -103,6 +113,92 @@ describe('commands/run', function() {
       return sut('global.mr_remote.keep_changing', taskVars, {})
       .then(() => expect(task).to.be
         .calledWith(_.get(config.tasks, 'global.tasks.mr_remote.tasks.keep_changing')));
+    });
+
+    it('calls the "catch" task when the called task fails', () => {
+      task.onCall(0).rejects('Task error');
+      task.onCall(1).resolves();
+      task.onCall(1).resolves();
+
+      return sut('test_task', taskVars, {})
+        .catch(() => {
+          expect(task).to.be.calledWith(_.get(config.tasks, 'catch'));
+        });
+    });
+
+    it('calls the "finally" task when the called task fails', () => {
+      task.onCall(0).rejects('Task error');
+      task.onCall(1).resolves();
+      task.onCall(2).resolves();
+
+      return sut('test_task', taskVars, {})
+        .catch(() => {
+          expect(task).to.be.calledWith(_.get(config.tasks, 'finally'));
+        });
+    });
+
+    it('calls the "finally" task when the called task succeeds', () => {
+      task.onCall(0).resolves();
+      task.onCall(1).resolves();
+      task.onCall(2).resolves();
+
+      return sut('test_task', taskVars, {})
+        .then(() => {
+          expect(task).to.be.calledWith(_.get(config.tasks, 'finally'));
+        });
+    });
+
+    it('should return both errors when the called task fails and the catch/finally task fails', () => {
+      task.onCall(0).rejects('Task error');
+      task.onCall(1).rejects('Catch error');
+      task.onCall(2).resolves();
+
+      return sut('test_task', taskVars, {})
+        .catch(err => {
+          expect(err).to.equal(`Unrecoverable error when handling catch/finally block:\nError: Catch error\nOriginal error:\nError: Task error`);
+        });
+    });
+  });
+
+  describe('given valid input with no catch or finally tasks', function() {
+    const taskVars = ['var=value', 'var2=value2', 'var4="multiline=is\nsomething"'];
+    const config = {
+      vars: {
+        var: 'wrong',
+        var3: 'value3'
+      },
+      tasks: {
+        test_task: {
+          do: 'test'
+        },
+        global: {
+          tasks: {
+            mr_remote: {
+              tasks: {
+                keep_changing: {
+                  do: 'change'
+                }
+              }
+            }
+          }
+        }
+      }
+    };
+
+    before(() => {
+      parse.returns(config);
+      setup.returns(Promise.resolve({get: path => _.get(config, path)}));
+    });
+
+    it.only('should silently ignore the missing catch/final task when the main task fails', function() {
+      task.onCall(0).rejects('Task error');
+      task.onCall(1).resolves();
+      task.onCall(2).resolves();
+
+      return sut('test_task', taskVars, {})
+        .catch(err => {
+          expect(err.toString()).to.equal('Error: Task error');
+        });
     });
   });
 });

@@ -32,6 +32,41 @@ function replace(string, needle, replacement) {
   return string.split(needle).join(replacement);
 }
 
+function getTaskConfig(taskName, state, throwOnMissing) {
+  var fullTaskName = `tasks.${replace(taskName, '.', '.tasks.')}`;
+
+  const taskConfig = state.get(fullTaskName);
+
+  if (throwOnMissing && !taskConfig) {
+    throw new TaskNotFoundError(fullTaskName);
+  }
+
+  if (taskConfig) {
+    taskConfig.name = taskName;
+  }
+
+  return taskConfig;
+}
+
+function execFinallyIfPresent(state) {
+  const taskConfig = getTaskConfig('finally', state, false);
+
+  return taskConfig ? task(taskConfig, state) : Promise.resolve();
+}
+
+function execCatchIfPresent(state) {
+  const taskConfig = getTaskConfig('catch', state, false);
+
+  return taskConfig ? task(taskConfig, state) : Promise.resolve();
+}
+
+function cleanup(state, err) {
+  return execCatchIfPresent(state)
+    .then(() => execFinallyIfPresent(state))
+    .then(() => err)
+    .catch(cleanupErr => `Unrecoverable error when handling catch/finally block:\n${cleanupErr}\nOriginal error:\n${err}`);
+}
+
 module.exports = (taskName, taskVars, opts) => Promise.try(() => {
   const file = opts.file || DEFAULT_FILE;
   const Logger = getLogger(opts);
@@ -48,13 +83,13 @@ module.exports = (taskName, taskVars, opts) => Promise.try(() => {
 
   return setup(config, Logger, usherFileInfo.dir)
   .then(state => {
+    const taskConfig = getTaskConfig(taskName, state, true);
 
-    var fullTaskName = `tasks.${replace(taskName, '.', '.tasks.')}`;
-    const taskConfig = state.get(fullTaskName);
-    if (!taskConfig) {
-      throw new TaskNotFoundError(fullTaskName);
-    }
-    taskConfig.name = taskName;
-    return task(taskConfig, state);
+    return task(taskConfig, state)
+      .then(() => execFinallyIfPresent(state))
+      .catch(err => {
+        return cleanup(state, err)
+          .then(cleanupErr => Promise.reject(cleanupErr));
+      });
   });
 });
