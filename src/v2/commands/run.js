@@ -49,18 +49,21 @@ function getTaskConfig(taskName, state, throwOnMissing) {
 }
 
 function execFinallyIfPresent(state) {
-  const taskConfig = getTaskConfig('finally', state, false);
+  const finallyTaskName = state.get('finally_task') || 'finally';
+  const taskConfig = getTaskConfig(finallyTaskName, state, false);
 
   return taskConfig ? task(taskConfig, state) : Promise.resolve();
 }
 
 function execCatchIfPresent(state) {
-  const taskConfig = getTaskConfig('catch', state, false);
+  const catchTaskName = state.get('catch_task') || 'catch';
+  const taskConfig = getTaskConfig(catchTaskName, state, false);
 
   return taskConfig ? task(taskConfig, state) : Promise.resolve();
 }
 
 function cleanup(state, err) {
+
   return execCatchIfPresent(state)
     .then(() => execFinallyIfPresent(state))
     .then(() => err)
@@ -70,6 +73,8 @@ function cleanup(state, err) {
 module.exports = (taskName, taskVars, opts) => Promise.try(() => {
   const file = opts.file || DEFAULT_FILE;
   const Logger = getLogger(opts);
+  const logger = new Logger();
+
   let parsedFile;
   try {
     parsedFile = parse(file);
@@ -88,6 +93,7 @@ module.exports = (taskName, taskVars, opts) => Promise.try(() => {
     return task(taskConfig, state)
       .then(() => execFinallyIfPresent(state))
       .catch(err => {
+        logger.info('Opps, something has gone wrong. Attempting to cleanup...');
         return cleanup(state, err)
           .then(cleanupErr => Promise.reject(cleanupErr));
       });
