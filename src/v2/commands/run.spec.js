@@ -190,7 +190,7 @@ describe('commands/run', function() {
       setup.returns(Promise.resolve({get: path => _.get(config, path)}));
     });
 
-    it.only('should silently ignore the missing catch/final task when the main task fails', function() {
+    it('should silently ignore the missing catch/final task when the main task fails', function() {
       task.onCall(0).rejects('Task error');
       task.onCall(1).resolves();
       task.onCall(2).resolves();
