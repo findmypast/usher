@@ -96,6 +96,13 @@ register: var_name
 
 Errors in this task won't mark it as failed. This is mainly useful for tasks like sequence where execution stops if a task fails. Takes one value, `true` if errors should be ignored, `false` if not (which is the same as the option not being present at all).
 
+
+#### Task Cleanup
+
+If any of the commands in an Usher task chain fails then Usher will attempt to execute a task named `catch`. Use this to clean up any resouces that may be in an inconsistent state. You can override the name of the catch task by passing `catch_task={task_name}` on the Usher command line.
+
+Similary, a task called `finally` will be called after the Usher task has completed (even after `catch` has completed). Again, you can override this task name by supplying `finally_task={task_name}` on the command line.
+
 #### Default tasks
 
 These tasks are always available without having to be imported. Think of them as usher's standard library.
