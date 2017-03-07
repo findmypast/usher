@@ -137,6 +137,29 @@ If any of the commands in an Usher task chain fails then Usher will attempt to e
 
 Similary, a task called `finally` will be called after the Usher task has completed (even after `catch` has completed). Again, you can override this task name by supplying `finally_task={task_name}` on the command line.
 
+Example:
+
+```yaml
+version: '2'
+
+tasks:
+
+  my_task:
+    do: shell
+    command: false        # returns exit code 1
+    catch_task: catch     # will default to catch task anywaway if this line is missing
+    finally_task: finally # same here for finally
+      
+  catch:
+    do: shell
+    command: echo "Caught it!"
+    
+  finally:
+    do: shell
+    command: echo "Finally done!"
+
+```
+
 #### Default tasks
 
 These tasks are always available without having to be imported. Think of them as usher's standard library.
