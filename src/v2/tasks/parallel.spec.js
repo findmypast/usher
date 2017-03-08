@@ -3,27 +3,27 @@
 
 const State = require('../core/state');
 
-describe('tasks/parallel', function() {
-  beforeEach(function() {
+describe('tasks/parallel', () => {
+  beforeEach(() => {
     sandbox.reset();
   });
-  before(function() {
+  before(() => {
     mockery.enable({ useCleanCache: true });
     mockery.warnOnUnregistered(false);
   });
-  after(function() {
+  after(() => {
     mockery.deregisterAll();
     mockery.disable();
   });
   let sut;
   const task = sandbox.stub().resolves();
   const Logger = mocks.Logger;
-  before(function() {
+  before(() => {
     mockery.registerMock('../core/task', task);
 
     sut = require('./parallel');
   });
-  describe('given valid input', function() {
+  describe('given valid input', () => {
     const options = {
       actions: [
         {
@@ -34,22 +34,22 @@ describe('tasks/parallel', function() {
       ]
     };
     const state = new State(options, Logger);
-    it('executes the tasks', function() {
+    it('executes the tasks', () => {
       return sut(state)
         .then(() => {
           expect(task.firstCall).to.have.been.calledWithMatch(options.actions[0]);
           expect(task.secondCall).to.have.been.calledWithMatch(options.actions[1]);
         });
     });
-    describe('if one step fails', function() {
+    describe('if one step fails', () => {
       const expectedError = new Error('Test error');
-      before(function() {
+      before(() => {
         task.onFirstCall().rejects(expectedError);
       });
-      it('should reject', function() {
+      it('should reject', () => {
         return expect(sut(state)).to.be.rejectedWith(expectedError);
       });
-      after(function() {
+      after(() => {
         task.onFirstCall().resolves();
       });
     });

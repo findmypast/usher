@@ -3,15 +3,15 @@
 
 const State = require('../core/state');
 
-describe('tasks/shell', function() {
-  beforeEach(function() {
+describe('tasks/shell', () => {
+  beforeEach(() => {
     sandbox.reset();
   });
-  before(function() {
+  before(() => {
     mockery.enable({ useCleanCache: true });
     mockery.warnOnUnregistered(false);
   });
-  after(function() {
+  after(() => {
     mockery.deregisterAll();
     mockery.disable();
   });
@@ -21,12 +21,12 @@ describe('tasks/shell', function() {
     exec: sandbox.stub().yields(null, stdout, null)
   };
   const Logger = mocks.Logger;
-  before(function() {
+  before(() => {
     mockery.registerMock('child_process', child);
 
     sut = require('./shell');
   });
-  describe('given valid input', function() {
+  describe('given valid input', () => {
     const options = {
       cwd: 'path',
       env: ['ENV=env'],
@@ -57,28 +57,28 @@ describe('tasks/shell', function() {
       command: 'test command'
     }, options), Logger);
 
-    it('executes the command in a shell', function() {
+    it('executes the command in a shell', () => {
       return sut(state)
         .then(() => expect(child.exec).to.have.been.calledWith(state.get('command')));
     });
-    it('resolves with stdout', function() {
+    it('resolves with stdout', () => {
       return sut(state)
         .then(output => expect(output).to.equal(stdout));
     });
-    it('passes in options', function() {
+    it('passes in options', () => {
       return sut(state)
         .then(() => expect(child.exec).to.have.been.calledWith(state.get('command'), expected));
     });
 
-    describe('if the command fails', function() {
+    describe('if the command fails', () => {
       const expectedError = new Error('Test error');
-      before(function() {
+      before(() => {
         child.exec.yields(expectedError, stdout, null);
       });
-      it('should reject with the error', function() {
+      it('should reject with the error', () => {
         return expect(sut(state)).to.be.rejectedWith(expectedError);
       });
-      after(function() {
+      after(() => {
         child.exec.reset();
       });
     });

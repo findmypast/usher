@@ -3,27 +3,27 @@
 
 const State = require('../core/state');
 
-describe('tasks/sequence', function() {
-  beforeEach(function() {
+describe('tasks/sequence', () => {
+  beforeEach(() => {
     sandbox.reset();
   });
-  before(function() {
+  before(() => {
     mockery.enable({ useCleanCache: true });
     mockery.warnOnUnregistered(false);
   });
-  after(function() {
+  after(() => {
     mockery.deregisterAll();
     mockery.disable();
   });
   let sut;
   const task = sandbox.stub().resolves();
   const Logger = mocks.Logger;
-  before(function() {
+  before(() => {
     mockery.registerMock('../core/task', task);
 
     sut = require('./sequence');
   });
-  describe('given valid input', function() {
+  describe('given valid input', () => {
     const options = {
       actions: [
         {
@@ -35,23 +35,23 @@ describe('tasks/sequence', function() {
       ]
     };
     const state = new State(options, Logger);
-    it('executes the tasks in order', function() {
+    it('executes the tasks in order', () => {
       return sut(state)
         .then(() => {
           expect(task.firstCall).to.have.been.calledWithMatch(options.actions[0]);
           expect(task.secondCall).to.have.been.calledWithMatch(options.actions[1]);
         });
     });
-    describe('if one step fails', function() {
+    describe('if one step fails', () => {
       const expectedError = new Error('Test error');
-      before(function() {
+      before(() => {
         task.onFirstCall().rejects(expectedError);
       });
-      it('should not execute the next step', function() {
+      it('should not execute the next step', () => {
         return expect(sut(state)).to.be.rejectedWith(expectedError)
         .then(() => expect(task).to.not.have.been.calledWithMatch(options.actions[1]));
       });
-      after(function() {
+      after(() => {
         task.onFirstCall().resolves();
       });
     });
