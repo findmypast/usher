@@ -3,7 +3,7 @@
 
 const State = require('../core/state');
 
-describe('tasks/parallel', function() {
+describe('tasks/for', function() {
   beforeEach(function() {
     sandbox.reset();
   });
