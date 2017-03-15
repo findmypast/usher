@@ -93,7 +93,7 @@ module.exports = (taskName, taskVars, opts) => Promise.try(() => {
     return task(taskConfig, state)
       .then(() => execFinallyIfPresent(state))
       .catch(err => {
-        logger.info('Opps, something has gone wrong. Attempting to cleanup...');
+        logger.info('Oops, something has gone wrong. Attempting to cleanup...');
         return cleanup(state, err)
           .then(cleanupErr => Promise.reject(cleanupErr));
       });
