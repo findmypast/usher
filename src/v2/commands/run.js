@@ -48,23 +48,22 @@ function getTaskConfig(taskName, state, throwOnMissing) {
   return taskConfig;
 }
 
-function execFinallyIfPresent(state) {
-  const finallyTaskName = state.get('finally_task') || 'finally';
+function execFinallyIfPresent(state, initialTaskConfig) {
+  const finallyTaskName = (initialTaskConfig && initialTaskConfig.finally_task) || state.get('finally_task') || 'finally';
   const taskConfig = getTaskConfig(finallyTaskName, state, false);
 
   return taskConfig ? task(taskConfig, state) : Promise.resolve();
 }
 
-function execCatchIfPresent(state) {
-  const catchTaskName = state.get('catch_task') || 'catch';
+function execCatchIfPresent(state, initialTaskConfig) {
+  const catchTaskName = (initialTaskConfig && initialTaskConfig.catch_task) || state.get('catch_task') || 'catch';
   const taskConfig = getTaskConfig(catchTaskName, state, false);
 
   return taskConfig ? task(taskConfig, state) : Promise.resolve();
 }
 
-function cleanup(state, err) {
-
-  return execCatchIfPresent(state)
+function cleanup(state, err, initialTaskConfig) {
+  return execCatchIfPresent(state, initialTaskConfig)
     .then(() => execFinallyIfPresent(state))
     .then(() => err)
     .catch(cleanupErr => `Unrecoverable error when handling catch/finally block:\n${cleanupErr}\nOriginal error:\n${err}`);
@@ -91,10 +90,10 @@ module.exports = (taskName, taskVars, opts) => Promise.try(() => {
     const taskConfig = getTaskConfig(taskName, state, true);
 
     return task(taskConfig, state)
-      .then(() => execFinallyIfPresent(state))
+      .then(() => execFinallyIfPresent(state, taskConfig))
       .catch(err => {
         logger.info('Oops, something has gone wrong. Attempting to cleanup...');
-        return cleanup(state, err)
+        return cleanup(state, err, taskConfig)
           .then(cleanupErr => Promise.reject(cleanupErr));
       });
   });
