@@ -43,6 +43,13 @@ describe('commands/run', function() {
         test_task: {
           do: 'test'
         },
+        build_task: {
+          do: 'build',
+          finally_task: 'the_end'
+        },
+        the_end: {
+          do: 'end_all'
+        },
         global: {
           tasks: {
             mr_remote: {
@@ -137,6 +144,17 @@ describe('commands/run', function() {
         });
     });
 
+    it('calls the task-specific "finally" task when the called task fails', () => {
+      task.onCall(0).rejects('Task error');
+      task.onCall(1).resolves();
+      task.onCall(2).resolves();
+
+      return sut('build_task', taskVars, {})
+        .catch(() => {
+          expect(task).to.be.calledWith(_.get(config.tasks, 'the_end'));
+        });
+    });
+
     it('calls the "finally" task when the called task succeeds', () => {
       task.onCall(0).resolves();
       task.onCall(1).resolves();
@@ -145,6 +163,17 @@ describe('commands/run', function() {
       return sut('test_task', taskVars, {})
         .then(() => {
           expect(task).to.be.calledWith(_.get(config.tasks, 'finally'));
+        });
+    });
+
+    it('calls the task-specific "finally" task when the called task succeeds', () => {
+      task.onCall(0).resolves();
+      task.onCall(1).resolves();
+      task.onCall(2).resolves();
+
+      return sut('build_task', taskVars, {})
+        .then(() => {
+          expect(task).to.be.calledWith(_.get(config.tasks, 'the_end'));
         });
     });
 

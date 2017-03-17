@@ -48,15 +48,23 @@ function getTaskConfig(taskName, state, throwOnMissing) {
   return taskConfig;
 }
 
+function extractFinallyTaskName(taskConfig) {
+  return (taskConfig && taskConfig.finally_task) ? taskConfig.finally_task : null;
+}
+
+function extractCatchTaskName(taskConfig) {
+  return (taskConfig && taskConfig.catch_task) ? taskConfig.catch_task : null;
+}
+
 function execFinallyIfPresent(state, initialTaskConfig) {
-  const finallyTaskName = (initialTaskConfig && initialTaskConfig.finally_task) || state.get('finally_task') || 'finally';
+  const finallyTaskName = extractFinallyTaskName(initialTaskConfig) || state.get('finally_task') || 'finally';
   const taskConfig = getTaskConfig(finallyTaskName, state, false);
 
   return taskConfig ? task(taskConfig, state) : Promise.resolve();
 }
 
 function execCatchIfPresent(state, initialTaskConfig) {
-  const catchTaskName = (initialTaskConfig && initialTaskConfig.catch_task) || state.get('catch_task') || 'catch';
+  const catchTaskName = extractCatchTaskName(initialTaskConfig) || state.get('catch_task') || 'catch';
   const taskConfig = getTaskConfig(catchTaskName, state, false);
 
   return taskConfig ? task(taskConfig, state) : Promise.resolve();
@@ -64,7 +72,7 @@ function execCatchIfPresent(state, initialTaskConfig) {
 
 function cleanup(state, err, initialTaskConfig) {
   return execCatchIfPresent(state, initialTaskConfig)
-    .then(() => execFinallyIfPresent(state))
+    .then(() => execFinallyIfPresent(state, initialTaskConfig))
     .then(() => err)
     .catch(cleanupErr => `Unrecoverable error when handling catch/finally block:\n${cleanupErr}\nOriginal error:\n${err}`);
 }
