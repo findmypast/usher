@@ -4,8 +4,10 @@
 const State = require('../core/state');
 
 describe('tasks/shell', () => {
+  const fakeProcessEnv = {blergle: 'yergle'};
   beforeEach(() => {
     sandbox.reset();
+    process.env = fakeProcessEnv;
   });
   before(() => {
     mockery.enable({ useCleanCache: true });
@@ -37,13 +39,14 @@ describe('tasks/shell', () => {
       uid: 1,
       gid: 1
     };
+    const existingEnv = Object.assign(fakeProcessEnv, {
+      ENV: 'env',
+      PYTHONIOENCODING: 'utf-8'
+    });
 
     const expected = {
       cwd: 'path',
-      env: {
-        ENV: 'env',
-        PYTHONIOENCODING: 'utf-8'
-      },
+      env: existingEnv,
       shell: 'shelly',
       timeout: 0,
       maxBuffer: 200,
@@ -51,6 +54,7 @@ describe('tasks/shell', () => {
       uid: 1,
       gid: 1
     };
+
 
     const state = new State(_.merge({}, {
       name: 'shell-test',
@@ -66,6 +70,10 @@ describe('tasks/shell', () => {
         .then(output => expect(output).to.equal(stdout));
     });
     it('passes in options', () => {
+      return sut(state)
+        .then(() => expect(child.exec).to.have.been.calledWith(state.get('command'), expected));
+    });
+    it('passes through existing environment', () => {
       return sut(state)
         .then(() => expect(child.exec).to.have.been.calledWith(state.get('command'), expected));
     });
