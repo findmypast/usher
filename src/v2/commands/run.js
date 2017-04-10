@@ -48,26 +48,34 @@ function getTaskConfig(taskName, state, throwOnMissing) {
   return taskConfig;
 }
 
-function extractFinallyTaskName(taskConfig) {
-  return (taskConfig && taskConfig.finally_task) ? taskConfig.finally_task : null;
+function extractCleanupTaskName(taskConfig, taskName) {
+  // Todo: need to walk back up the tree to find first catch task
+  return (taskConfig) ? taskConfig[taskName] : null;
 }
 
-function extractCatchTaskName(taskConfig) {
-  return (taskConfig && taskConfig.catch_task) ? taskConfig.catch_task : null;
+function getCleanupTask(state, initialTaskConfig, nestedName, defaultName) {
+  const catchTaskName = state.get(nestedName) || extractCleanupTaskName(initialTaskConfig, nestedName) || defaultName;
+  let taskConfig = getTaskConfig(catchTaskName, state, false);
+  if (taskConfig) {
+    return taskConfig;
+  }
+  const statePath = state.get('currentPath');
+  if (!statePath) {
+    return null;
+  }
+  const catchTaskPath = statePath.split('.').filter(x => x !== 'tasks').join('.');
+  taskConfig = getTaskConfig(`${catchTaskPath}.${catchTaskName}`, state, false);
+  return taskConfig;
 }
 
 function execFinallyIfPresent(state, initialTaskConfig) {
-  const finallyTaskName = extractFinallyTaskName(initialTaskConfig) || state.get('finally_task') || 'finally';
-  const taskConfig = getTaskConfig(finallyTaskName, state, false);
-
-  return taskConfig ? task(taskConfig, state) : Promise.resolve();
+  const finallyTask = getCleanupTask(state, initialTaskConfig, 'finally_task', 'finally');
+  return finallyTask ? task(finallyTask, state) : Promise.resolve();
 }
 
 function execCatchIfPresent(state, initialTaskConfig) {
-  const catchTaskName = extractCatchTaskName(initialTaskConfig) || state.get('catch_task') || 'catch';
-  const taskConfig = getTaskConfig(catchTaskName, state, false);
-
-  return taskConfig ? task(taskConfig, state) : Promise.resolve();
+  const catchTask = getCleanupTask(state, initialTaskConfig, 'catch_task', 'catch');
+  return catchTask ? task(catchTask, state) : Promise.resolve();
 }
 
 function cleanup(state, err, initialTaskConfig) {
