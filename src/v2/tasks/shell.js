@@ -55,7 +55,6 @@ function execAndLog(state, options, resolve, reject) {
 
 function spawnInteractive(state, options, resolve, reject) {
   const spawn = require('child_process').spawn;
-
   const cmd = spawn(state.get('command'), [], Object.assign(options, { stdio: 'inherit' }));
 
   cmd.on('close', code => {
@@ -76,6 +75,5 @@ module.exports = (state) => new Promise((resolve, reject) => {
   }
 
   const isInteractiveShell = state.get('options') ? state.get('options').interactive : false;
-
   return isInteractiveShell ? spawnInteractive(state, copyOfOptions, resolve, reject ) : execAndLog(state, copyOfOptions, resolve, reject);
 });

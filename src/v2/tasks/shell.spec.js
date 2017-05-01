@@ -19,8 +19,10 @@ describe('tasks/shell', () => {
   });
   let sut;
   const stdout = 'test message';
+  const spawny = sandbox.stub().returns({ on: (code, func) => func(0)});
   const child = {
-    exec: sandbox.stub().yields(null, stdout, null)
+    exec: sandbox.stub().yields(null, stdout, null),
+    spawn: spawny
   };
   const Logger = mocks.Logger;
   before(() => {
@@ -76,6 +78,17 @@ describe('tasks/shell', () => {
     it('passes through existing environment', () => {
       return sut(state)
         .then(() => expect(child.exec).to.have.been.calledWith(state.get('command'), expected));
+    });
+
+    it('runs an interactive shell', () => {
+      const interactiveState = _.cloneDeep(state);
+      interactiveState.set('options', {
+        interactive: true
+      });
+      const interactiveExpected = Object.assign({}, expected, { stdio: 'inherit'});
+
+      return sut(interactiveState)
+        .then(() => expect(child.spawn).to.have.been.calledWith(interactiveState.get('command'), [], interactiveExpected));
     });
 
     describe('if the command fails', () => {
