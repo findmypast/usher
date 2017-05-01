@@ -55,7 +55,8 @@ function execAndLog(state, options, resolve, reject) {
 
 function spawnInteractive(state, options, resolve, reject) {
   const spawn = require('child_process').spawn;
-  const commandArgs = state.get('command').split(' ');
+  const sanitisedCommand = state.get('command').replace(/[ ]{2,}/g, ' ');
+  const commandArgs = sanitisedCommand.split(' ');
   const command = commandArgs.shift();
   const cmd = spawn(command, commandArgs, Object.assign(options, { stdio: 'inherit' }));
 
