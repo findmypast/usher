@@ -82,13 +82,14 @@ describe('tasks/shell', () => {
 
     it('runs an interactive shell', () => {
       const interactiveState = _.cloneDeep(state);
+      interactiveState.set('command', 'do-it copy -f file');
       interactiveState.set('options', {
         interactive: true
       });
       const interactiveExpected = Object.assign({}, expected, { stdio: 'inherit'});
 
       return sut(interactiveState)
-        .then(() => expect(child.spawn).to.have.been.calledWith(interactiveState.get('command'), [], interactiveExpected));
+        .then(() => expect(child.spawn).to.have.been.calledWith('do-it', ['copy', '-f', 'file'], interactiveExpected));
     });
 
     describe('if the command fails', () => {
