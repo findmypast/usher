@@ -30,19 +30,8 @@ function reduceEnvArrayToObject(envs) {
   }, {});
 }
 
-module.exports = (state) => new Promise((resolve, reject) => {
-  const options = _.reduce(ACCEPTED_OPTIONS, (result, value) => _.set(result, value, state.get(value)), {});
-  state.logger.info(`Executing: ${state.get('command')}`);
-  options.env = reduceEnvArrayToObject(options.env);
-  const copyOfProcessEnv = _.cloneDeep(process.env);
-  const copyOfOptions = _.cloneDeep(options);
-  copyOfOptions.env = Object.assign(copyOfProcessEnv, copyOfOptions.env);
-
-  if (copyOfOptions.env) {
-    copyOfOptions.env['PYTHONIOENCODING'] = 'utf-8'; // Filthy hack to satistfy python environments which lose encoding when piping output
-  }
-
-  const child = exec(state.get('command'), copyOfOptions, (err, stdout) => {
+function execAndLog(state, options, resolve, reject) {
+  const child = exec(state.get('command'), options, (err, stdout) => {
     if (err) {
       reject(err);
     }
@@ -62,4 +51,31 @@ module.exports = (state) => new Promise((resolve, reject) => {
         state.logger.error({message: line});
       }
     });
+}
+
+function spawnInteractive(state, options, resolve, reject) {
+  const spawn = require('child_process').spawn;
+
+  const cmd = spawn(state.get('command'), [], Object.assign(options, { stdio: 'inherit' }));
+
+  cmd.on('close', code => {
+    return code ? reject(code) : resolve();
+  });
+}
+
+module.exports = (state) => new Promise((resolve, reject) => {
+  const options = _.reduce(ACCEPTED_OPTIONS, (result, value) => _.set(result, value, state.get(value)), {});
+  state.logger.info(`Executing: ${state.get('command')}`);
+  options.env = reduceEnvArrayToObject(options.env);
+  const copyOfProcessEnv = _.cloneDeep(process.env);
+  const copyOfOptions = _.cloneDeep(options);
+  copyOfOptions.env = Object.assign(copyOfProcessEnv, copyOfOptions.env);
+
+  if (copyOfOptions.env) {
+    copyOfOptions.env['PYTHONIOENCODING'] = 'utf-8'; // Filthy hack to satistfy python environments which lose encoding when piping output
+  }
+
+  const isInteractiveShell = state.get('options') ? state.get('options').interactive : false;
+
+  return isInteractiveShell ? spawnInteractive(state, copyOfOptions, resolve, reject ) : execAndLog(state, copyOfOptions, resolve, reject);
 });
