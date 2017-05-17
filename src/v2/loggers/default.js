@@ -1,9 +1,8 @@
 'use strict';
 
-const flickerlog = require('flickerlog');
-const log = flickerlog.log;
-const flicker = flickerlog.flicker;
 const emoji = require('node-emoji').emoji;
+const winston = require('winston');
+winston.cli();
 
 module.exports = class Logger {
   constructor(state) {
@@ -14,7 +13,7 @@ module.exports = class Logger {
   logTask(name, description, attempt, tries) {
     const retries = attempt > 1 ? `| retrying ${attempt}/${tries}` : '';
     const suffix = description ? `| ${description}` : '';
-    flicker(`${emoji.gear} Running ${name} ${suffix} ${retries}`);
+    winston.info(`${emoji.gear} Running ${name} ${suffix} ${retries}`);
   }
 
   begin(attempt, tries) {
@@ -26,21 +25,22 @@ module.exports = class Logger {
   }
   end() {
     if (this.tasks.length === 1) {
-      log(`${emoji.heavy_check_mark} Completed ${this.tasks[0].name}`);
+      winston.warn(this.errors);
+      winston.info(`${emoji.heavy_check_mark} Completed ${this.tasks[0].name}`);
     }
     this.tasks.pop();
   }
   fail(error, attempt, tries) {
     if (this.tasks.length === 1 && attempt === tries) {
-      console.error(`${emoji.heavy_multiplication_x} Failed ${this.tasks[0].name}: ${error.message}`);
-      console.error(this.errors);
+      winston.error(`${emoji.heavy_multiplication_x} Failed ${this.tasks[0].name}: ${error.message}`);
+      winston.error(this.errors);
     }
     this.tasks.pop();
   }
   info(message) {
-    log(message);
+    winston.info(message);
   }
   error(error) {
-    this.errors.concat(error.message + '\n');
+    this.errors = this.errors.concat(error.message + '\n');
   }
 };
