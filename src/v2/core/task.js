@@ -30,8 +30,8 @@ function getTask(task, state) {
   // E.g.: shared_tasks.yeomon => tasks.shared_tasks.tasks.yeoman
 
   const path = _.reduce(task.do.split('.'), (acc, p) => {
-    const task = (acc === '') ? 'tasks.' : '.tasks.';
-    return `${acc}${task}${p}`;
+    const taskName = (acc === '') ? 'tasks.' : '.tasks.';
+    return `${acc}${taskName}${p}`;
   }, '');
 
 
@@ -43,6 +43,14 @@ function getTask(task, state) {
   state.set('currentPath', arr.join('.'));
 
   return state.get(path);
+}
+
+function finallyTask(task, state) {
+  var finallyTaskName = _.get(task, 'finally_task', null);
+  var finallyTaskConfig = {
+    do: finallyTaskName
+  };
+  return finallyTaskName ? getTask(finallyTaskConfig, state) : null;
 }
 
 function runTask(task, state) {
@@ -68,6 +76,10 @@ function runTask(task, state) {
       return runTask(subTask, state)
       .catch((e) => {
         logger.fail(e, number, retry.retries + 1);
+        var finalTask = finallyTask(task, state);
+        if (finalTask) {
+          runTask(finalTask, state);
+        }
         if (!state.get('options.ignore_errors')) {
           attempt(e);
         }
@@ -78,7 +90,10 @@ function runTask(task, state) {
         const registerLast = state.get('options.register_last');
 
         state.pop();
-
+        var finalTask = finallyTask(task, state);
+        if (finalTask) {
+          runTask(finalTask, state);
+        }
         if (register) {
           state.set(register, output.toString().trim());
         }

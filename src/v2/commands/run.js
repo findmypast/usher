@@ -80,7 +80,6 @@ function execCatchIfPresent(state, initialTaskConfig) {
 
 function cleanup(state, err, initialTaskConfig) {
   return execCatchIfPresent(state, initialTaskConfig)
-    .then(() => execFinallyIfPresent(state, initialTaskConfig))
     .then(() => err)
     .catch(cleanupErr => `Unrecoverable error when handling catch/finally block:\n${cleanupErr}\nOriginal error:\n${err}`);
 }

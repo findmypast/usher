@@ -1,4 +1,5 @@
 /* global describe before after beforeEach it expect sandbox mockery errors mocks _*/
+/* eslint no-underscore-dangle: "off", no-unused-expressions: "off" */
 'use strict';
 
 const sinon = require('sinon');
@@ -164,6 +165,82 @@ describe('core/task', function() {
       .then(() => {
         expect(mockTask.callCount).to.equal(3);
       });
+    });
+  });
+  describe('given valid task that returns results from multiple subtasks', function() {
+    const output = ['output-from-task-1', 'output-from-task-2'];
+    const mockTask = sandbox.stub().returns(output);
+    const mockFinallyTask = sandbox.stub().returns('output');
+    const inputState = {
+      tasks: {
+        mock: (state) => Promise.try(() => mockTask(_.cloneDeep(state))),
+        mock_finally: (state) => Promise.try(() => mockFinallyTask(_.cloneDeep(state)))
+      }
+    };
+    const inputTask = {
+      do: 'mock',
+      arg: 'test'
+    };
+    let state;
+    let task;
+    beforeEach(function() {
+      task = _.cloneDeep(inputTask);
+      state = new State(inputState, Logger);
+    });
+
+    it('calls finally_task if finally_task is set', function() {
+      const refName = 'mock_finally';
+      const registerTask = _.merge(task, {finally_task: refName});
+      return sut(registerTask, state)
+        .then(() => {
+          expect(mockFinallyTask).to.have.been.calledOnce;
+        });
+    });
+    it('does not call finally_task if finally_task is not set', function() {
+      const refName = 'mock_finally';
+      const registerTask = _.merge(task, {other_option: refName});
+      return sut(registerTask, state)
+        .then(() => {
+          expect(mockFinallyTask).to.not.have.been.calledOnce;
+        });
+    });
+  });
+  describe('given valid task that throws', function() {
+    const taskError = new Error('test error');
+    const mockTask = sandbox.stub().throws(taskError);
+    const mockFinallyTask = sandbox.stub().returns('output');
+    const inputState = {
+      tasks: {
+        mock_finally: (state) => Promise.try(() => mockFinallyTask(_.cloneDeep(state))),
+        throws: (state) => Promise.try(() => mockTask(_.cloneDeep(state)))
+      }
+    };
+    const inputTask = {
+      do: 'throws',
+      arg: 'test'
+    };
+    let state;
+    let task;
+    beforeEach(function() {
+      task = _.cloneDeep(inputTask);
+      state = new State(inputState, Logger);
+    });
+
+    it('calls finally_task if finally_task is set', function() {
+      const refName = 'mock_finally';
+      const registerTask = _.merge(task, {finally_task: refName});
+      return expect(sut(registerTask, state)).to.be.rejectedWith(taskError.message)
+        .then(() => {
+          expect(mockFinallyTask).to.have.been.calledOnce;
+        });
+    });
+    it('does not call finally_task if finally_task is not set', function() {
+      const refName = 'mock_finally';
+      const registerTask = _.merge(task, {other_option: refName});
+      return expect(sut(registerTask, state)).to.be.rejectedWith(taskError.message)
+        .then(() => {
+          expect(mockFinallyTask).not.to.have.been.calledOnce;
+        });
     });
   });
 });
