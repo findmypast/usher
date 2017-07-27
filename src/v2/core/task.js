@@ -53,6 +53,11 @@ function finallyTask(task, state) {
   return finallyTaskName ? getTask(finallyTaskConfig, state) : null;
 }
 
+function performAnyFinalTask(task, state, taskRunner) {
+  var finalTask = finallyTask(task, state);
+  return finalTask ? taskRunner(finalTask, state) : null;
+}
+
 function runTask(task, state) {
   return Promise.try(() => {
     if (_.isFunction(task)) {
@@ -76,10 +81,7 @@ function runTask(task, state) {
       return runTask(subTask, state)
       .catch((e) => {
         logger.fail(e, number, retry.retries + 1);
-        var finalTask = finallyTask(task, state);
-        if (finalTask) {
-          runTask(finalTask, state);
-        }
+        performAnyFinalTask(task, state, runTask);
         if (!state.get('options.ignore_errors')) {
           attempt(e);
         }
@@ -90,10 +92,7 @@ function runTask(task, state) {
         const registerLast = state.get('options.register_last');
 
         state.pop();
-        var finalTask = finallyTask(task, state);
-        if (finalTask) {
-          runTask(finalTask, state);
-        }
+        performAnyFinalTask(task, state, runTask);
         if (register) {
           state.set(register, output.toString().trim());
         }
