@@ -43,7 +43,9 @@ describe('tasks/shell', () => {
     };
     const existingEnv = Object.assign(fakeProcessEnv, {
       ENV: 'env',
-      PYTHONIOENCODING: 'utf-8'
+      PYTHONIOENCODING: 'utf-8',
+      FORCE_COLOR: true,
+      NPM_CONFIG_COLOR: 'always'
     });
 
     const expected = {

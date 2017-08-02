@@ -2,7 +2,7 @@
 
 const Promise = require('bluebird');
 const _ = require('lodash');
-const exec = require('child_process').exec;
+const { exec } = require('child_process');
 const split = require('split');
 
 const ACCEPTED_OPTIONS = [
@@ -31,26 +31,27 @@ function reduceEnvArrayToObject(envs) {
 }
 
 function execAndLog(state, options, resolve, reject) {
-  const child = exec(state.get('command'), options, (err, stdout) => {
-    if (err) {
-      reject(err);
+  const child = exec(state.get('command'), options, (error, stdout, stderr) => {
+    if (error) {
+      reject(error);
     }
     resolve(stdout);
   });
-  child.stdout
-    .pipe(split())
-    .on('data', line => {
-      if (line) {
-        state.logger.info(line);
-      }
-    });
-  child.stderr
-    .pipe(split())
-    .on('data', line => {
-      if (line) {
-        state.logger.error({message: line});
-      }
-    });
+  child.stdout.pipe(split()).on('data', (data) => {
+    if (data) {
+      state.logger.info(data.toString());
+    }
+  });
+
+  child.stderr.pipe(split()).on('data', (data) => {
+    if (data) {
+      state.logger.error({message: data.toString()});
+    }
+  });
+
+  child.on('exit', (code) => {
+    state.logger.info(`Task process exited with code ${code}`);
+  });
 }
 
 function spawnInteractive(state, options, resolve, reject) {
@@ -74,6 +75,8 @@ module.exports = (state) => new Promise((resolve, reject) => {
   copyOfOptions.env = Object.assign(copyOfProcessEnv, copyOfOptions.env);
 
   if (copyOfOptions.env) {
+    copyOfOptions.env['FORCE_COLOR'] = true; // Filthy hack to get colour output from certain npm modules
+    copyOfOptions.env['NPM_CONFIG_COLOR'] = 'always'; // Filthy hack to get colour output from certain npm modules
     copyOfOptions.env['PYTHONIOENCODING'] = 'utf-8'; // Filthy hack to satistfy python environments which lose encoding when piping output
   }
 
