@@ -3,8 +3,8 @@
 'use strict';
 
 const _ = require('lodash');
-const list = require('../src/v1/list');
-const filename = 'test/test.usher.yml';
+const list = require('../../src/v1/list');
+const filename = 'test/v1/test.usher.yml';
 
 const descriptions = {
   build: 'builds the docker container',

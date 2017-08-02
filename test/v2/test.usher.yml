@@ -1,0 +1,790 @@
+version: '2'
+
+vars:
+  setup_version: 1.0
+  colour: <%=_.head(_.split(service_tag, '-'))%>
+  registry: docker-registry.dun.fh            # Our private Docker image registry
+  base_service_name: titan                    # The service name
+  consul_host: consul.dun.fh                  # Our consul server
+  consul_port: 8500
+  mix_env: prod
+  service_image_name: <%=base_service_name%>-app
+  web_service_image_name: <%=base_service_name%>-web
+  api_service_image_name: <%=base_service_name%>-api
+  router_service_image_name: <%=base_service_name%>-router
+  load_balancer_image_name: <%=base_service_name%>-lb
+  acceptance_hosts:
+    - fh1-titant02
+  integration_hosts:
+    - fh1-titant01
+  production_hosts:
+    - fh1-titan01
+    - fh1-titan02
+    - fh1-titan03
+    - fh1-titan04
+    - fh1-titan05
+    - fh1-titan06
+    - fh1-titan07
+    - fh1-titan08
+    - fh1-titan09
+    - fh1-titan10
+    - fh1-titan11
+    - fh1-titan12
+  production_lb_hosts:
+    - fh1-titan02
+
+  docker_environment: &DOCKER_ENV             # The configuration for docker to deploy remote
+    - DOCKER_TLS_VERIFY=1
+    - DOCKER_HOST=tcp://<%=service_node%>.dun.fh:2376
+    - SERVICE_NAME=<%=service_image_name%>
+    - SERVICE_TAGS=<%=service_tag%>
+    - SERVICE_NODE=<%=service_node%>
+    - COMPOSE_PROJECT_NAME=<%=base_service_name%><%=service_tag%>
+    - VERSION=<%=version%>
+    - MIX_ENV=<%=mix_env%>
+    - NODE_ENV=production
+    - FEATURE_TOGGLE_CLIENT_KEY=<%=feature_toggle_client_key%>
+    - SESSION_COOKIE_NAME=<%=session_cookie_name%>
+    - DISABLE_SSR=<%=disable_ssr%>
+    - VAULT_PASS=<%=app_password%>
+
+lb_docker_environment: &LB_DOCKER_ENV
+  - DOCKER_TLS_VERIFY=1
+  - DOCKER_HOST=tcp://<%=service_node%>.dun.fh:2376
+  - &IMAGE_LB IMAGE_LB=<%=registry%>/findmypast/<%=load_balancer_image_name%>:<%=version%>
+  - SERVICE_NAME=<%=base_service_name%>
+  - SERVICE_TAGS=<%=service_tag%>
+  - SERVICE_NODE=<%=service_node%>
+  - CONSUL_TAG_PATH=<%=consul_tag_path%>
+  - ENVIRONMENT=<%=environment%>
+  - COMPOSE_PROJECT_NAME=<%=base_service_name%>
+  - GREEN_TAG=<%=green_tag%>
+  - BLUE_TAG=<%=blue_tag%>
+
+include:
+  - from: git+ssh://git@github.com:findmypast/usher_shared_tasks.git
+    name: shared_tasks as global
+    import:
+      - docker
+      - deploy_service_discovery as deploy
+      - dasher
+      - consul
+      - domesday
+      - network
+      - toggle-nose
+      - flipper
+
+tasks:
+  npm_test:
+    do: shell
+    description: Just run yarn test
+    command: sh -c "cd web/ && yarn test"
+
+  mix_test:
+    do: shell
+    description: Just run mix test
+    command: sh -c "cd api/ && mix test"
+
+  npm_test_w:
+    do: shell
+    description: Just run yarn test watch
+    command: sh -c "cd web/ && yarn run test:unit:w"
+
+  hot_setup:
+    description: Takes a clean repo and pulls all dependencies
+    do: sequence
+    actions:
+      - do: shell
+        command: echo 'Deprecated, please use $ usher run setup instead.'
+
+  hot:
+    do: sequence
+    actions:
+    - do: setup_if_out_of_date
+    - do: global.network.check_for_vpn
+    - do: hot_min
+
+  hot_min:
+    do: sequence
+    actions:
+    - do: global.docker.compose_down
+      service_folder: docker-compose
+      compose_filename: hot.yml
+      service_name:
+      compose_down_args: --remove-orphans
+      env:
+        - COMPOSE_PROJECT_NAME=titanhotlocal
+    - do: global.docker.compose_up_build
+      service_folder: docker-compose
+      compose_filename: hot.yml
+      service_name:
+      env:
+        - MIX_ENV=dev
+        - COMPOSE_PROJECT_NAME=titanhotlocal
+        - FEATURE_TOGGLE_CLIENT_KEY=57d7df2c5b36070e2d5eeeb9
+        - SESSION_COOKIE_NAME=Localsession
+
+  setup_if_out_of_date:
+    description: Check that setup is current
+    do: sequence
+    actions:
+    - do: shell
+      command: sh -c "./scripts/setup-if-changed.sh <%=setup_version%>"
+
+  hot_unit:
+    description: Run containers that watch for changes and rerun unit tests
+    do: sequence
+    actions:
+      - do: setup_if_out_of_date
+      - do: global.network.check_for_vpn
+      - do: hot_unit_min
+
+  hot_unit_min:
+    do: sequence
+    actions:
+      - do: global.docker.compose_down
+        service_folder: docker-compose
+        compose_filename: watch.yml
+        service_name:
+        compose_down_args: --remove-orphans
+        env:
+          - COMPOSE_PROJECT_NAME=titantestwatcher
+      - do: global.docker.compose_up_build
+        service_folder: docker-compose
+        compose_filename: watch.yml
+        service_name:
+        env:
+          - COMPOSE_PROJECT_NAME=titantestwatcher
+
+  hot_teardown:
+    description: Brings all docker containers down and prunes stopped containers, dangling volumes, and dangling images
+    do: sequence
+    actions:
+      - do: global.docker.compose_down
+        service_folder: docker-compose
+        compose_filename: hot.yml
+        service_name:
+        compose_down_args: --remove-orphans --volumes --rmi local
+        env:
+          - COMPOSE_PROJECT_NAME=titanhotlocal
+      - do: global.docker.compose_down
+        service_folder: docker-compose
+        compose_filename: watch.yml
+        service_name:
+        compose_down_args: --remove-orphans --volumes --rmi local
+        env:
+          - COMPOSE_PROJECT_NAME=titantestwatcher
+      - do: global.docker.compose_down
+        service_folder: docker-compose
+        compose_filename: dev.yml
+        compose_down_args: --remove-orphans --volumes --rmi local
+        service_name:
+        env:
+          - COMPOSE_PROJECT_NAME=titanlocal
+      - do: shell
+        command: docker system prune --force
+
+  hot_acceptance:
+    description: Run acceptance tests locally
+    do: sequence
+    actions:
+      - do: setup_if_out_of_date
+      - do: global.network.check_for_vpn
+      - do: global.docker.compose_down
+        service_folder: docker-compose
+        compose_filename: hot.yml
+        service_name:
+        compose_down_args: -v --remove-orphans
+        env:
+          - COMPOSE_PROJECT_NAME=titanhotlocal
+      - do: shell
+        command: docker-compose -f docker-compose/hot.yml -f docker-compose/acceptance.yml up --build
+        env:
+          - FEATURE_TOGGLE_CLIENT_KEY=57d7df2c5b36070e2d5eeeb9
+          - SESSION_COOKIE_NAME=Localsession
+          - COMPOSE_PROJECT_NAME=titanhotlocal
+          - MIX_ENV=dev
+
+  clean:
+    description: Clean your dev environment
+    do: sequence
+    actions:
+      - do: global.docker.compose_down
+        service_folder: docker-compose
+        compose_filename: hot.yml
+        service_name:
+        compose_down_args: -v --remove-orphans
+        env:
+          - COMPOSE_PROJECT_NAME=titanhotlocal
+      - do: global.docker.compose_down
+        service_folder: docker-compose
+        compose_filename: watch.yml
+        service_name:
+        compose_down_args: -v --remove-orphans
+        env:
+          - COMPOSE_PROJECT_NAME=titantestwatcher
+
+  local:
+    description: Run container locally
+    do: sequence
+    actions:
+      - do: setup_if_out_of_date
+      - do: global.network.check_for_vpn
+      - do: local_clean
+      - do: build_minimal_and_emit_schema
+      - do: build
+        version: local
+      - do: global.docker.compose_up_build
+        service_folder: docker-compose
+        compose_filename: dev.yml
+        service_name:
+        env:
+          - MIX_ENV=integration
+          - NODE_ENV=production
+          - COMPOSE_PROJECT_NAME=titanlocal
+          - FEATURE_TOGGLE_CLIENT_KEY=57d7df2c5b36070e2d5eeeb9
+          - SESSION_COOKIE_NAME=Integrationsession
+          - VERSION=local
+
+  local_clean:
+    description: Clean your dev environment
+    do: sequence
+    actions:
+      - do: global.network.check_for_vpn
+      - do: global.docker.compose_down
+        service_folder: docker-compose
+        compose_filename: dev.yml
+        compose_down_args: -v --remove-orphans
+        service_name:
+        env:
+          - COMPOSE_PROJECT_NAME=titanlocal
+
+  local_debug:
+    do: sequence
+    actions:
+      - do: setup_if_out_of_date
+      - do: global.network.check_for_vpn
+      - do: local_clean
+      - do: build_minimal_and_emit_schema
+      - do: build
+        version: local
+      - do: shell
+        command: docker-compose -f docker-compose/dev.yml up
+        env:
+          - MIX_ENV=dev
+          - NODE_ENV=development
+          - COMPOSE_PROJECT_NAME=titanlocal
+          - FEATURE_TOGGLE_CLIENT_KEY=57d7df2c5b36070e2d5eeeb9
+          - SESSION_COOKIE_NAME=Localsession
+          - VERSION=local
+
+  local_unit_template:
+    description: Run unit tests inside a container (with automatic build)
+    do: sequence
+    actions:
+      - do: build_minimal_and_emit_schema
+      - do: global.docker.compose_run
+        service_folder: docker-compose
+        compose_filename: minimal.yml
+        service_name: web
+        service_args: <%=npm_test_args%>
+        env:
+          - COMPOSE_PROJECT_NAME=titanlocal
+      - do: global.docker.compose_run
+        service_folder: docker-compose
+        compose_filename: minimal.yml
+        service_name: api
+        service_args: <%=mix_test_args%>
+        env:
+          - COMPOSE_PROJECT_NAME=titanlocal
+      - do: global.deploy.jackal_consumer
+        contract_file: api/config/contracts
+
+  local_unit:
+    description: Run unit tests inside a container (with automatic build)
+    do: local_unit_template
+    npm_test_args: yarn test
+    mix_test_args: mix coveralls
+
+  local_unit_nocoverage:
+    description: Run unit tests inside a container (with automatic build)
+    do: local_unit_template
+    npm_test_args: yarn run test:nocov
+    mix_test_args: mix test
+
+  jackal_test:
+    description: Run and submit jackal contract tests for Titan API
+    do: global.deploy.jackal_consumer
+    contract_file: api/config/contracts
+
+  build:
+    description: Build the docker image
+    do: sequence
+    actions:
+      - do: global.docker.create_image
+        create_image_extra_args:
+        service_folder: ./api
+        service_name: <%=api_service_image_name%>
+        env:
+          - MIX_ENV=prod
+      - do: build_minimal_and_emit_schema
+      - do: global.docker.create_image
+        create_image_extra_args:
+        service_folder: ./web
+        service_name: <%=web_service_image_name%>
+      - do: global.docker.create_image
+        create_image_extra_args:
+        service_folder: ./router
+        service_name: <%=router_service_image_name%>
+
+  build_lb:
+    description: Build the load-balancer docker image
+    do: global.docker.create_lb_image
+    service_name: <%=load_balancer_image_name%>
+    service_folder: ./load-balancer
+
+  push:
+    description: Push the docker image to our registry
+    do: sequence
+    actions:
+      - do: global.docker.push_image
+        service_name: <%=web_service_image_name%>
+      - do: global.docker.push_image
+        service_name:  <%=api_service_image_name%>
+      - do: global.docker.push_image
+        service_name:  <%=router_service_image_name%>
+
+  push_lb:
+    description: Push the load-balancer docker image to our registry
+    do: global.docker.push_image
+    service_name: <%=load_balancer_image_name%>
+
+  pull:
+    description: Pull the docker image from the registry (to add it to the local cache)
+    do: sequence
+    actions:
+      - do: global.docker.pull_image
+        service_name: <%=web_service_image_name%>
+      - do: global.docker.pull_image
+        service_name: <%=api_service_image_name%>
+
+  pull_lb:
+    description: Pull the load-balancer docker image from the registry (to add it to the local cache)
+    do: global.docker.pull_image
+    service_name: <%=load_balancer_image_name%>
+
+  unit_test_teamcity:
+    description: Run unit tests inside a container (with automatic build)
+    do: sequence
+    actions:
+      - do: global.domesday.get_password
+        service_name: <%=service_image_name%>
+        vault_username: <%=tc_username%>
+        vault_password: <%=tc_password%>
+        service_tag: black-dev
+        options:
+          register: app_password
+      - do: sniff
+        service_tag: black-dev
+      - do: shell
+        command: docker-compose -f docker-compose/minimal.yml down --remove-orphans
+        options:
+          ignore_errors: true
+        env:
+          - COMPOSE_PROJECT_NAME=titanlocal
+      - do: build_minimal_and_emit_schema
+      - do: shell
+        command: docker-compose -f docker-compose/minimal.yml run --rm web yarn run test:teamcity
+        env:
+          - NODE_ENV=test
+          - COMPOSE_PROJECT_NAME=titanlocal
+      - do: shell
+        command: docker-compose -f docker-compose/minimal.yml run --rm api sh -c "mix coveralls"
+        env:
+          - MIX_ENV=test
+          - COMPOSE_PROJECT_NAME=titanlocal
+          - TEAMCITY=yes
+      - do: global.deploy.jackal_consumer
+        contract_file: api/config/contracts
+
+  deploy:
+    description: Deploy container to node
+    do: sequence
+    actions:
+      - do: shell
+        command: docker pull <%=registry%>/findmypast/<%=web_service_image_name%>:<%=version%>
+        env: *DOCKER_ENV
+      - do: shell
+        command: docker pull <%=registry%>/findmypast/<%=api_service_image_name%>:<%=version%>
+        env: *DOCKER_ENV
+      - description: Remove those containers (if any)
+        do: shell
+        command: docker-compose -f docker-compose/production.yml -f docker-compose/production-<%=colour%>.yml down -v --remove-orphans
+        env: *DOCKER_ENV
+      - do: shell
+        command: sleep 5
+      - description: Run container (for correct colour tag) on host
+        do: shell
+        command: docker-compose -f docker-compose/production.yml -f docker-compose/production-<%=colour%>.yml up -d
+        env: *DOCKER_ENV
+
+  sniff:
+    description: Error when launch darkly feature flags are unused
+    do: global.toggle-nose.sniff
+    projkey: fmp
+    # Only report on toggles not used on production environment, ignore other envs
+    environment: production
+    warnage: 7
+    maxage: 31
+    vault_username: <%=service_image_name%>-<%=service_tag%>
+    vault_password: <%=app_password%>
+    slack_channel: titan
+
+  deploy_testing:
+    description: Deploy testing environment
+    do: sequence
+    actions:
+      - do: configure_toggles
+        environment: integration
+        flipper_host: integration.flipper.service.consul:3333
+      - description: Deploy integration and acceptance in parallel
+        do: sequence
+        actions:
+          - do: deploy_acceptance
+          - do: deploy_integration
+          - do: acceptance_tests
+
+  deploy_acceptance:
+    description: Deploy Acceptance container
+    do: sequence
+    actions:
+      - description: Get the service tag and colour for the offline colour
+        do: shell
+        command: twoface peek -H <%=consul_host%>:<%=consul_port%> -k proxied-services/<%=service_image_name%>/subdomains/acceptance -b blue-acceptance -g green-acceptance
+        options:
+          register: service_tag
+      - do: global.domesday.get_password
+        service_name: <%=service_image_name%>
+        vault_username: <%=tc_username%>
+        vault_password: <%=tc_password%>
+        options:
+          register: app_password
+      - do: for
+        every: service_node
+        in: <%=acceptance_hosts%>
+        exec: deploy
+        feature_toggle_client_key: 57f4f0e52b886c132878bf77
+        mix_env: integration
+        session_cookie_name: Acceptancesession
+        disable_ssr: false
+      - description: Run smoke tests against the service to confirm it's online
+        do: shell
+        command: shisha --domain=backstage-acceptance.<%=base_service_name%>.service.consul:3333
+        options:
+          retry:
+            retries: 35
+            factor: 1.2
+      - description: Flip offline/online colours by switching the consul tag
+        do: shell
+        command: twoface flip -H <%=consul_host%>:<%=consul_port%> -k proxied-services/<%=service_image_name%>/subdomains/acceptance -b blue-acceptance -g green-acceptance
+      - do: global.deploy.it_lives
+        environment: acceptance
+        options:
+          retry:
+            retries: 10
+            factor: 1.2
+
+  deploy_integration:
+    description: Deploy Integration container
+    do: sequence
+    actions:
+      - description: Get the service tag for the offline colour
+        do: shell
+        command: twoface peek -H <%=consul_host%>:<%=consul_port%> -k proxied-services/<%=service_image_name%>/subdomains/integration -b blue-integration -g green-integration
+        options:
+          register: service_tag
+      - do: global.domesday.get_password
+        service_name: <%=service_image_name%>
+        vault_username: <%=tc_username%>
+        vault_password: <%=tc_password%>
+        options:
+          register: app_password
+      - description: Run the deploy task on the integration hosts
+        do: for
+        every: service_node
+        in: <%=integration_hosts%>
+        exec: deploy
+        feature_toggle_client_key: 57d926af8ede1707195b02c7
+        mix_env: integration
+        session_cookie_name: Integrationsession
+        disable_ssr: false
+      - description: Run smoke tests against the service to confirm it's online
+        do: shell
+        command: shisha --domain=backstage-integration.<%=base_service_name%>.service.consul:3333
+        options:
+          retry:
+            retries: 35
+            factor: 1.2
+      - description: Flip offline/online colours of integration by switching the consul tag
+        do: shell
+        command: twoface flip -H <%=consul_host%>:<%=consul_port%> -k proxied-services/<%=service_image_name%>/subdomains/integration -b blue-integration -g green-integration
+      - do: global.deploy.it_lives
+        environment: integration
+        options:
+          retry:
+            retries: 10
+            factor: 1.2
+
+  deploy_production:
+    do: sequence
+    environment: production
+    actions:
+      - description: Deploy Production container
+        do: configure_alerts
+      - description: Get the service tag for the offline colour
+        do: shell
+        command: twoface peek -H <%=consul_host%>:<%=consul_port%> -k proxied-services/<%=service_image_name%>/root-tag -b blue-production -g green-production
+        options:
+          register: service_tag
+      - do: global.domesday.get_password
+        service_name: <%=service_image_name%>
+        vault_username: <%=tc_username%>
+        vault_password: <%=tc_password%>
+        options:
+          register: app_password
+      - do: configure_toggles
+        flipper_host: production.flipper.service.consul:3333
+      - description: Run the deploy task on the production hosts
+        do: for
+        every: service_node
+        in: <%=production_hosts%>
+        exec: deploy
+        feature_toggle_client_key: 577cda73711b1406ea0013c1
+        session_cookie_name: Livesession
+        disable_ssr: false
+      - description: Run smoke tests against the service to confirm it's online
+        do: shell
+        command: shisha --domain=backstage-production.<%=base_service_name%>.service.consul:3333
+        options:
+          retry:
+            retries: 35
+            factor: 1.2
+      - description: Flip offline/online colours by switching the consul tag
+        do: shell
+        command: twoface flip -H <%=consul_host%>:<%=consul_port%> -k proxied-services/<%=service_image_name%>/root-tag -b blue-production -g green-production
+      - do: global.deploy.it_lives
+        options:
+          retry:
+            retries: 10
+            factor: 1.2
+
+  acceptance_tests:
+    description: Run the acceptance tests
+    environment: integration
+    do: sequence
+    actions:
+      - description: Get the service tag for the offline colour
+        do: shell
+        command: twoface peek -H <%=consul_host%>:<%=consul_port%> -k proxied-services/<%=service_image_name%>/subdomains/integration -b blue-integration -g green-integration
+        options:
+          register: service_tag
+
+      - description: Get current working directory
+        do: shell
+        command: pwd
+        options:
+          register: cwd
+
+      - description: Remove UI tests artifact folder
+        do: shell
+        command: rm -rf <%=cwd%>/ui_artifacts
+        options:
+          - ignore_errors: true
+
+      - description: Create UI tests artifact folder
+        do: shell
+        command: mkdir <%=cwd%>/ui_artifacts
+
+      - description: Run UI tests with our Selenium grid
+        do: shell
+        command: docker-compose -f docker-compose/production-ui-tests.yml -f docker-compose/production-<%=colour%>.yml run --rm --no-deps -e TEST_URL=acceptance.<%=base_service_name%>.service.consul:3333 worker_1 yarn run test:acceptance
+        env:
+          - SERVICE_NODE=
+          - NODE_ENV=test
+          - VERSION=<%=version%>
+          - COMPOSE_PROJECT_NAME=titanlocaltest_<%=colour%>
+          - ARTIFACTS_PATH=<%=cwd%>/ui_artifacts
+
+  local_load_balancer:
+    do: global.docker.compose_up_build
+    compose_filename: load-balancer/docker-compose.yml
+    service_name: proxy
+    consul_tag_path: subdomains/integration
+    load_balancer_name: <%=load_balancer_image_name%>
+    service_folder: .
+    env:
+      - SERVICE_NODE=consul
+      - &IMAGE_LB IMAGE_LB=<%=registry%>/findmypast/<%=load_balancer_image_name%>:<%=version%>
+      - CONSUL_TAG_PATH=<%=consul_tag_path%>
+      - COMPOSE_PROJECT_NAME=<%=base_service_name%>
+
+  deploy_load_balancer_acceptance:
+    description: Deploy the Titan load balancer for acceptance server(s)
+    do: global.deploy.deploy_load_balancer
+    deploy_hosts: <%=acceptance_hosts%>
+    environment: acceptance
+    consul_key_path: subdomains/acceptance
+    load_balancer_name: <%=load_balancer_image_name%>
+    service_folder: .
+    lb_docker_environment: *LB_DOCKER_ENV
+    blue_tag: blue-acceptance
+    green_tag: green-acceptance
+
+  deploy_load_balancer_integration:
+    description: Deploy the Titan load balancer for integration server(s)
+    do: global.deploy.deploy_load_balancer
+    deploy_hosts: <%=integration_hosts%>
+    environment: integration
+    consul_key_path: subdomains/integration
+    load_balancer_name: <%=load_balancer_image_name%>
+    service_folder: .
+    lb_docker_environment: *LB_DOCKER_ENV
+    blue_tag: blue-integration
+    green_tag: green-integration
+
+  deploy_load_balancer_production:
+    description: Deploy the Titan load balancer for production server(s)
+    do: global.deploy.deploy_load_balancer
+    deploy_hosts: <%=production_lb_hosts%>
+    environment: production
+    consul_key_path: root-tag
+    load_balancer_name: <%=load_balancer_image_name%>
+    service_folder: .
+    lb_docker_environment: *LB_DOCKER_ENV
+    blue_tag: blue-production
+    green_tag: green-production
+
+  build_minimal_and_emit_schema:
+    description: Extracts the Absinthe schema from API in JSON format
+    do: sequence
+    actions:
+      - do: global.docker.compose_build
+        service_folder: docker-compose
+        compose_filename: minimal.yml
+        service_name:
+        env:
+          - COMPOSE_PROJECT_NAME=titanlocal
+      - do: shell
+        command: docker-compose -f docker-compose/minimal.yml run --rm api mix absinthe.schema.json --schema TitanApi.GraphQL.Schema /usr/src/app/_artifacts/schema.json
+        env:
+          - COMPOSE_PROJECT_NAME=titanlocal
+      - do: shell
+        command: cp ./_artifacts/schema.json ./web/config/relay/data/schema.json
+
+  configure_alerts:
+    description: Submit alerts
+    do: global.consul.create_key_value_pairs
+    consul_host: consul.dun.fh
+    root: proxied-services/titan/alerts
+    service_folder: config
+    config_filepath: alerts.yml
+
+  configure_dashboards:
+    description: Submit dashboards
+    do: global.dasher.publish_dashboard
+    service_name: <%=base_service_name%>
+    service_folder: config
+    config_filepath: dasher.yml
+
+  configure_toggles:
+    description: Submit latest version of toggle file
+    do: global.flipper.upload_toggles
+    toggle_file_path: config/toggles.json
+    toggle_project_name: fmp
+    options:
+      ignore_errors: true
+
+  configure_proxy:
+    description: Submit service.consul:3333 information
+    do: shell
+    command: curtain-twitcher consul.dun.fh proxied-services config/proxy.yml
+
+  pre_push:
+    description: Running pre push tasks
+    do: sequence
+    actions:
+      - do: shell
+        command: git push --dry-run --no-verify
+      - do: local_unit
+
+  pre_commit:
+    description: Running pre commit tasks
+    do: shell
+    command: echo "committing..."
+
+  pre-commit:
+    description: DEPRECATED
+    do: shell
+    command: echo "committing..."
+
+  setup:
+    description: Setup your local environment
+    do: sequence
+    actions:
+      - do: install_git_hooks
+      - do: install_git_project_settings
+      - do: global.network.check_for_vpn
+      - do: upgrade_tools
+      - do: build_minimal_and_emit_schema
+      - do: shell
+        command: sh -c "echo <%=setup_version%> > .setup_version"
+
+  upgrade_tools:
+    description: check tools are at the latest.
+    do: sequence
+    actions:
+      - do: shell
+        command: echo Installing Yarn. If this fails, install Yarn manually for your OS.
+      - do: shell
+        command: sh -c 'scripts/install-and-update-npm-tool.sh yarn || true'
+      - do: shell
+        command: sh -c 'scripts/install-and-update-npm-tool.sh verzasca || true'
+      - do: shell
+        command: sh -c 'scripts/install-and-update-npm-tool.sh jackal || true'
+      - do: shell
+        command: sh -c 'scripts/install-and-update-npm-tool.sh turingsnip || true'
+
+  install_git_project_settings:
+    description: git specific settings for this project.
+    do: shell
+    command: git config pull.rebase true
+
+  install_git_hooks:
+    description: Install pre-push shell file
+    do: sequence
+    actions:
+      - do: shell
+        command: cp scripts/pre-push .git/hooks
+      - description: Change the permissions
+        do: shell
+        command: chmod +x .git/hooks/pre-push
+
+  install_experimental_git_hooks:
+    description: Install experimental pre-push shell file
+    do: sequence
+    actions:
+      - do: shell
+        command: cp scripts/pre-push-next .git/hooks/pre-push
+      - description: Change the permissions
+        do: shell
+        command: chmod +x .git/hooks/pre-push
+
+  commits_with_tickets_opt_in:
+    description: Install commit-msg shell file
+    do: sequence
+    actions:
+      - do: shell
+        command: cp scripts/commit-msg .git/hooks
+      - description: Change the permissions
+        do: shell
+        command: chmod +x .git/hooks/commit-msg

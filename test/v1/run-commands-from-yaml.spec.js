@@ -11,12 +11,12 @@ const sinonChai = require('sinon-chai');
 const rewire = require('rewire');
 const _ = require('lodash');
 
-let taskRunner = rewire('../src/v1/modules/task-runner');
-let run = rewire('../src/v1/run');
+let taskRunner = rewire('../../src/v1/modules/task-runner');
+let run = rewire('../../src/v1/run');
 chai.use(sinonChai);
 
 describe('Given a YAML file run command execution', () => {
-  let filename = 'test/test.usher.yml';
+  let filename = 'test/v1/test.usher.yml';
 
   let tests = [
     {
