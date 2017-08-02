@@ -49,7 +49,7 @@
     "mocha-teamcity-reporter": "^1.1.1",
     "mockery": "^2.1.0",
     "publish": "^0.6.0",
-    "rewire": "^2.5.1",
+    "rewire": "^2.5.2",
     "sinon": "^1.17.3",
     "sinon-as-promised": "^4.0.2",
     "sinon-chai": "^2.12.0",
