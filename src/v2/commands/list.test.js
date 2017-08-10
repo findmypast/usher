@@ -2,7 +2,7 @@
 
 const sut = require('./list');
 
-describe('list', () => {
+describe('commands/list', () => {
 
   describe('given valid input', () => {
     const expectedListResponse = require('../../../test/v2/list-response.json');

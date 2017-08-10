@@ -62,17 +62,8 @@ lb_docker_environment: &LB_DOCKER_ENV
   - BLUE_TAG=<%=blue_tag%>
 
 include:
-  - from: git+ssh://git@github.com:findmypast/usher_shared_tasks.git
-    name: shared_tasks as global
-    import:
-      - docker
-      - deploy_service_discovery as deploy
-      - dasher
-      - consul
-      - domesday
-      - network
-      - toggle-nose
-      - flipper
+  - from: mock-shared-tasks.yml
+    name: mock-shared-tasks as global
 
 tasks:
   npm_test:

@@ -4,7 +4,8 @@ const chalk = require('chalk');
 const _ = require('lodash');
 
 module.exports = (printFunction, list) => {
-  _.forOwn(list, (values, key) => {
+  var clonedList = _.cloneDeep(list);
+  _.forOwn(clonedList, (values, key) => {
     printFunction(`${chalk.bold(key)}- ${values[0]}`);
     if (Array.isArray(values)) {
       values.shift();

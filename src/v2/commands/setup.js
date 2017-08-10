@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const Promise = require('bluebird');
-const exec = Promise.promisify(require('child_process').exec);
+const exec = require('child-process-promise').exec;
 const State = require('../core/state');
 const installDir = require('../core/installed-modules').installDir;
 const defaultTasks = {tasks: require('../tasks')};
@@ -52,7 +52,6 @@ function installModule(moduleName) {
   if (_.endsWith(moduleName, '.yml')) {
     return Promise.resolve();
   }
-
   return exec(`npm install ${moduleName} --prefix ${installDir()}`);
 }
 
@@ -60,8 +59,8 @@ function requireModule(requireName) {
   return require(`${installDir()}/node_modules/${requireName}`);
 }
 
-function loadAndParseYmlFile(taskList, filename, propertyName) {
-  const file = require('./parse')(filename);
+function loadAndParseYmlFile(taskList, filename, propertyName, parser) {
+  const file = parser(filename);
 
   return file[propertyName];
 }
@@ -86,10 +85,10 @@ function getAlias(name) {
   return split;
 }
 
-function importTasklist(taskList, taskConfig, usherFilePath) {
+function importTasklist(taskList, taskConfig, usherFilePath, parser) {
   const [importName, aliasName] = getAlias(taskConfig.name || taskConfig.from);
   const tasks = _.endsWith(taskConfig.from, '.yml')
-    ? loadAndParseYmlFile(taskList, path.join(usherFilePath, taskConfig.from), 'tasks')
+    ? loadAndParseYmlFile(taskList, path.join(usherFilePath, taskConfig.from), 'tasks', parser)
     : requireModule(importName);
 
   if (!taskConfig.import) {
@@ -114,11 +113,11 @@ function importTasklist(taskList, taskConfig, usherFilePath) {
   return taskList;
 }
 
-function importVariables(varList, config, usherFilePath) {
+function importVariables(varList, config, usherFilePath, parser) {
   const [importName] = getAlias(config.name || config.from);
   const isYmlFile = _.endsWith(config.from, '.yml');
   const variables = isYmlFile
-    ? loadAndParseYmlFile(varList, path.join(usherFilePath, config.from), 'vars')
+    ? loadAndParseYmlFile(varList, path.join(usherFilePath, config.from), 'vars', parser)
     : requireModule(importName);
 
   if (isYmlFile) {
@@ -134,15 +133,15 @@ function importVariables(varList, config, usherFilePath) {
   return varList;
 }
 
-module.exports = (config, Logger, usherFilePath) => Promise.try(() => {
+module.exports = (config, Logger, usherFilePath, parser=require('./parse')) => Promise.try(() => {
   _.mapValues(validators, validator => validator(config));
   const modulesToInstall = _.map(config.include, (include) => _.get(include, 'from'));
   return Promise.all(_.map(modulesToInstall, installModule))
   .then(() => {
     const reducedTasks = _.reduce(config.include, (acc, includeConfig) =>
-      importTasklist(acc, includeConfig, usherFilePath), {});
+      importTasklist(acc, includeConfig, usherFilePath, parser), {});
     const reducedArgs = _.reduce(config.include, (acc, includeConfig) =>
-      importVariables(acc, includeConfig, usherFilePath), {});
+      importVariables(acc, includeConfig, usherFilePath, parser), {});
     const initialState = _.merge({}, defaultTasks, config.vars, reducedArgs, _.pick(config, 'tasks'), {tasks: reducedTasks});
     const state = new State(initialState, Logger);
 

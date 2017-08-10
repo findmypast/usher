@@ -1,4 +1,3 @@
-/* global sandbox */
 'use strict';
 
 const Logger = class MockLogger {
@@ -21,12 +20,10 @@ const Logger = class MockLogger {
     Logger.error(...args);
   }
 };
-Logger.begin = sandbox.stub();
-Logger.end = sandbox.stub();
-Logger.fail = sandbox.stub();
-Logger.info = sandbox.stub();
-Logger.error = sandbox.stub();
+Logger.begin = jest.fn();
+Logger.end = jest.fn();
+Logger.fail = jest.fn();
+Logger.info = jest.fn();
+Logger.error = jest.fn();
 
-module.exports = {
-  Logger: Logger
-};
+module.exports = Logger;

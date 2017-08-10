@@ -1,9 +1,7 @@
-/* global describe it expect*/
-/* eslint no-underscore-dangle: "off", no-unused-expressions: "off" */
 'use strict';
 
 const _ = require('lodash');
-const list = require('../../src/v1/list');
+const list = require('./list');
 const filename = 'test/v1/test.usher.yml';
 
 const descriptions = {
@@ -13,7 +11,7 @@ const descriptions = {
 };
 
 describe('Given a YAML file, and a task with a description', () => {
-  it('Should list the tasks first description', () => {
+  test('Should list the tasks first description', () => {
     let key = 'build';
     let expected = descriptions.build;
 
@@ -21,11 +19,11 @@ describe('Given a YAML file, and a task with a description', () => {
       file: filename
     });
 
-    expect(listedTasks).to.include.keys(key);
-    expect(listedTasks[key]).to.include(expected);
+    expect(listedTasks[key]).toBeDefined();
+    expect(listedTasks[key]).toContain(expected);
   });
 
-  it('Should list the tasks sub-description', () => {
+  test('Should list the tasks sub-description', () => {
     let key = 'build_seq';
     let taskDescriptions = {
       [key]: [
@@ -38,18 +36,18 @@ describe('Given a YAML file, and a task with a description', () => {
       file: filename
     });
 
-    expect(listedTasks).to.deep.equal(taskDescriptions);
+    expect(listedTasks).toEqual(taskDescriptions);
   });
 });
 
 describe('Given a YAML file, and listing all commands', () => {
-  it('Should print the first description of each task', () => {
+  test('Should print the first description of each task', () => {
     const taskDescriptionList = list(null, {
       file: filename
     });
     _.forOwn(descriptions, (value, key) => {
-      expect(taskDescriptionList).to.include.keys(key);
-      expect(taskDescriptionList[key]).to.include(value);
+      expect(taskDescriptionList[key]).toBeDefined();
+      expect(taskDescriptionList[key]).toContain(value);
     });
   });
 });

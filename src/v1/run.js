@@ -1,6 +1,6 @@
 'use strict';
 
-let TaskRunner = require('./modules/task-runner');
+const TaskRunner = require('./modules/task-runner');
 const _ = require('lodash');
 const getTaskConfig = require('./modules/get-task-config');
 const logger = require('winston');

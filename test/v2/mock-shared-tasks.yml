@@ -1,0 +1,13 @@
+version: '2'
+vars:
+  some_mock_var: spagbol
+tasks:
+  mock_task:
+    description: Makes a great hoo haa
+    do: shell
+    command: blargy blarg
+
+  another_mock_task:
+    description: Sometimes I don't like guacamole
+    do: shell
+    command: but sometimes i do

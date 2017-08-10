@@ -1,35 +1,30 @@
-/* global describe before after beforeEach it expect sandbox mockery mocks _*/
 'use strict';
 
 const State = require('../core/state');
+const Logger = require('../../../test/v2/mock-logger');
+const _ = require('lodash');
 
 describe('tasks/shell', () => {
+  jest.mock('child_process');
+  const child = require('child_process');
   const fakeProcessEnv = {blergle: 'yergle'};
   beforeEach(() => {
-    sandbox.reset();
     process.env = fakeProcessEnv;
   });
-  before(() => {
-    mockery.enable({ useCleanCache: true });
-    mockery.warnOnUnregistered(false);
-  });
-  after(() => {
-    mockery.deregisterAll();
-    mockery.disable();
-  });
-  let sut;
-  const stdout = 'test message';
-  const spawny = sandbox.stub().returns({ on: (code, func) => func(0)});
-  const child = {
-    exec: sandbox.stub().yields(null, stdout, null),
-    spawn: spawny
-  };
-  const Logger = mocks.Logger;
-  before(() => {
-    mockery.registerMock('child_process', child);
 
-    sut = require('./shell');
+  const stdout = 'test message';
+  const spawny = jest.fn(() => {on: (code, func) => func(0)});
+  child.exec = jest.fn((a,b,c) => c(null, stdout, null));
+  child.spawn.mockImplementation(() => {
+    return {on: (code, func) => func(0)};
   });
+
+  const sut = require('./shell');
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('given valid input', () => {
     const options = {
       cwd: 'path',
@@ -59,30 +54,28 @@ describe('tasks/shell', () => {
       gid: 1
     };
 
-
     const state = new State(_.merge({}, {
       name: 'shell-test',
       command: 'test command'
     }, options), Logger);
 
-    it('executes the command in a shell', () => {
+    test('executes the command in a shell', () => {
       return sut(state)
-        .then(() => expect(child.exec).to.have.been.calledWith(state.get('command')));
+        .then(() => expect(child.exec).toHaveBeenCalled());
     });
-    it('resolves with stdout', () => {
+    test('resolves with stdout', () => {
       return sut(state)
-        .then(output => expect(output).to.equal(stdout));
+        .then(output => expect(output).toEqual(stdout));
     });
-    it('passes in options', () => {
+    test('passes in options', () => {
       return sut(state)
-        .then(() => expect(child.exec).to.have.been.calledWith(state.get('command'), expected));
+        .then(() => expect(child.exec.mock.calls[0][1]).toEqual(expected));
     });
-    it('passes through existing environment', () => {
+    test('passes through existing environment', () => {
       return sut(state)
-        .then(() => expect(child.exec).to.have.been.calledWith(state.get('command'), expected));
+        .then(() => expect(child.exec.mock.calls[0][1]).toEqual(expected));
     });
-
-    it('runs an interactive shell', () => {
+    test('runs an interactive shell', () => {
       const interactiveState = _.cloneDeep(state);
       interactiveState.set('command', 'do-it copy -f file');
       interactiveState.set('options', {
@@ -91,19 +84,21 @@ describe('tasks/shell', () => {
       const interactiveExpected = Object.assign({}, expected, { stdio: 'inherit'});
 
       return sut(interactiveState)
-        .then(() => expect(child.spawn).to.have.been.calledWith('do-it', ['copy', '-f', 'file'], interactiveExpected));
+        .then(() => expect(child.spawn).toHaveBeenCalledWith('do-it', ['copy', '-f', 'file'], interactiveExpected));
     });
 
     describe('if the command fails', () => {
       const expectedError = new Error('Test error');
-      before(() => {
-        child.exec.yields(expectedError, stdout, null);
+      beforeEach(() => {
+        child.exec.mockImplementation((a, b, c) => {
+          return c(expectedError, stdout, null);
+        });
       });
-      it('should reject with the error', () => {
-        return expect(sut(state)).to.be.rejectedWith(expectedError);
-      });
-      after(() => {
-        child.exec.reset();
+
+      test('should reject with the error', () => {
+        return expect(sut(state))
+          .rejects
+          .toEqual(expectedError);
       });
     });
   });
