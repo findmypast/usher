@@ -7,6 +7,7 @@ const version = require('./../package.json').version;
 const handle = require('./error-handler');
 const run = handle(require('./run'));
 const list = require('./list');
+console.log(process.env)
 
 program
   .version(version);
