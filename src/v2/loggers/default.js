@@ -1,8 +1,7 @@
 'use strict';
 
 const emoji = require('node-emoji').emoji;
-const winston = require('winston');
-winston.cli();
+const usherTransport = require('./transport');
 
 module.exports = class Logger {
   constructor(state) {
@@ -13,7 +12,7 @@ module.exports = class Logger {
   logTask(name, description, attempt, tries) {
     const retries = attempt > 1 ? `| retrying ${attempt}/${tries}` : '';
     const suffix = description ? `| ${description}` : '';
-    winston.info(`${emoji.gear} Running ${name} ${suffix} ${retries}`);
+    usherTransport.info(`${emoji.gear} Running ${name} ${suffix} ${retries}`);
   }
 
   begin(attempt, tries) {
@@ -25,22 +24,25 @@ module.exports = class Logger {
   }
   end() {
     if (this.tasks.length === 1) {
-      winston.warn(this.errors);
-      winston.info(`${emoji.heavy_check_mark} Completed ${this.tasks[0].name}`);
+      usherTransport.warn(this.errors);
+      usherTransport.info(`${emoji.heavy_check_mark} Completed ${this.tasks[0].name}`);
     }
     this.tasks.pop();
   }
   fail(error, attempt, tries) {
     if (this.tasks.length === 1 && attempt === tries) {
-      winston.error(`${emoji.heavy_multiplication_x} Failed ${this.tasks[0].name}: ${error.message}`);
-      winston.error(this.errors);
+      usherTransport.error(`${emoji.heavy_multiplication_x} Failed ${this.tasks[0].name}: ${error.message}`);
+      usherTransport.error(this.errors);
     }
     this.tasks.pop();
   }
   info(message) {
-    winston.info(message);
+    usherTransport.info(message);
+  }
+  warn(message) {
+    usherTransport.warn(message);
   }
   error(error) {
-    this.errors = this.errors.concat(error.message + '\n');
+    usherTransport.error(error.message);
   }
 };

@@ -5,20 +5,32 @@ const Logger = require('../../../test/v2/mock-logger');
 const _ = require('lodash');
 
 describe('tasks/shell', () => {
-  jest.mock('child_process');
-  const child = require('child_process');
   const fakeProcessEnv = {blergle: 'yergle'};
   beforeEach(() => {
     process.env = fakeProcessEnv;
   });
 
   const stdout = 'test message';
-  const spawny = jest.fn(() => {on: (code, func) => func(0)});
-  child.exec = jest.fn((a,b,c) => c(null, stdout, null));
-  child.spawn.mockImplementation(() => {
-    return {on: (code, func) => func(0)};
-  });
 
+  jest.mock('child-process-promise');
+  const childProcessPromise = require('child-process-promise');
+  childProcessPromise.spawn = jest.fn();
+  childProcessPromise.spawn.mockImplementation(() => {
+    var promise = Promise.resolve('test message');
+    promise.childProcess = {};
+    promise.childProcess.on = jest.fn();
+    promise.childProcess.stdout = jest.fn();
+    promise.childProcess.stderr = jest.fn();
+    promise.childProcess.stdout.pipe = jest.fn();
+    promise.childProcess.stdout.pipe.mockImplementation(() => {
+      return {on: jest.fn()};
+    });
+    promise.childProcess.stderr.pipe = jest.fn();
+    promise.childProcess.stderr.pipe.mockImplementation(() => {
+      return {on: jest.fn()};
+    });
+    return promise;
+  });
   const sut = require('./shell');
 
   afterEach(() => {
@@ -46,7 +58,7 @@ describe('tasks/shell', () => {
     const expected = {
       cwd: 'path',
       env: existingEnv,
-      shell: 'shelly',
+      shell: true,
       timeout: 0,
       maxBuffer: 200,
       killSignal: 'SIGTERM',
@@ -61,7 +73,13 @@ describe('tasks/shell', () => {
 
     test('executes the command in a shell', () => {
       return sut(state)
-        .then(() => expect(child.exec).toHaveBeenCalled());
+        .then(() => {
+          expect(childProcessPromise.spawn).toHaveBeenCalled();
+          expect(childProcessPromise.spawn.mock.calls[0][2]).toMatchObject({
+            shell: true,
+            stdio: 'inherit'
+          });
+        });
     });
     test('resolves with stdout', () => {
       return sut(state)
@@ -69,29 +87,31 @@ describe('tasks/shell', () => {
     });
     test('passes in options', () => {
       return sut(state)
-        .then(() => expect(child.exec.mock.calls[0][1]).toEqual(expected));
+        .then(() => expect(childProcessPromise.spawn.mock.calls[0][2]).toMatchObject(expected));
     });
     test('passes through existing environment', () => {
       return sut(state)
-        .then(() => expect(child.exec.mock.calls[0][1]).toEqual(expected));
-    });
-    test('runs an interactive shell', () => {
-      const interactiveState = _.cloneDeep(state);
-      interactiveState.set('command', 'do-it copy -f file');
-      interactiveState.set('options', {
-        interactive: true
-      });
-      const interactiveExpected = Object.assign({}, expected, { stdio: 'inherit'});
-
-      return sut(interactiveState)
-        .then(() => expect(child.spawn).toHaveBeenCalledWith('do-it', ['copy', '-f', 'file'], interactiveExpected));
+        .then(() => expect(childProcessPromise.spawn.mock.calls[0][2].env).toMatchObject(existingEnv));
     });
 
     describe('if the command fails', () => {
       const expectedError = new Error('Test error');
       beforeEach(() => {
-        child.exec.mockImplementation((a, b, c) => {
-          return c(expectedError, stdout, null);
+        childProcessPromise.spawn.mockImplementation(() => {
+          var promise = Promise.reject(expectedError);
+          promise.childProcess = {};
+          promise.childProcess.on = jest.fn();
+          promise.childProcess.stdout = jest.fn();
+          promise.childProcess.stderr = jest.fn();
+          promise.childProcess.stdout.pipe = jest.fn();
+          promise.childProcess.stdout.pipe.mockImplementation(() => {
+            return {on: jest.fn()};
+          });
+          promise.childProcess.stderr.pipe = jest.fn();
+          promise.childProcess.stderr.pipe.mockImplementation(() => {
+            return {on: jest.fn()};
+          });
+          return promise;
         });
       });
 
