@@ -31,8 +31,9 @@ describe('list-view', () => {
 
     test('lists all tasks with their description', () => {
       var count = 0;
-      _.forOwn(validInput, (descriptions, key) => {
-        expect(logger.info).toHaveBeenCalledWith(`${mockBold(key)}- ${descriptions[0]}`);
+      _.forOwn(validInput, (description, key) => {
+        expect(logger.info.mock.calls[count][0]).toContain(key);
+        expect(logger.info.mock.calls[count++][0]).toContain(description);
       });
     });
   });
@@ -47,11 +48,12 @@ describe('list-view', () => {
     });
 
     test('lists all descriptions', () => {
+      var count = 0;
       _.forOwn(oneKeyManyDescInput, (descriptions, key) => {
-        expect(logger.info).toHaveBeenCalledWith(`${mockBold(key)}- ${descriptions[0]}`);
+        expect(logger.info.mock.calls[count++][0]).toContain(key);
         descriptions.shift();
         _.forEach(descriptions, (description) => {
-          expect(logger.info).toHaveBeenCalledWith(`- ${description}`);
+            expect(logger.info.mock.calls[count++][0]).toContain(description);
         });
       });
     });

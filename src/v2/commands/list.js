@@ -7,6 +7,7 @@ const TaskNotFoundError = require('../lib/errors').TaskNotFoundError;
 const path = require('path');
 const setup = require('./setup');
 const Logger = require('../loggers/quiet');
+const fs = require('fs');
 
 const DEFAULT_FILE = 'usher.yml';
 
@@ -27,8 +28,15 @@ function getTasksFromConfig(state, taskName, file) {
   return taskConfigs;
 }
 
+function isUsherNativeTask(key) {
+  return fs.existsSync(`./src/v2/tasks/${key}.js`);
+}
+
 function extractTasksAndHighLevelDescriptions(acc, configs, prefix) {
   _.forOwn(configs, (value, key) => {
+    if(isUsherNativeTask(key)) {
+      return;
+    }
     if (value.description) {
       acc[prefix ? prefix + '.' + key : key] = [`${value.description}`];
     }
