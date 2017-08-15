@@ -35,7 +35,7 @@ function execAndLog(state, options, resolve, reject) {
   if (!sanitisedCommand) {
     resolve();
   }
-  const commandArgs = sanitisedCommand.split(' ');
+  const commandArgs = sanitisedCommand.split(' ').filter(arg => arg != '');
   const command = commandArgs.shift();
   const promise = spawn(command, commandArgs, options);
   var output = null;

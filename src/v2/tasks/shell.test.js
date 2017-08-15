@@ -74,9 +74,22 @@ describe('tasks/shell', () => {
       return sut(state)
         .then(() => {
           expect(childProcessPromise.spawn).toHaveBeenCalled();
+          expect(childProcessPromise.spawn.mock.calls[0][0]).toEqual('test');
           expect(childProcessPromise.spawn.mock.calls[0][2]).toMatchObject({
             shell: true
           });
+        });
+    });
+    test('executes the command with args regardless of spaces', () => {
+      const state = new State(_.merge({}, {
+        name: 'shell-test',
+        command: '    bin  arg1  arg2               arg3'
+      }, options), Logger);
+      return sut(state)
+        .then(() => {
+          expect(childProcessPromise.spawn).toHaveBeenCalled();
+          expect(childProcessPromise.spawn.mock.calls[0][0]).toEqual('bin');
+          expect(childProcessPromise.spawn.mock.calls[0][1]).toEqual(['arg1', 'arg2', 'arg3']);
         });
     });
     test('resolves with stdout', () => {
