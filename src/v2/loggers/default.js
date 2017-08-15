@@ -7,7 +7,6 @@ module.exports = class Logger {
   constructor(state) {
     this.state = state;
     this.tasks = [];
-    this.errors = '';
   }
   logTask(name, description, attempt, tries) {
     const retries = attempt > 1 ? `| retrying ${attempt}/${tries}` : '';
@@ -24,7 +23,6 @@ module.exports = class Logger {
   }
   end() {
     if (this.tasks.length === 1) {
-      usherTransport.warn(this.errors);
       usherTransport.info(`${emoji.heavy_check_mark} Completed ${this.tasks[0].name}`);
     }
     this.tasks.pop();
@@ -32,7 +30,6 @@ module.exports = class Logger {
   fail(error, attempt, tries) {
     if (this.tasks.length === 1 && attempt === tries) {
       usherTransport.error(`${emoji.heavy_multiplication_x} Failed ${this.tasks[0].name}: ${error.message}`);
-      usherTransport.error(this.errors);
     }
     this.tasks.pop();
   }

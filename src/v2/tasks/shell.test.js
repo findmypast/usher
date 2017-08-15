@@ -22,13 +22,12 @@ describe('tasks/shell', () => {
     promise.childProcess.stdout = jest.fn();
     promise.childProcess.stderr = jest.fn();
     promise.childProcess.stdout.pipe = jest.fn();
-    promise.childProcess.stdout.pipe.mockImplementation(() => {
-      return {on: jest.fn()};
+    promise.childProcess.stdout.on = jest.fn();
+    promise.childProcess.stdout.on.mockImplementation((event, callback) => {
+      callback(stdout);
     });
     promise.childProcess.stderr.pipe = jest.fn();
-    promise.childProcess.stderr.pipe.mockImplementation(() => {
-      return {on: jest.fn()};
-    });
+    promise.childProcess.stderr.on = jest.fn();
     return promise;
   });
   const sut = require('./shell');
@@ -76,8 +75,7 @@ describe('tasks/shell', () => {
         .then(() => {
           expect(childProcessPromise.spawn).toHaveBeenCalled();
           expect(childProcessPromise.spawn.mock.calls[0][2]).toMatchObject({
-            shell: true,
-            stdio: 'inherit'
+            shell: true
           });
         });
     });
@@ -104,13 +102,9 @@ describe('tasks/shell', () => {
           promise.childProcess.stdout = jest.fn();
           promise.childProcess.stderr = jest.fn();
           promise.childProcess.stdout.pipe = jest.fn();
-          promise.childProcess.stdout.pipe.mockImplementation(() => {
-            return {on: jest.fn()};
-          });
+          promise.childProcess.stdout.on = jest.fn();
           promise.childProcess.stderr.pipe = jest.fn();
-          promise.childProcess.stderr.pipe.mockImplementation(() => {
-            return {on: jest.fn()};
-          });
+          promise.childProcess.stderr.on = jest.fn();
           return promise;
         });
       });

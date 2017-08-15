@@ -38,22 +38,31 @@ function execAndLog(state, options, resolve, reject) {
   const commandArgs = sanitisedCommand.split(' ');
   const command = commandArgs.shift();
   const promise = spawn(command, commandArgs, options);
+  var output = null;
+  promise.childProcess.stdout.pipe(process.stdout);
+  promise.childProcess.stderr.pipe(process.stderr);
+  promise.childProcess.stdout.on('data', (data) => {
+    output = data;
+  });
+  promise.childProcess.stderr.on('data', (data) => {
+    output = data;
+  });
 
   promise.childProcess.on('error', (e) => {
     state.logger.error(e);
-    return code ? reject(e) : resolve();
+    return e ? reject(e) : resolve(output);
   });
 
-  promise.childProcess.on('exit', (code) => {
+  promise.childProcess.on('exit', (code, signal) => {
     state.logger.error({message: `Task process exited with code ${code}`});
-    return code ? reject({message: `Task exited with code ${code}`}) : resolve();
+    return code ? reject({message: `Task exited with code ${code}`}) : resolve(output);
   });
 
-  return promise.then((something) => {
-      resolve(something);
+  return promise.then(() => {
+      resolve(output);
     })
     .catch((err) => {
-      state.logger.error('[spawn] ERROR: ', err);
+      state.logger.error(err);
       reject(err);
     });
 }
@@ -66,7 +75,6 @@ module.exports = (state) => new Promise((resolve, reject) => {
   const copyOfOptions = _.cloneDeep(options);
   copyOfOptions.env = Object.assign(copyOfProcessEnv, copyOfOptions.env);
   copyOfOptions.shell = true;
-  copyOfOptions.stdio = 'inherit';
 
   if (copyOfOptions.env) {
     copyOfOptions.env['FORCE_COLOR'] = true; // Filthy hack to get colour output from certain npm modules
