@@ -269,3 +269,7 @@ include:
 
 - `from <String>` Required. The source to import from. Accepts any string that `npm install` does, so relative paths, npm modules, git urls...
 - `import <Array>` Required. The functions to import. May be simply the names of the functions, or optionally include an `as [local-name]` suffix to import them with a different name than they are declared with in their module.
+
+## Version 1 Documentation
+
+Legacy documentation for usher v1 can be found [here](https://github.com/findmypast/usher/blob/v1.3.11/README.md)
