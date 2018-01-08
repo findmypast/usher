@@ -2,8 +2,8 @@
 
 const Promise = require('bluebird');
 const _ = require('lodash');
-const exec = require('child-process-promise').exec;
-const spawn = require('child-process-promise').spawn;
+const { exec } = require('child_process');
+const split = require('split');
 
 const ACCEPTED_OPTIONS = [
   'cwd',
@@ -31,40 +31,39 @@ function reduceEnvArrayToObject(envs) {
 }
 
 function execAndLog(state, options, resolve, reject) {
-  const sanitisedCommand = state.get('command');
-  if (!sanitisedCommand) {
-    resolve();
-  }
-  const commandArgs = sanitisedCommand.split(' ').filter(arg => arg != '');
+  const child = exec(state.get('command'), options, (error, stdout, stderr) => {
+    if (error) {
+      reject(error);
+    }
+    resolve(stdout);
+  });
+  child.stdout.pipe(split()).on('data', (data) => {
+    if (data) {
+      state.logger.info(data.toString());
+    }
+  });
+
+  child.stderr.pipe(split()).on('data', (data) => {
+    if (data) {
+      state.logger.error({message: data.toString()});
+    }
+  });
+
+  child.on('exit', (code) => {
+    state.logger.info(`Task process exited with code ${code}`);
+  });
+}
+
+function spawnInteractive(state, options, resolve, reject) {
+  const spawn = require('child_process').spawn;
+  const sanitisedCommand = state.get('command').replace(/[ ]{2,}/g, ' ');
+  const commandArgs = sanitisedCommand.split(' ');
   const command = commandArgs.shift();
-  const promise = spawn(command, commandArgs, options);
-  var output = null;
-  promise.childProcess.stdout.pipe(process.stdout);
-  promise.childProcess.stderr.pipe(process.stderr);
-  promise.childProcess.stdout.on('data', (data) => {
-    output = data;
-  });
-  promise.childProcess.stderr.on('data', (data) => {
-    output = data;
-  });
+  const cmd = spawn(command, commandArgs, Object.assign(options, { stdio: 'inherit' }));
 
-  promise.childProcess.on('error', (e) => {
-    state.logger.error(e);
-    return e ? reject(e) : resolve(output);
+  cmd.on('close', code => {
+    return code ? reject(code) : resolve();
   });
-
-  promise.childProcess.on('exit', (code, signal) => {
-    state.logger.error({message: `Task process exited with code ${code}`});
-    return code ? reject({message: `Task exited with code ${code}`}) : resolve(output);
-  });
-
-  return promise.then(() => {
-      resolve(output);
-    })
-    .catch((err) => {
-      state.logger.error(err);
-      reject(err);
-    });
 }
 
 module.exports = (state) => new Promise((resolve, reject) => {
@@ -74,7 +73,6 @@ module.exports = (state) => new Promise((resolve, reject) => {
   const copyOfProcessEnv = _.cloneDeep(process.env);
   const copyOfOptions = _.cloneDeep(options);
   copyOfOptions.env = Object.assign(copyOfProcessEnv, copyOfOptions.env);
-  copyOfOptions.shell = true;
 
   if (copyOfOptions.env) {
     copyOfOptions.env['FORCE_COLOR'] = true; // Filthy hack to get colour output from certain npm modules
@@ -82,5 +80,6 @@ module.exports = (state) => new Promise((resolve, reject) => {
     copyOfOptions.env['PYTHONIOENCODING'] = 'utf-8'; // Filthy hack to satistfy python environments which lose encoding when piping output
   }
 
-  return execAndLog(state, copyOfOptions, resolve, reject);
+  const isInteractiveShell = state.get('options') ? state.get('options').interactive : false;
+  return isInteractiveShell ? spawnInteractive(state, copyOfOptions, resolve, reject ) : execAndLog(state, copyOfOptions, resolve, reject);
 });

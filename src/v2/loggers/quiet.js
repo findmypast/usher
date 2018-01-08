@@ -1,6 +1,7 @@
 'use strict';
 
-const usherTransport = require('./transport');
+const winston = require('winston');
+winston.cli();
 
 module.exports = class Logger {
   constructor(state) {
@@ -13,12 +14,12 @@ module.exports = class Logger {
     return null;
   }
   fail(error) {
-    usherTransport.error(`Failed ${this.state.get('name')}: ${error.message}`);
+    winston.error(`Failed ${this.state.get('name')}: ${error.message}`);
   }
   info() {
     return null;
   }
   error(error) {
-    usherTransport.error(error.message);
+    winston.error(error.message);
   }
 };

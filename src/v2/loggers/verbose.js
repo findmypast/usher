@@ -1,6 +1,7 @@
 'use strict';
 
-const usherTransport = require('./transport');
+const winston = require('winston');
+winston.cli();
 
 module.exports = class Logger {
   constructor(state) {
@@ -9,21 +10,21 @@ module.exports = class Logger {
   logTask(name, description, attempt, tries) {
     const retries = attempt > 1 ? `| retrying ${attempt}/${tries}` : '';
     const suffix = description ? `| ${description}` : '';
-    usherTransport.info(`Running ${name} ${suffix} ${retries}`);
+    winston.info(`Running ${name} ${suffix} ${retries}`);
   }
   begin(attempt, tries) {
     this.logTask(this.state.get('name'), this.state.get('description'), attempt, tries);
   }
   end() {
-    usherTransport.info(`Completed ${this.state.get('name')}`);
+    winston.info(`Completed ${this.state.get('name')}`);
   }
   fail(error) {
-    usherTransport.error(`Failed ${this.state.get('name')}: ${error.message}`);
+    winston.error(`Failed ${this.state.get('name')}: ${error.message}`);
   }
   info(message) {
-    usherTransport.info(message);
+    winston.info(message);
   }
   error(error) {
-    usherTransport.error(error.message);
+    winston.error(error.message);
   }
 };
