@@ -19,7 +19,25 @@
     "type": "git",
     "url": "git+https://github.com/findmypast/usher.git"
   },
-  "author": "Neil Crawford",
+  "author": "Findmypast <oss@findmypast.com> (https://tech.findmypast.com)",
+  "contributors": [
+    {
+      "name": "Neil Crawford",
+      "email": "ncrawford@findmypast.com"
+    },
+    {
+      "name": "Jae Anne Bach Hardie",
+      "email": "jhardie@findmypast.com"
+    },
+    {
+      "name": "Mike Thomas",
+      "email": "mthomas@findmypast.com"
+    },
+    {
+      "name": "Sash",
+      "email": "ostasyk@findmypast.com"
+    }
+  ]
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/findmypast/usher/issues"
