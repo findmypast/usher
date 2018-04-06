@@ -7,7 +7,7 @@ const getTaskConfig = require('./get-task-config');
 const errno = require('errno');
 const stringify = require('stringify-object');
 
-let spawnSync = require('npm-run').spawnSync;
+const { spawnSync } = require('child_process');
 
 class TaskRunner {
   constructor(task, vars, opts) {
@@ -19,7 +19,7 @@ class TaskRunner {
 
   execute() {
     logger.verbose('Starting task');
-    const tasks = _.filter(this.task, (t) => t.cmd || t.task);
+    const tasks = _.filter(this.task, t => t.cmd || t.task);
 
     _.forEach(tasks, command => {
       this.attempts = 0;
@@ -30,11 +30,12 @@ class TaskRunner {
       else if (command.task) {
         if (command.for_all) {
           const vars = command.vars || {};
-          return _.map(command.for_all, (x) => this.runTask(command.task, _.merge(vars, x)));
+
+          return _.map(command.for_all, x => this.runTask(command.task, _.merge(vars, x)));
         }
-        else {
-          return this.runTask(command.task, command.vars);
-        }
+        
+        return this.runTask(command.task, command.vars);
+        
       }
       else {
         const msg = `Task step contains no valid command
@@ -52,6 +53,7 @@ class TaskRunner {
     const env = _.toPairs(spawnOptions.env)
       .map(x => `\n -${x[0]}=${x[1]}`)
       .join('');
+
     logger.info(`Executing command : ${command}`);
     logger.verbose(`Environment variables: ${env}`);
   }
@@ -59,6 +61,7 @@ class TaskRunner {
   runTask(task, vars) {
     const cmdVars = _.mapValues(vars, this.expandTokens.bind(this));
     const taskVars = _.merge(this.vars, cmdVars);
+
     logger.info(`Executing task : ${task} with vars ${JSON.stringify(taskVars)}`);
 
     const taskConfig = getTaskConfig(task, taskVars, this.opts);
@@ -74,6 +77,7 @@ class TaskRunner {
   }
 
   runCommand(command) {
+
     // const parsedCommandl = this.expandTokens(command.cmd).split(' ');
     const parsedCommand = this.extractArgs(command.cmd);
     const parsedEnv = this.resolveKeyValuePairs(command.environment);
@@ -87,6 +91,7 @@ class TaskRunner {
 
     if (command.register && result.stdout) {
       const out = result.stdout.toString().trim();
+
       logger.info(`Saved ${out} to ${command.register}`);
       this.vars[command.register] = out;
     }
@@ -104,6 +109,7 @@ class TaskRunner {
       logger.error(`Command '${parsedCommand.join(' ')}' exited with non-zero exit status [${result.error.code}]. Aborting.`);
 
       const errnoCode = this.getErrnoCode(result.error.code);
+
       if (errnoCode) {
         logger.error(`Error description: ${errnoCode.description}`);
         logger.error(`Check the executable ${executable} exists.`);
@@ -140,15 +146,17 @@ class TaskRunner {
     const templated = _.map(array, a => this.expandTokens(a, this.vars));
     const split = _.map(templated, a => a.split('='));
     const hashed = _.fromPairs(split);
+
     return hashed;
   }
 
   buildSpawnOptions(command, envOptions) {
     const stdout = command.register || this.opts.quiet ? 'pipe' : process.stdout;
     const env = _.isEmpty(envOptions) ? process.env : _.merge(envOptions, process.env);
+
     return {
       stdio: [process.stdin, stdout, process.stderr],
-      env: env
+      env
     };
   }
 

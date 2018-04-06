@@ -122,12 +122,12 @@ describe('Given a YAML file run command execution', () => {
     }
   ];
 
-  jest.mock('npm-run');
-  const npmRun = require('npm-run')
-  npmRun.spawnSync = jest.fn();
+  jest.mock('child_process');
+  const child_process = require('child_process')
+  child_process.spawnSync = jest.fn();
 
   beforeEach(() => {
-    npmRun.spawnSync.mockImplementation(() => {
+    child_process.spawnSync.mockImplementation(() => {
       return {status: 0};
     });
   });
@@ -141,8 +141,8 @@ describe('Given a YAML file run command execution', () => {
     for (var i = 0; i < tasks.length; ) {
       run(tasks[i].key, tasks[i].cmdArgs, {file: filename});
       _.forEach(tasks[i].expected, (expected) => {
-        expect(npmRun.spawnSync.mock.calls[i][0]).toEqual(expected.executable);
-        expect(npmRun.spawnSync.mock.calls[i++][1]).toEqual(expected.args);
+        expect(child_process.spawnSync.mock.calls[i][0]).toEqual(expected.executable);
+        expect(child_process.spawnSync.mock.calls[i++][1]).toEqual(expected.args);
       });
     }
   });
@@ -153,15 +153,15 @@ describe('Given a YAML file run command execution', () => {
     run(task.key, task.cmdArgs, {file: filename});
     var count = 0;
     _.forEach(task.expected, (expected) => {
-      expect(npmRun.spawnSync.mock.calls[count][0]).toEqual(expected.executable);
-      expect(npmRun.spawnSync.mock.calls[count][1]).toEqual(expected.args);
-      expect(npmRun.spawnSync.mock.calls[count++][2]).toEqual(expected.options);
+      expect(child_process.spawnSync.mock.calls[count][0]).toEqual(expected.executable);
+      expect(child_process.spawnSync.mock.calls[count][1]).toEqual(expected.args);
+      expect(child_process.spawnSync.mock.calls[count++][2]).toEqual(expected.options);
     });
   });
 
   test('Should not continue to execute a sequence of commands when an error is returned', () => {
     const expectedError = new Error('Test error!');
-    npmRun.spawnSync.mockImplementation(() => {
+    child_process.spawnSync.mockImplementation(() => {
       return {
         status: 1,
         error: expectedError
@@ -172,13 +172,13 @@ describe('Given a YAML file run command execution', () => {
     const expected = task.expected[0];
 
     expect(() => run(task.key, task.cmdArgs, {file: filename})).toThrow();
-    expect(npmRun.spawnSync.mock.calls[0][0]).toEqual(expected.executable);
-    expect(npmRun.spawnSync.mock.calls[0][1]).toEqual(expected.args);
-    expect(npmRun.spawnSync).toHaveBeenCalledTimes(1);
+    expect(child_process.spawnSync.mock.calls[0][0]).toEqual(expected.executable);
+    expect(child_process.spawnSync.mock.calls[0][1]).toEqual(expected.args);
+    expect(child_process.spawnSync).toHaveBeenCalledTimes(1);
   });
 
   test('Should continue to execute a sequence of commands when an error is returned on a command with ignore_errors: true', ()=> {
-    npmRun.spawnSync.mockImplementation(() => {
+    child_process.spawnSync.mockImplementation(() => {
       return {
         status: 1,
         error: new Error('Test error!')
@@ -190,8 +190,8 @@ describe('Given a YAML file run command execution', () => {
     run(task.key, task.cmdArgs, {file: filename});
     var count = 0;
     _.forEach(task.expected, (expected) => {
-      expect(npmRun.spawnSync.mock.calls[count][0]).toEqual(expected.executable);
-      expect(npmRun.spawnSync.mock.calls[count++][1]).toEqual(expected.args);
+      expect(child_process.spawnSync.mock.calls[count][0]).toEqual(expected.executable);
+      expect(child_process.spawnSync.mock.calls[count++][1]).toEqual(expected.args);
     });
   });
 
@@ -217,7 +217,7 @@ describe('Given a YAML file run command execution', () => {
           }
         }]
     };
-    npmRun.spawnSync.mockImplementation(() => {
+    child_process.spawnSync.mockImplementation(() => {
       return {
         status: 0,
         stdout: expectedDeployTarget
@@ -227,8 +227,8 @@ describe('Given a YAML file run command execution', () => {
     run(task.key, task.cmdArgs, {file: filename});
     var count = 0;
     _.forEach(task.expected, (expected) => {
-      expect(npmRun.spawnSync.mock.calls[count][0]).toEqual(expected.executable);
-      expect(npmRun.spawnSync.mock.calls[count++][1]).toEqual(expected.args);
+      expect(child_process.spawnSync.mock.calls[count][0]).toEqual(expected.executable);
+      expect(child_process.spawnSync.mock.calls[count++][1]).toEqual(expected.args);
     });
   });
 
@@ -242,22 +242,22 @@ describe('Given a YAML file run command execution', () => {
       }
     };
 
-    npmRun.spawnSync.mockImplementationOnce(() => {
+    child_process.spawnSync.mockImplementationOnce(() => {
       return {
         status: 1,
         error: new Error('Test Error')
       };
     });
-    npmRun.spawnSync.mockImplementationOnce(() => {
+    child_process.spawnSync.mockImplementationOnce(() => {
       return {
         status: 0
       };
     });
 
     run(task.key, task.cmdArgs, {file: filename});
-    expect(npmRun.spawnSync.mock.calls[0][0]).toEqual(task.expected.executable);
-    expect(npmRun.spawnSync.mock.calls[0][1]).toEqual(task.expected.args);
-    expect(npmRun.spawnSync).toHaveBeenCalledTimes(2);
+    expect(child_process.spawnSync.mock.calls[0][0]).toEqual(task.expected.executable);
+    expect(child_process.spawnSync.mock.calls[0][1]).toEqual(task.expected.args);
+    expect(child_process.spawnSync).toHaveBeenCalledTimes(2);
   });
 
   test('Should throw if it exceeds the maximum number of retries', () => {
@@ -270,13 +270,13 @@ describe('Given a YAML file run command execution', () => {
       }
     };
 
-    npmRun.spawnSync.mockImplementationOnce(() => {
+    child_process.spawnSync.mockImplementationOnce(() => {
       return {
         status: 1,
         error: new Error('Test Error')
       };
     });
-    npmRun.spawnSync.mockImplementationOnce(() => {
+    child_process.spawnSync.mockImplementationOnce(() => {
       return {
         status: 1,
         error: new Error('Test Error')
@@ -284,9 +284,9 @@ describe('Given a YAML file run command execution', () => {
     });
 
     expect(() => run(task.key, task.cmdArgs, {file: filename})).toThrow();
-    expect(npmRun.spawnSync.mock.calls[0][0]).toEqual(task.expected.executable);
-    expect(npmRun.spawnSync.mock.calls[0][1]).toEqual(task.expected.args);
-    expect(npmRun.spawnSync).toHaveBeenCalledTimes(2);
+    expect(child_process.spawnSync.mock.calls[0][0]).toEqual(task.expected.executable);
+    expect(child_process.spawnSync.mock.calls[0][1]).toEqual(task.expected.args);
+    expect(child_process.spawnSync).toHaveBeenCalledTimes(2);
   });
 
   describe('When the command exits with an error', () => {
@@ -300,7 +300,7 @@ describe('Given a YAML file run command execution', () => {
         }
       };
 
-      npmRun.spawnSync.mockImplementationOnce(() => {
+      child_process.spawnSync.mockImplementationOnce(() => {
         return {
           status: 1,
           error: null
@@ -308,8 +308,8 @@ describe('Given a YAML file run command execution', () => {
       });
 
       expect(() => run(task.key, task.cmdArgs, {file: filename})).toThrow(Error, 'Command exited with error.');
-      expect(npmRun.spawnSync.mock.calls[0][0]).toEqual(task.expected.executable);
-      expect(npmRun.spawnSync.mock.calls[0][1]).toEqual(task.expected.args);
+      expect(child_process.spawnSync.mock.calls[0][0]).toEqual(task.expected.executable);
+      expect(child_process.spawnSync.mock.calls[0][1]).toEqual(task.expected.args);
     });
 
     test('Should throw with the error message when error is present', () => {
@@ -322,7 +322,7 @@ describe('Given a YAML file run command execution', () => {
         }
       };
       const error = new Error('Test Error');
-      npmRun.spawnSync.mockImplementationOnce(() => {
+      child_process.spawnSync.mockImplementationOnce(() => {
         return {
           status: 1,
           error: error
@@ -330,8 +330,8 @@ describe('Given a YAML file run command execution', () => {
       });
 
       expect(() => run(task.key, task.cmdArgs, {file: filename})).toThrow(error);
-      expect(npmRun.spawnSync.mock.calls[0][0]).toEqual(task.expected.executable);
-      expect(npmRun.spawnSync.mock.calls[0][1]).toEqual(task.expected.args);
+      expect(child_process.spawnSync.mock.calls[0][0]).toEqual(task.expected.executable);
+      expect(child_process.spawnSync.mock.calls[0][1]).toEqual(task.expected.args);
     });
   });
 
