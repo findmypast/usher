@@ -59,6 +59,7 @@ tasks:
   my_task:
     description: Runs my task
     do: shell
+    log_prefix: PREFIX
     command: echo my task!
     options:
       retry:
@@ -69,6 +70,7 @@ Tasks are named objects with the properties:
 
 - `do <String>` Required. The name of the function to execute. This may be a default function, an imported function, or even another task defined in the same file.
 - `description <String>` A string describing the task. Will be displayed in `usher list`. Optional, for documentation purposes only.
+- `log_prefix` A string that is prefixed to any console log oputput for this task. Useful when multiple calls to the same task are in use.
 - `options <Object>` Task-level options like retry. See below for available options.
 - Any other properties will be passed onto the do function. Each function will define its own set of named arguments that it will use.
 **For the `shell` command, beware that the properties defined in the usher file can overwrite those used by [child_process.exec](https://nodejs.org/api/child_process.html) module. For example, if you define an Usher property called `uid` then the value of this will be used when the  shell command executes (regardless of where the property is defined - it could be defined in a separate task). To avoid confusion, it's best not to create property names that match those used by `child_process.exec`. See the `shell` task below which also lists these properties.**
@@ -149,11 +151,11 @@ tasks:
     command: false        # returns exit code 1
     catch_task: catch     # will default to catch task anywaway if this line is missing
     finally_task: finally # same here for finally
-      
+
   catch:
     do: shell
     command: echo "Caught it!"
-    
+
   finally:
     do: shell
     command: echo "Finally done!"

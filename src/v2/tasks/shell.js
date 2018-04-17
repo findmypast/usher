@@ -30,27 +30,28 @@ function reduceEnvArrayToObject(envs) {
   }, {});
 }
 
-function execAndLog(state, options, resolve, reject) {
-  const child = exec(state.get('command'), options, (error, stdout, stderr) => {
+function execAndLog(state, options, resolve, reject, prefix) {
+  const child = exec(state.get('command'), options, (error, stdout) => {
     if (error) {
       reject(error);
     }
     resolve(stdout);
   });
-  child.stdout.pipe(split()).on('data', (data) => {
+
+  child.stdout.pipe(split()).on('data', data => {
     if (data) {
-      state.logger.info(data.toString());
+      state.logger.info(`${prefix}${data.toString()}`);
     }
   });
 
-  child.stderr.pipe(split()).on('data', (data) => {
+  child.stderr.pipe(split()).on('data', data => {
     if (data) {
-      state.logger.error({message: data.toString()});
+      state.logger.error({ message: `${prefix}${data.toString()}` });
     }
   });
 
-  child.on('exit', (code) => {
-    state.logger.info(`Task process exited with code ${code}`);
+  child.on('exit', code => {
+    state.logger.info(`${prefix}Task process exited with code ${code}`);
   });
 }
 
@@ -66,12 +67,21 @@ function spawnInteractive(state, options, resolve, reject) {
   });
 }
 
-module.exports = (state) => new Promise((resolve, reject) => {
+function getLogPrefix(state) {
+  const logPrefix = state.get('log_prefix') || '';
+
+  return logPrefix ? `${logPrefix}: ` : logPrefix;
+}
+
+module.exports = state => new Promise((resolve, reject) => {
+  const logPrefix = getLogPrefix(state);
   const options = _.reduce(ACCEPTED_OPTIONS, (result, value) => _.set(result, value, state.get(value)), {});
-  state.logger.info(`Executing: ${state.get('command')}`);
+
+  state.logger.info(`${logPrefix} Executing: ${state.get('command')}`);
   options.env = reduceEnvArrayToObject(options.env);
   const copyOfProcessEnv = _.cloneDeep(process.env);
   const copyOfOptions = _.cloneDeep(options);
+
   copyOfOptions.env = Object.assign(copyOfProcessEnv, copyOfOptions.env);
 
   if (copyOfOptions.env) {
@@ -81,5 +91,8 @@ module.exports = (state) => new Promise((resolve, reject) => {
   }
 
   const isInteractiveShell = state.get('options') ? state.get('options').interactive : false;
-  return isInteractiveShell ? spawnInteractive(state, copyOfOptions, resolve, reject ) : execAndLog(state, copyOfOptions, resolve, reject);
+
+  return isInteractiveShell
+    ? spawnInteractive(state, copyOfOptions, resolve, reject)
+    : execAndLog(state, copyOfOptions, resolve, reject, logPrefix);
 });
