@@ -42,22 +42,32 @@ describe('commands/setup', () => {
       expect(result.get('base_service_name'))
         .toEqual(inputConfig.vars.base_service_name);
     });
+
     test('imports vars from include files', () => {
       expect(result.get('some_mock_var'))
         .toEqual(mockSharedTasks.vars.some_mock_var);
     });
+
+    test('imported variables from included files do not overwrite existing variables', () => {
+      expect(result.get('some_mock_var_that_clashes'))
+        .toEqual("original-value");
+    });
+
     test('puts tasks into initial state', () => {
       expect(result.get('tasks.build'))
         .toEqual(inputConfig.tasks.build);
     });
+
     test('puts default tasks into initial state', () => {
       expect(result.get('tasks.shell'))
         .toEqual(require('../tasks').shell);
     });
+
     test('installs includes to cache', () => {
       expect(parseSpy)
         .toBeCalledWith(`test/v2/mock-shared-tasks.yml`);
     });
+
     test('merges required include to tasks', () => {
       expect(result.get('tasks.global.tasks.mock_task'))
         .toEqual(mockSharedTasks.tasks.mock_task);

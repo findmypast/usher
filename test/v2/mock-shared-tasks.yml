@@ -1,6 +1,8 @@
 version: '2'
 vars:
   some_mock_var: spagbol
+  some_mock_var_that_clashes: imported-value
+
 tasks:
   mock_task:
     description: Makes a great hoo haa

@@ -13,6 +13,7 @@ vars:
   api_service_image_name: <%=base_service_name%>-api
   router_service_image_name: <%=base_service_name%>-router
   load_balancer_image_name: <%=base_service_name%>-lb
+  some_mock_var_that_clashes: original-value
   acceptance_hosts:
     - fh1-titant02
   integration_hosts:

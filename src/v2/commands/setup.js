@@ -59,9 +59,8 @@ function requireModule(requireName) {
   return require(`${installDir()}/node_modules/${requireName}`);
 }
 
-function loadAndParseYmlFile(taskList, filename, propertyName, parser) {
+function loadAndParseYmlFile(filename, propertyName, parser) {
   const file = parser(filename);
-
   return file[propertyName];
 }
 
@@ -88,7 +87,7 @@ function getAlias(name) {
 function importTasklist(taskList, taskConfig, usherFilePath, parser) {
   const [importName, aliasName] = getAlias(taskConfig.name || taskConfig.from);
   const tasks = _.endsWith(taskConfig.from, '.yml')
-    ? loadAndParseYmlFile(taskList, path.join(usherFilePath, taskConfig.from), 'tasks', parser)
+    ? loadAndParseYmlFile(path.join(usherFilePath, taskConfig.from), 'tasks', parser)
     : requireModule(importName);
 
   if (!taskConfig.import) {
@@ -116,19 +115,23 @@ function importTasklist(taskList, taskConfig, usherFilePath, parser) {
 function importVariables(varList, config, usherFilePath, parser) {
   const [importName] = getAlias(config.name || config.from);
   const isYmlFile = _.endsWith(config.from, '.yml');
-  const variables = isYmlFile
-    ? loadAndParseYmlFile(varList, path.join(usherFilePath, config.from), 'vars', parser)
-    : requireModule(importName);
 
+  let variables = {};
   if (isYmlFile) {
-    varList = _.merge(varList, variables || {});
+    const filename = path.join(usherFilePath, config.from);
+    variables = loadAndParseYmlFile(filename, 'vars', parser);
   }
   else {
+    let mod = requireModule(importName);
     _.each(config.import, taskImportName => {
       const propertyTaskName = getAlias(taskImportName)[0];
-      _.merge(varList, variables[propertyTaskName].vars || {});
+      variables = _.merge(variables, mod[propertyTaskName].vars || {});
     });
   }
+
+
+
+  varList = _.merge(varList, variables || {});
 
   return varList;
 }
@@ -138,13 +141,10 @@ module.exports = (config, Logger, usherFilePath, parser=require('./parse')) => P
   const modulesToInstall = _.map(config.include, (include) => _.get(include, 'from'));
   return Promise.all(_.map(modulesToInstall, installModule))
   .then(() => {
-    const reducedTasks = _.reduce(config.include, (acc, includeConfig) =>
-      importTasklist(acc, includeConfig, usherFilePath, parser), {});
-    const reducedArgs = _.reduce(config.include, (acc, includeConfig) =>
-      importVariables(acc, includeConfig, usherFilePath, parser), {});
-    const initialState = _.merge({}, defaultTasks, config.vars, reducedArgs, _.pick(config, 'tasks'), {tasks: reducedTasks});
-    const state = new State(initialState, Logger);
+    const reducedTasks = _.reduce(config.include, (acc, includeConfig) => importTasklist(acc, includeConfig, usherFilePath, parser), {});
+    const reducedArgs = _.reduce(config.include, (acc, includeConfig) => importVariables(acc, includeConfig, usherFilePath, parser), {});
+    const initialState = _.merge({}, defaultTasks, reducedArgs, config.vars, _.pick(config, 'tasks'), {tasks: reducedTasks});
 
-    return state;
+    return new State(initialState, Logger);
   });
 });

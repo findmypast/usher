@@ -60,6 +60,7 @@ describe('commands/run', () => {
           expect(parse).toBeCalledWith('usher.yml');
         });
     });
+
     test('parses CLI vars and merges them into config before calling setup', () => {
       opts.file = null;
       taskVars.push('arg2="blah=p\nlap"');
@@ -75,6 +76,21 @@ describe('commands/run', () => {
           expect(setup.mock.calls[0][0].vars).toEqual(expectedVars);
         });
     });
+
+    test('CLI vars overwrite file vars', () => {
+      opts.file = null;
+      taskVars.push('some_mock_var_that_clashes=cli-value');
+      var expectedVars = {
+        version: 'test',
+        some_mock_var_that_clashes: "cli-value"
+      };
+
+      return sut('build', taskVars, opts)
+        .then(() => {
+          expect(setup.mock.calls[0][0].vars).toEqual(expectedVars);
+        });
+    });
+
     test('given no vars calls setup with config', () => {
       initialState.vars = {};
       return sut('build', [], {})
