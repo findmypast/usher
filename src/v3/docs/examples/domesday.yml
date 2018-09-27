@@ -1,0 +1,39 @@
+# Version specifier
+version: '3'
+
+# Description of tasks provided by this file.
+# Files providing common tasks are advised to provide a description for documentation purposes.
+description: A series of tasks for reading secrets from a HashiCorp Vault instance using Domesday (https://github.com/findmypast/domesday)
+
+# Params provide a way to declare parameters for tasks defined in this file.
+# They can be declared either in a short or long form, both are shown below.
+# Params declared using the short form are _always_ required.
+# They are the final way of inserting information into the state available to a task.
+params:
+  vault_url: The url of the running vault instance
+  vault_secret: The path to the secret being requested from vault
+  vault_username: The username used to authenticate with vault
+  vault_password: The password used to authenticate with vault
+  register_state_key:
+    description: The key to register the retrieved secret at in the task state
+    default: secret
+    required: false
+
+# Tasks allows an array of tasks to be defined.
+# Tasks can be used either as actions by other tasks, or by using the usher-cli tool available from npm.
+tasks:
+  obtain_secret_with_user_pass:
+    description: Obtain a secret from Vault using user/pass authentication
+    params:
+      - vault_url
+      - vault_secret
+      - vault_username
+      - vault_password
+      - register_state_key
+    outputs:
+      - <%=register_state_key%>
+    actions:
+      - do: shell
+        command: domesday read-key-value http://<%=vault_username%>:<%=vault_password%>@<%=vault_url%> <%=vault_path%>
+        options:
+          register: <%=register_state_key%>

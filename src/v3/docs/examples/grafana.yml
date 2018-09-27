@@ -1,0 +1,54 @@
+# Version specifier
+version: '3'
+
+# Description of tasks provided by this file.
+# Files providing common tasks are advised to provide a description for documentation purposes.
+description: A series of tasks for publishing dashboards to Grafana using Dashee (an internal Findmypast tool)
+
+# Includes allow tasks defined in external files to be included and reused.
+# Here a local file is being included, but the from field can also be any string or URL capable of being installed by NPM.
+# A list of imports can also be provided to include specific tasks, in the absence of a list all tasks are available.
+includes:
+  domesday:
+    from: domesday.yml
+
+# Params provide a way to declare parameters for tasks defined in this file.
+# They can be declared either in a short or long form, both are shown below.
+# Params declared using the short form are _always_ required.
+# They are the final way of inserting information into the state available to a task.
+params:
+  dashboard_file: The file path of a Grafana JSON format dashboard
+  vault_url: The url of the running vault instance
+  vault_username: The username used to authenticate with vault
+  vault_password: The password used to authenticate with vault
+
+# Tasks allows an array of tasks to be defined.
+# Tasks can be used either as actions by other tasks, or by using the usher-cli tool available from npm.
+tasks:
+  obtain_grafana_api_key:
+    description: Obtains the Grafana API key from Vault
+    params:
+      - vault_url
+      - vault_username
+      - vault_password
+    outputs:
+      - grafana_api_key
+    actions:
+      - do: domesday.obtain_secret_with_user_pass register_state_key=grafana_api_key vault_url=<%=vault_url%> vault_username=<%=vault_username%> vault_password=<%=vault_password%> vault_secret=path/to/grafana/api/key
+        options:
+          register: grafana_api_key
+
+  publish_dashboard_to_grafana:
+    description: Publishes a dashboard to Grafana
+    params:
+      - dashboard_file
+      - vault_url
+      - vault_username
+      - vault_password
+    actions:
+      - do: obtain_grafana_api_key vault_url=<%=vault_url%> vault_username=<%=vault_username%> vault_password=<%=vault_password%>
+      - do: shell
+        command: dashee publish grafana <%=dashboard_file%> --grafana-key <%=grafana_api_key%>
+        options:
+          retry:
+            retries: 3
