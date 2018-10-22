@@ -28,13 +28,12 @@ tasks:
   obtain_grafana_api_key:
     description: Obtains the Grafana API key from Vault
     params:
-      - vault_url
       - vault_username
       - vault_password
     outputs:
       - grafana_api_key
     actions:
-      - do: domesday.obtain_secret_with_user_pass register_state_key=grafana_api_key vault_url=<%=vault_url%> vault_username=<%=vault_username%> vault_password=<%=vault_password%> vault_secret=path/to/grafana/api/key
+      - do: domesday.obtain_secret_with_user_pass register_state_key=grafana_api_key vault_username=<%=vault_username%> vault_password=<%=vault_password%> vault_secret=path/to/grafana/api/key
         options:
           register: grafana_api_key
 
@@ -42,11 +41,12 @@ tasks:
     description: Publishes a dashboard to Grafana
     params:
       - dashboard_file
-      - vault_url
       - vault_username
       - vault_password
     actions:
-      - do: obtain_grafana_api_key vault_url=<%=vault_url%> vault_username=<%=vault_username%> vault_password=<%=vault_password%>
+      - do: obtain_grafana_api_key vault_username=<%=vault_username%> vault_password=<%=vault_password%>
+        options:
+          register: grafana_api_key
       - do: shell
         command: dashee publish grafana <%=dashboard_file%> --grafana-key <%=grafana_api_key%>
         options:

@@ -1,0 +1,190 @@
+# REQUIRED:
+# Version _must_ be specified as '3' to use the schema defined in the file
+version: '3'
+
+# OPTIONAL:
+# Recommended for files declaring tasks shared by other modules.
+# Default: ''
+description: A short description of the file and how the tasks within are logically related
+
+# OPTIONAL:
+# A place to declare immutable values contained in the state used by each task in the file.
+# Vars _cannot_ be overwritten by params supplied to a task so care must be taken to preserve
+# necessary flexibility, especially when declaring tasks shared by other modules.
+vars:
+  var_key: value
+  list_key:
+    - a
+    - b
+    - c
+
+# OPTIONAL:
+# A place to declare other modules used by tasks within the file.
+# The entire external module or a subset of the tasks declared by it may be imported.
+includes:
+  module_a:
+    from: module_a.yml
+  module_b:
+    from: module_b.yml
+    import:
+      - task_a
+      - task_b
+
+# OPTIONAL:
+# A place to declare and document parameters used by tasks declared in the file.
+# Parameters may be declared as optional using the long form declaration format, a default
+# value may also be provided for an optional parameter. Required parameters may be declared
+# using the long form but there is no benefit to doing so.
+# All parameters declared using the short form are deemed to be required and tasks will not
+# run unless all required parameters are provided.
+params:
+  short_form: A description of the short form parameter to enable ease of use
+  long_form:
+    description: A description of the long form parameter to enable ease of use
+    default: A default value for the long form parameter
+    required: false
+
+# REQUIRED:
+# A place to declare all tasks provided by the file.
+# A task is notionally a pure function which may or may not return a value, while a task is
+# not truly pure (as it may call out to an underlying service whose state has changed), there
+# is no reliance on internal state between tasks other than the immutable state provided by
+# the vars section of the file.
+tasks:
+  task_name:
+    # OPTIONAL:
+    # A description of the functionality provided by the task.
+    # Default: ''
+    description: A description of the task
+    # OPTIONAL:
+    # Flag indicating whether actions should be run in parallel.
+    # If actions are run in parallel it is not possible to share internal state between them,
+    # they are each provided with a copy of the task's internal state when initialised.
+    # This restriction prevents registering one or more outputs of earlier actions and relying
+    # on those values being available in subsequent actions.
+    # If actions are _not_ run in parallel then actions will be executed in the sequence they
+    # are declared below. 
+    # Default: false
+    parallel: false
+    # OPTIONAL:
+    # A list of params used by the task. Each param used by a task _must_ be declared in the
+    # params section of the file.
+    # Default: []
+    params:
+      - short_form
+      - long_form
+    # OPTIONAL:
+    # A list of outputs returned by this task. 
+    # Outputs are extracted from the internal state of the task upon the completion of all 
+    # actions belonging to a task, each entry in the outputs list should therefore correspond
+    # to a key in the task's internal state.
+    # Outputs is returned to the calling task as an object where each entry in the outputs list
+    # is a key. If the key in the outputs list does _not_ exist in the internal state of the task
+    # the key will still exist in the outputs object with a value of undefined.
+    # Default: []
+    outputs:
+      - state_key_a
+      - state_key_b
+    # OPTIONAL:
+    # The name of a task to run if an error occurs when executing any action belonging to this task.
+    # This task will not be run if ignore_error is set to true for an action resulting in an error.
+    # Where an on_error task is specified for an action resulting in an error this task will run
+    # _after_ the on_error task for the action.
+    # Where an on_exit task is specified for an action resulting in an error this task will run
+    # _after_ the on_exit task for the action.
+    # Default: undefined
+    on_error: module_b.task_b optional_param=<%=long_form%>
+    # OPTIONAL:
+    # The name of a task to run following completion of this task.
+    # Where an on_error task is specified for this task the on_exit task will run _after_ 
+    # the task level on_error task.
+    # Where an on_exit task is specified for either the final action or an action resulting
+    # in an error, this task will run _after_ the on_exit task belonging to the action.
+    # Where an on_error task is specified for an action resulting in an error, this task will run
+    # _after_ the on_error task belonging to the action.
+    # Default: undefined
+    on_exit: module_b.task_b optional_param=<%=var_key%>
+    # OPTIONAL:
+    # A condition to evaluate, the task will only execute if the condition evaluates to true
+    # Default: true === true
+    when: <%=short_form%> === 1
+    # REQUIRED:
+    # A list of actions which must be completed to complete the task they belong to.
+    # An action can either execute a shell command, an iterator or another task defined in either 
+    # the usher file it belongs to or in an included external usher file.
+    # When another task is being called, required parameters must be specified as part of the do
+    # directive using ERB syntax. 
+    actions:
+      - do: shell
+        # REQUIRED WHEN do DIRECTIVE IS shell
+        command: echo foo
+        # OPTIONAL:
+        # A condition to evaluate, the action will only execute if the condition evaluates to true
+        # Default: true
+        when: <%=long_form%> === 1
+        # OPTIONAL:
+        # A map of options to be used when executing the action.
+        # Default: {}
+        options:
+          # OPTIONAL:
+          # The ignore_error option conceals an error result for this action, in turn this allows
+          # subsequently defined actions to run instead of interrupting the entire task.
+          # For tasks where actions are executed in parallel the ignore_error option conceals an error
+          # occuring from any of the concurrent actions.
+          # Default: undefined
+          ignore_error: false
+          # OPTIONAL:
+          # The name of a task to run if an error occurs when executing this action. This task will
+          # not be run if ignore_error is set to true.
+          # Default: undefined
+          on_error: module_b.task_b optional_param=<%=long_form%>
+          # OPTIONAL:
+          # The name of a task to run following completion of this action.
+          # This task is guaranteed to be run on completion of this action even in the event of an
+          # error. If an on_error task is defined it will run _after_ the on_error task.
+          # Default: undefined
+          on_exit: module_b.task_b optional_param=<%=var_key%>
+          # OPTIONAL:
+          # The register option can be used to add the outputs of an action to this task's internal
+          # state.
+          # Where the do directive calls another task, this will nest the outputs of that task under
+          # the specified key in this task's internal state.
+          # Default: undefined
+          register: task_a_output
+          # OPTIONAL:
+          # The retry option allows for a task to be retried if it fails.
+          # Uses the [promise-retry](https://www.npmjs.com/package/promise-retry) package and takes
+          # all of its arguments.
+          # Default: undefined
+          retry:
+            factor: 1.2       # Exponential factor to use when calculating the timeout before next retry
+            minTimeout: 0     # Minimum timeout before the first retry (ms)
+            maxTimeout: 1000  # Maximum timeout before the next retry (ms)
+            randomize: false  # Whether to use a random timeout before the next retry
+            retries: 3        # Maximum number of times to retry the action
+          # OPTIONAL:
+          # The shell option allows for options to be passed to the underlying child_process.exec
+          # command used to execute shell commands.
+          # Default: undefined
+          shell:
+            cwd: '~'            # Current working directory of the child process
+            env:
+              env_key: env_var  # Environment key-value pairs
+            encoding: utf8      # Default: utf8
+            guid: 100           # Sets the group identity of the process
+            killSignal: SIGTERM # Default: SIGTERM
+            maxBuffer: 204800   # Largest amount of data (in bytes) allowed on stdout or stderr - if exceeded child process is killed (Default: 200*1024)
+            shell: /bin/zsh     # If true, runs command inside of a shell. Uses '/bin/sh' on UNIX, and process.env.ComSpec on Windows. A different shell can be specified as a string.
+            timeout: 0          # Default: 0
+            uid: 1000           # Sets the user identity of the process
+      - do: for
+        # REQUIRED WHEN do DIRECTIVE is FOR
+        # This specifies an identifier to refer to each member of the list being iterated over
+        each: iteratee
+        # REQUIRED WHEN do DIRECTIVE is FOR
+        # This specifies the list to iterate over
+        in: <%=list_key%>
+        # REQUIRED WHEN do DIRECTIVE is FOR
+        # This specifies the task to execute for each iteratee
+        exec: module_a.task_a required_param=<%=iteratee%>
+      - do: module_b.task_a required_param=<%=short_form%>

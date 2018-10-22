@@ -44,6 +44,7 @@
   },
   "homepage": "https://github.com/findmypast/usher#readme",
   "dependencies": {
+    "ajv": "^6.5.4",
     "bluebird": "^3.5.0",
     "chalk": "^2.0.1",
     "child-process-promise": "^2.2.1",
@@ -61,9 +62,9 @@
     "winston": "^2.3.1"
   },
   "devDependencies": {
-    "eslint": "^4.3.0",
-    "eslint-config-eslint": "^4.0.0",
-    "jest": "^20.0.4",
+    "eslint": "^5.7.0",
+    "eslint-config-eslint": "^5.0.1",
+    "jest": "^23.6.0",
     "publish": "^0.6.0",
     "supersoaker": "^1.0.1"
   },

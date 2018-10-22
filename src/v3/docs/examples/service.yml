@@ -3,41 +3,36 @@ version: '3'
 
 # Description of tasks provided by this file.
 # Files providing common tasks are advised to provide a description for documentation purposes.
-description: A series of tasks for reading secrets from a HashiCorp Vault instance using Domesday (https://github.com/findmypast/domesday)
+description: A series of tasks for common actions required when deploying or mainting service
 
 # Vars provide a way to declare variables for tasks defined in this file.
 # Vars _cannot_ be modfied by other tasks and cannot be overwritten by params.
 # Careful consideration should be used when deciding whether a value should be declared as a var or param.
 vars:
-  vault_url: vault.url
+  dashboard_file: config/dashboard.yml
+
+# Includes allow tasks defined in external files to be included and reused.
+# Here a local file is being included, but the from field can also be any string or URL capable of being installed by NPM.
+# A list of imports can also be provided to include specific tasks, in the absence of a list all tasks are available.
+includes:
+  grafana:
+    from: grafana.yml
 
 # Params provide a way to declare parameters for tasks defined in this file.
 # They can be declared either in a short or long form, both are shown below.
 # Params declared using the short form are _always_ required.
 # They are the final way of inserting information into the state available to a task.
 params:
-  vault_secret: The path to the secret being requested from vault
   vault_username: The username used to authenticate with vault
   vault_password: The password used to authenticate with vault
-  register_state_key:
-    description: The key to register the retrieved secret at in the task state
-    default: secret
-    required: false
 
 # Tasks allows an array of tasks to be defined.
 # Tasks can be used either as actions by other tasks, or by using the usher-cli tool available from npm.
 tasks:
-  obtain_secret_with_user_pass:
-    description: Obtain a secret from Vault using user/pass authentication
+  publish_dashboard:
+    description: Publishes service dashboard to Grafana
     params:
-      - vault_secret
       - vault_username
       - vault_password
-      - register_state_key
-    outputs:
-      - <%=register_state_key%>
     actions:
-      - do: shell
-        command: domesday read-key-value http://<%=vault_username%>:<%=vault_password%>@<%=vault_url%> <%=vault_path%>
-        options:
-          register: <%=register_state_key%>
+      - do: grafana.publish_dashboard_to_grafana dashboard_file=<%=dashboard_file%> vault_username=<%=vault_username%> vault_password=<%=vault_password%>
