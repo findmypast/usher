@@ -1,28 +1,33 @@
 'use strict';
 
-const firstline = require('firstline');
-const v1 = require('./v1/run');
-const v2 = require('./v2/commands/run');
+const getVersion = require('./lib/get-version');
+const Logger = require('./v2/loggers/default');
 
-function isV2(file) {
-  return firstline(file).then(line => line.match(/version.*'2'/));
+const logger = new Logger();
+
+const runCommandsByVersion = {
+  1: require('./v1/run'),
+  2: require('./v2/commands/run')
 }
 
-module.exports = (taskName, taskVars, opts) => {
-  function checkVersion(fileName) {
-    return isV2(fileName)
-    .then(result => {
-      if (result) {
-        return v2;
-      }
-      return v1;
-    });
+async function getRunCommandForVersion(filename) {
+  const version = await getVersion(filename);
+
+  return version === '0' ? null : runCommandsByVersion[version];
+}
+
+module.exports = async function(taskName, taskVars, opts) {
+  const runCommand = await getRunCommandForVersion(opts.file);
+
+  if (runCommand == null) {
+    const msg = opts.file
+      ? `The command 'usher run ${taskname}' could not be run for the specified file, please ensure task exists`
+      : `The command 'usher run ${taskname}' could not be run, please ensure an usher file with a task matching '${taskname}' exists`;
+
+    logger.info(chalk.red(chalk.bold(msg)));
+
+    return;
   }
-  if (opts.file) {
-    return checkVersion(opts.file)
-    .then(run => run(taskName, taskVars, opts));
-  }
-  return checkVersion('usher.yml')
-  .catch(() => checkVersion('.usher.yml'))
-  .then(run => run(taskName, taskVars, opts));
+
+  runCommand(taskName, taskVars, opts);
 };
