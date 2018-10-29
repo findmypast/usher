@@ -13,7 +13,7 @@ function convertErrorToFalse(error) { return false; }
 
 function accessFilepath(filepath) { return access(filepath).catch(convertErrorToFalse); }
 
-function resolveFilepath(filename) { return path.resolve(filename); }
+function resolveFilepath(filename) { return filename ? path.resolve(filename) : null; }
 
 async function resolveUsherFilepath(filename) {
   const filepaths = [filename].concat(config.defaultFilenames).map(resolveFilepath);

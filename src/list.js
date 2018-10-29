@@ -18,7 +18,7 @@ const logger = new Logger();
 async function getListCommandForVersion(filename) {
   const version = await getVersion(filename);
 
-  return version === '0' ? null : listCommandsByVersion[_version];
+  return version === '0' ? null : listCommandsByVersion[version];
 }
 
 module.exports = async function(taskName, opts) {
