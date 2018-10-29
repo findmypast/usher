@@ -1,7 +1,7 @@
 'use strict';
 
-const chalk = require('chalk');
 const _ = require('lodash');
+const chalk = require('chalk');
 
 module.exports = (printFunction, list) => {
   var clonedList = _.cloneDeep(list);

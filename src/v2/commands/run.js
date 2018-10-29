@@ -1,14 +1,16 @@
 'use strict';
 
 const Promise = require('bluebird');
+
 const _ = require('lodash');
+const path = require('path');
+
+const loggers = require('../../lib/loggers');
 const parse = require('./parse');
 const setup = require('./setup');
 const task = require('../core/task');
-const loggers = require('../loggers');
-const ParsingError = require('../lib/errors').ParsingError;
-const TaskNotFoundError = require('../lib/errors').TaskNotFoundError;
-const path = require('path');
+
+const { ParsingError, TaskNotFoundError } = require('../lib/errors');
 
 const DEFAULT_FILE = 'usher.yml';
 

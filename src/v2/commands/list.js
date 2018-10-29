@@ -1,12 +1,11 @@
 'use strict';
 
 const _ = require('lodash');
-const parse = require('./parse');
-const ParsingError = require('../lib/errors').ParsingError;
-const TaskNotFoundError = require('../lib/errors').TaskNotFoundError;
 const path = require('path');
+const Logger = require('../../lib/loggers/quiet')
+const { ParsingError, TaskNotFoundError } = require('../lib/errors');
+const parse = require('./parse');
 const setup = require('./setup');
-const Logger = require('../loggers/quiet');
 
 const DEFAULT_FILE = 'usher.yml';
 

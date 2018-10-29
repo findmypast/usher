@@ -3,10 +3,11 @@
 'use strict';
 
 const program = require('commander');
-const version = require('./../package.json').version;
-const handle = require('./error-handler');
+const handle = require('./lib/error-handler');
+const list = handle(require('./list'));
 const run = handle(require('./run'));
-const list = require('./list');
+
+const version = require('./../package.json').version;
 
 program
   .version(version);

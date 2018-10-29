@@ -1,7 +1,7 @@
 'use strict';
 
 const getVersion = require('./lib/get-version');
-const Logger = require('./v2/loggers/default');
+const Logger = require('./lib/loggers/default');
 
 const logger = new Logger();
 

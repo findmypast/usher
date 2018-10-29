@@ -2,8 +2,8 @@
 
 const chalk = require('chalk');
 const getVersion = require('./lib/get-version');
-const listView = require('./list-view');
-const Logger = require('./v2/loggers/default');
+const listView = require('./lib/list-view');
+const Logger = require('./lib/loggers/default');
 const v1 = require('./v1/list');
 const v2 = require('./v2/commands/list');
 

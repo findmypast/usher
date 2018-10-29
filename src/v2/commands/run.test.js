@@ -9,8 +9,8 @@ describe('commands/run', () => {
   var taskVars;
   let sut;
 
-  jest.mock('../loggers');
-  const loggers = require('../loggers');
+  jest.mock('../../lib/loggers');
+  const loggers = require('../../lib/loggers');
   loggers.verbose = jest.fn();
   loggers.quiet = jest.fn();
 
