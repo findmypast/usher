@@ -1,0 +1,4 @@
+{
+    "obtain_grafana_api_key": "Obtains the Grafana API key from Vault",
+    "publish_dashboard_to_grafana": "Publishes a dashboard to Grafana"
+}
