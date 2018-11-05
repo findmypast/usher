@@ -8,7 +8,7 @@ describe('lib/get-version', function() {
   test('"0" is returned for a non-existent usher file', async function() {
     expect.assertions(1);
     const vNonExistent = path.join(__dirname, 'spec-data', 'usher-vNonExistent.yml');
-    await expect(getVersion(vNonExistent)).resolves.toEqual('0');
+    await expect(getVersion(vNonExistent)).rejects.toThrowError(/^an usher file could not be found/);
   });
   
   test('"0" is returned for an usher file with an invalid version line', async function() {

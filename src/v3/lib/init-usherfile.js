@@ -1,6 +1,7 @@
 /* eslint-disable strict */
 
 const parseFile = require('../../lib/parse-file');
+const InvalidConfigError = require('../errors/invalid-config');
 const validate = require('../schema/validate');
 
 function schemaErrorToMessage({ keyword, message, schemaPath }) {
@@ -19,9 +20,3 @@ async function initUsherfile(opts) {
 }
 
 module.exports = initUsherfile;
-
-class InvalidConfigError extends Error {
-  constructor(message) {
-    super(`Error in configuration:\n${message}.\nPlease check your config file.`);
-  }
-}

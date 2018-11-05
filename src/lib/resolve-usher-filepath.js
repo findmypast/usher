@@ -21,7 +21,19 @@ async function resolveUsherFilepath(filename) {
   const accessResults = await Promise.all(accessAttempts);
   const index = accessResults.findIndex(nonErrorFileAccess);
 
-  return index === -1 ? null : filepaths[index];
+  if (index === -1) {
+    throw new FileNotFoundError(filepaths);
+  }
+
+  return filepaths[index];
 }
 
 module.exports = resolveUsherFilepath;
+
+class FileNotFoundError extends Error {
+  constructor(filepaths) {
+    const msg = 'an usher file could not be found at any of the following paths:\n';
+    const nonEmptyFilepaths = filepaths.filter(fp => fp && fp.length > 0);
+    super(`${msg}${nonEmptyFilepaths.join('\n')}`);
+  }
+}
