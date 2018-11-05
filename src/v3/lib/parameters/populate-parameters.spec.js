@@ -2,7 +2,7 @@
 
 const populateParameters = require('./populate-parameters');
 
-describe('src/v3/lib/populate-parameters', function() {
+describe('src/v3/lib/parameters/populate-parameters', function() {
   test('parameters are populated using arguments correctly', function() {
     const initialParameters = {
       param_a: { lazy: false, required: true, value: undefined },

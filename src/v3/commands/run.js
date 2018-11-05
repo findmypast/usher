@@ -1,6 +1,10 @@
 /* eslint-disable strict */
 
+const _ = require('lodash');
+
+const RequiredParameterError = require('../errors/required-parameter');
 const TaskNotFoundError = require('../errors/task-not-found');
+
 const buildArguments = require('../lib/build-arguments');
 const buildParameters = require('../lib/build-parameters');
 const expandParameterDefinitions = require('../lib/expand-parameter-definitions');
@@ -13,9 +17,17 @@ async function run(taskName, taskArgs, opts) {
   if (task == null) throw new TaskNotFoundError(taskName);
 
   const parameterDefinitions = expandParameterDefinitions(usherfile.params);
-  const initialParameters = buildParameters(taskName, task.params, parameterDefinitions);
   const taskArguments = buildArguments(taskArgs);
-  const populatedParameters = populateParameters(initialParameters, taskArguments);
+  const parameters = buildParameters(taskName, task, parameterDefinitions, taskArguments);
+  
+  const missingParameters = _.filter(parameters, requiredEagerParameter);
+  if (missingParameters.length > 0) throw new RequiredParameterError(missingParameters);
+
+
 }
 
 module.exports = run;
+
+function requiredEagerParameter({ lazy, required, value }) {
+  return required && value == null && !lazy;
+}

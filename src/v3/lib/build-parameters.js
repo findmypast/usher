@@ -1,31 +1,14 @@
 /* eslint-disable strict */
 
-const UndeclaredParameterError = require('../errors/undeclared-parameter');
+const buildInitialParameters = require('./parameters/build-initial-parameters');
+const markLazyParameters = require('./parameters/mark-lazy-parameters');
+const populateParameters = require('./parameters/populate-parameters');
 
-function buildParameters(taskName, taskParameters, parameterDefinitions) {
-  const parameterBuilder = createParameterBuilder(taskName, parameterDefinitions);
-
-  return taskParameters.reduce(parameterBuilder, {});
+function buildParameters(taskName, task, parameterDefinitions, taskArguments) {
+  const initialParameters = buildInitialParameters(taskName, task.params, parameterDefinitions);
+  const populatedParameters = populateParameters(initialParameters, taskArguments);
+  
+  return markLazyParameters(populatedParameters, task.actions);
 }
 
 module.exports = buildParameters;
-
-function createParameterBuilder(taskName, parameterDefinitions) {
-  const availableParameters = Object.keys(parameterDefinitions);
-
-  return function(parameters, taskParameter) {
-    const definition = parameterDefinitions[taskParameter];
-
-    if (definition == null) {
-      throw new UndeclaredParameterError(taskParameter, taskName);
-    }
-
-    const parameter = {
-      lazy: false,
-      required: definition.required,
-      value: definition.default,
-    };
-
-    return Object.assign({}, parameters, { [taskParameter]: parameter });
-  }
-}
