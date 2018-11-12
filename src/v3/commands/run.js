@@ -20,8 +20,9 @@ async function run(taskName, taskArgs, opts) {
   const taskArguments = buildArguments(taskArgs);
   const parameters = buildParameters(taskName, task, parameterDefinitions, taskArguments);
   
-  const missingParameters = _.filter(parameters, requiredEagerParameter);
-  if (missingParameters.length > 0) throw new RequiredParameterError(missingParameters);
+  const missingParametersDictionary = _.pickBy(parameters, requiredEagerParameter);
+  const missingParameters = Object.keys(missingParametersDictionary);
+  if (missingParameters.length > 0) throw new RequiredParameterError(missingParameters, taskName);
 
 
 }
