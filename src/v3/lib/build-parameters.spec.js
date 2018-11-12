@@ -33,4 +33,31 @@ describe('src/v3/lib/build-parameters', function() {
 
     expect(actual).toEqual(expected);
   });
+
+  test('error is thrown when an undeclared parameter is referenced by a task', function() {
+    const taskName = 'foo';
+
+    const task = {
+      params: ['param_a', 'param_b', 'param_d'],
+      actions: [
+        { do: 'shell', command: 'echo foo', options: { register: 'param_b' } },
+        { do: 'quux <%= param_a %>' },
+        { do: 'for', iteratee: 'qux', in: 'param_d', exec: 'corge <%=  param_b  %>' }
+      ]
+    };
+
+    const parameterDefinitions = {
+      param_a: { description: 'short form', default: undefined, required: true },
+      param_b: { description: 'required long form', default: undefined, required: true },
+      param_c: { description: 'optional long form', default: 'bar', required: false },
+    };
+
+    const taskArguments = { param_a: 'bar', param_d: 'baz' };
+    
+    const expected = /the parameter param_d used by task foo was not declared./;
+
+    const actual = () => buildParameters(taskName, task, parameterDefinitions, taskArguments);
+
+    expect(actual).toThrowError(expected);
+  });
 });
