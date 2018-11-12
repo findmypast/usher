@@ -26,7 +26,6 @@ tasks:
           register: grafana_api_key
 
   publish_dashboard_to_grafana:
-    description: Publishes a dashboard to Grafana
     params:
       - dashboard_file
       - vault_username
