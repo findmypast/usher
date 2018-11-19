@@ -1,17 +1,11 @@
 /* eslint-disable strict */
 
 const fs = require('fs');
-const util = require('util');
 const yaml = require('js-yaml');
-const resolveUsherFilepath = require('./resolve-usher-filepath');
 
-const readFile = util.promisify(fs.readFile);
-
-async function parseFile(file) {
-  const filepath = await resolveUsherFilepath(file);
-  
+function parseFile(filepath) {
   try {
-    const fileContents = await readFile(filepath, 'utf8');
+    const fileContents = fs.readFileSync(filepath, 'utf8');
     return yaml.safeLoad(fileContents);
   } catch (ex) {
     throw new ParsingError(ex, filepath);
