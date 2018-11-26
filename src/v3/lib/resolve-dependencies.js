@@ -1,11 +1,12 @@
 /* eslint-disable strict */
 
-const cp = require('child_process')
 const path = require('path');
 const _ = require('lodash');
 const parseFile = require('../../lib/parse-file');
 const TaskNotFoundError = require('../errors/task-not-found');
 const validate = require('../schema/validate');
+const npmInstallInclude = require('./dependencies/npm-install-include');
+const requireInclude = require('./dependencies/require-include');
 
 const taskNameRgx = /\s+.*/;
 
@@ -90,17 +91,9 @@ function isRemoteDependency(include) {
   return !/.ya?ml$/.test(include.from);
 }
 
-function installDir() {
-  const homeDirEnvKey = process.platform === 'win32' ? 'USERPROFILE' : 'HOME';
-  const homeDir = process.env[homeDirEnvKey];
-
-  return `${homeDir}/.usher-cli`;
-}
-
 function resolveRemoteDependency(include, moduleName, taskName) {
-  const cwd = installDir();
-  cp.execSync(`npm install ${include.from} --prefix ${cwd}`);
-  const dependency = require(`${cwd}/node_modules/${moduleName}`);
+  npmInstallInclude(include);
+  const dependency = requireInclude(include.from);
   validate(dependency);
 
   return resolveDependencies(dependency, taskName, moduleName);
