@@ -16,11 +16,11 @@ const actionHandlers = {
 
 function resolveDependencies (usherfile, taskName, moduleName = '.') {
   if (taskName == null) return null;
-  
+
   const task = usherfile.tasks[taskName];
   if (task == null) throw new TaskNotFoundError(taskName);
   
-  const resolver = createActionDependencyResolver(usherfile);
+  const resolver = createActionDependencyResolver(usherfile, moduleName);
   const rawDependencies = task.actions.map(resolver);
   const nonNullDependencies = _.reject(rawDependencies, rejectNullDependency);
   const dependencies = _.uniqBy(nonNullDependencies, 'task');
@@ -30,11 +30,11 @@ function resolveDependencies (usherfile, taskName, moduleName = '.') {
 
 module.exports = resolveDependencies;
 
-function createActionDependencyResolver(usherfile) {
+function createActionDependencyResolver(usherfile, moduleName) {
   return function (action) {
     const handler = actionHandlers[action.do] || handleTaskDependency;
     
-    return handler(action, usherfile);
+    return handler(action, usherfile, moduleName);
   }
 }
 
@@ -42,30 +42,30 @@ function handleShellDependency() {
   return null;
 }
 
-function handleForDependency(action, usherfile) {
+function handleForDependency(action, usherfile, currentModuleName) {
   const execTaskName = action.exec.replace(taskNameRgx, '');
   
   if (execTaskName.includes('.')) {
     //   install dependency
-    const [moduleName, taskName] = execTaskName.split('.');
+    const [taskModuleName, taskName] = execTaskName.split('.');
     //   recurse for task
-    return resolveDependency(moduleName, taskName, usherfile);
+    return resolveDependency(taskModuleName, taskName, usherfile);
   }
 
-  return resolveDependencies(usherfile, execTaskName);
+  return resolveDependencies(usherfile, execTaskName, currentModuleName);
 }
 
-function handleTaskDependency(action, usherfile) {
+function handleTaskDependency(action, usherfile, currentModuleName) {
   const doTaskName = action.do.replace(taskNameRgx, '');
     
   if (doTaskName.includes('.')) {
     //   install dependency
-    const [moduleName, taskName] = doTaskName.split('.');
+    const [taskModuleName, taskName] = doTaskName.split('.');
     //   recurse for task
-    return resolveDependency(moduleName, taskName, usherfile);
+    return resolveDependency(taskModuleName, taskName, usherfile);
   }
 
-  return resolveDependencies(usherfile, doTaskName);
+  return resolveDependencies(usherfile, doTaskName, currentModuleName);
 }
 
 function rejectNullDependency(dependency) {
@@ -101,6 +101,7 @@ function resolveRemoteDependency(include, moduleName, taskName) {
   const cwd = installDir();
   cp.execSync(`npm install ${include.from} --prefix ${cwd}`);
   const dependency = require(`${cwd}/node_modules/${moduleName}`);
+  validate(dependency);
 
   return resolveDependencies(dependency, taskName, moduleName);
 }
