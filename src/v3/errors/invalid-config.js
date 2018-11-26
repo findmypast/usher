@@ -2,7 +2,7 @@
 
 class InvalidConfigError extends Error {
   constructor(message) {
-    super(`Error in configuration:\n${message}.\nPlease check your config file.`);
+    super(`Error in configuration:\n${message}\nPlease check your config file.`);
   }
 }
 

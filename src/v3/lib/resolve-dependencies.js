@@ -4,9 +4,9 @@ const path = require('path');
 const _ = require('lodash');
 const parseFile = require('../../lib/parse-file');
 const TaskNotFoundError = require('../errors/task-not-found');
-const validate = require('../schema/validate');
 const npmInstallInclude = require('./dependencies/npm-install-include');
 const requireInclude = require('./dependencies/require-include');
+const validate = require('./schema/validate');
 
 const taskNameRgx = /\s+.*/;
 
