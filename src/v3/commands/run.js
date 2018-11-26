@@ -9,6 +9,7 @@ const buildArguments = require('../lib/build-arguments');
 const buildParameters = require('../lib/build-parameters');
 const expandParameterDefinitions = require('../lib/expand-parameter-definitions');
 const initUsherfile = require('../lib/init-usherfile');
+const resolveDependencies = require('../lib/resolve-dependencies');
 
 async function run(taskName, taskArgs, opts) {
   const usherfile = await initUsherfile(opts);
@@ -24,7 +25,8 @@ async function run(taskName, taskArgs, opts) {
   const missingParameters = Object.keys(missingParametersDictionary);
   if (missingParameters.length > 0) throw new RequiredParameterError(missingParameters, taskName);
 
-
+  const dependencyTree = resolveDependencies(usherfile, taskName);
+  
 }
 
 module.exports = run;
