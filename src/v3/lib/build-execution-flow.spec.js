@@ -1,176 +1,182 @@
 const buildExecutionFlow = require('./build-execution-flow');
 
 describe('src/v3/lib/build-execution-flow', function () {
-  describe('correct execution flow built for', function () {
-    /* No dependencies */
-
-    test('task with single action with no dependencies', function () {
-      const action = { do: 'shell', command: 'echo bar' };
-      const input = { name: 'foo', module: '.', task: { actions: [ action ] }, dependencies: [] };
-  
-      const expected = [ action ];
-      const actual = buildExecutionFlow(input);
-  
-      expect(actual).toEqual(expected);
-    });
-  
-    test('task with multiple sequential actions with no dependencies', function () {
-      const actionBar = { do: 'shell', command: 'echo bar' };
-      const actionBaz = { do: 'shell', command: 'echo baz' };
-      const input = { name: 'foo', module: '.', task: { actions: [ actionBar, actionBaz ] }, dependencies: [] };
+  describe('with no dependencies', function () {
+    test('a single action is converted to a correct execution flow', function() {
+      const input = {
+        name: 'foo',
+        module: '.',
+        dependencies: [],
+        task: { actions: [{ do: 'shell', command: 'echo foo' }] }
+      };
       
-      const expected = [ actionBar, actionBaz ];
       const actual = buildExecutionFlow(input);
+      const expected = [{ do: 'shell', command: 'echo foo' }];
   
       expect(actual).toEqual(expected);
     });
-  
-    test('task with multiple parallel actions with no dependencies', function () {
-      const actionBar = { do: 'shell', command: 'echo bar' };
-      const actionBaz = { do: 'shell', command: 'echo baz' };
-      const input = { name: 'foo', module: '.', task: { parallel: true, actions: [ actionBar, actionBaz ] }, dependencies: [] };
+
+    test('a sequence of actions is converted to a correct execution flow', function() {
+      const input = {
+        name: 'foo',
+        module: '.',
+        dependencies: [],
+        task: { actions: [{ do: 'shell', command: 'echo foo' }, { do: 'shell', command: 'echo bar' }, { do: 'shell', command: 'echo baz' }] }
+      };
       
-      const expected = [ [ actionBar, actionBaz ] ];
       const actual = buildExecutionFlow(input);
+      const expected = [{ do: 'shell', command: 'echo foo' }, { do: 'shell', command: 'echo bar' }, { do: 'shell', command: 'echo baz' }];
   
       expect(actual).toEqual(expected);
     });
-    
-    /* Local dependencies */
 
-    test('task with single action with local dependency specifying single action', function () {
-      const actionFoo = { do: 'bar' };
-      const actionBar = { do: 'shell', command: 'echo baz' };
+    test('concurrent actions are converted to a correct execution flow', function() {
       const input = {
         name: 'foo',
         module: '.',
-        task: { actions: [ actionFoo ] },
-        dependencies: [{ name: 'bar', module: '.', task: { actions: [ actionBar ] }, dependencies: [] }]
+        dependencies: [],
+        task: { actions: [{ do: 'shell', command: 'echo foo' }, { do: 'shell', command: 'echo bar' }, { do: 'shell', command: 'echo baz' }], parallel: true }
       };
-  
-      const expected = [ actionBar ];
+      
       const actual = buildExecutionFlow(input);
+      const expected = [[{ do: 'shell', command: 'echo foo' }, { do: 'shell', command: 'echo bar' }, { do: 'shell', command: 'echo baz' }]];
   
       expect(actual).toEqual(expected);
     });
-    
-    test('task with single action with local dependency specifying multiple sequential actions', function () {
-      const actionFoo = { do: 'bar' };
-      const actionBar = { do: 'shell', command: 'echo baz' };
-      const actionQux = { do: 'shell', command: 'echo quux' };
-      const input = {
-        name: 'foo',
-        module: '.',
-        task: { actions: [ actionFoo ] },
-        dependencies: [{ name: 'bar', module: '.', task: { actions: [ actionBar, actionQux ] }, dependencies: [] }]
-      };
-  
-      const expected = [ actionBar, actionQux ];
-      const actual = buildExecutionFlow(input);
-  
-      expect(actual).toEqual(expected);
-    });
-    
-    test('task with single action with local dependency specifying multiple parallel actions', function () {
-      const actionFoo = { do: 'bar' };
-      const actionBar = { do: 'shell', command: 'echo baz' };
-      const actionQux = { do: 'shell', command: 'echo quux' };
-      const input = {
-        name: 'foo',
-        module: '.',
-        task: { actions: [ actionFoo ] },
-        dependencies: [{ name: 'bar', module: '.', task: { parallel: true, actions: [ actionBar, actionQux ] }, dependencies: [] }]
-      };
-  
-      const expected = [ [ actionBar, actionQux ] ];
-      const actual = buildExecutionFlow(input);
-  
-      expect(actual).toEqual(expected);
-    });
-    
-    /* Local, nested dependencies */
+  });
 
-    test('task with single action with local, nested dependency specifying single action', function () {
-      const actionFoo = { do: 'bar' };
-      const actionBar = { do: 'baz' };
-      const actionBaz = { do: 'shell', command: 'echo quz' }
+  describe('with shallow local dependencies', function () {
+    test('a single action is converted to a correct execution flow', function() {
       const input = {
         name: 'foo',
         module: '.',
-        task: { actions: [ actionFoo ] },
-        dependencies: [{
-          name: 'bar',
-          module: '.',
-          task: { actions: [ actionBar ] },
-          dependencies: [{
-            name: 'baz',
-            module: '.',
-            task: { actions: [ actionBaz ] },
-            dependencies: []
-          }]
-        }]
+        dependencies: [{ name: 'bar', module: '.', dependencies: [], task: { actions: [{ do: 'shell', command: 'echo bar' }] } }],
+        task: { actions: [{ do: 'bar' }] }
       };
-  
-      const expected = [ actionBaz ];
+      
       const actual = buildExecutionFlow(input);
+      const expected = [{ do: 'shell', command: 'echo bar' }];
   
       expect(actual).toEqual(expected);
     });
-    
-    test('task with single action with local, nested dependency specifying multiple sequential actions', function () {
-      const actionFoo = { do: 'bar' };
-      const actionBar = { do: 'shell', command: 'echo baz' };
-      const actionQux = { do: 'quux' };
-      const actionQuux = { do: 'shell', command: 'echo corge' };
+
+    test('a sequence of actions is converted to a correct execution flow', function() {
       const input = {
         name: 'foo',
         module: '.',
-        task: { actions: [ actionFoo ] },
-        dependencies: [{ 
-          name: 'bar', 
-          module: '.', 
-          task: { actions: [ actionBar, actionQux ] }, 
-          dependencies: [{ 
-            name: 'quux', 
-            module: '.', 
-            task: { actions: [ actionQuux ] }, 
-            dependencies: []
-          }]
-        }]
+        dependencies: [
+          { name: 'bar', module: '.', dependencies: [], task: { actions: [{ do: 'shell', command: 'echo bar' }] } },
+          { name: 'baz', module: '.', dependencies: [], task: { actions: [{ do: 'shell', command: 'echo baz' }] } },
+          { name: 'qux', module: '.', dependencies: [], task: { actions: [{ do: 'shell', command: 'echo qux' }] } }
+        ],
+        task: { actions: [{ do: 'bar' }, { do: 'baz' }, { do: 'qux'}] }
       };
-  
-      const expected = [ actionBar, actionQuux ];
+      
       const actual = buildExecutionFlow(input);
+      const expected = [{ do: 'shell', command: 'echo bar' }, { do: 'shell', command: 'echo baz' }, { do: 'shell', command: 'echo qux' }];
   
       expect(actual).toEqual(expected);
     });
-    
-    test.skip('task with single action with local, nested dependency specifying multiple parallel actions', function () {
-      const actionFoo = { do: 'bar' };
-      const actionBar = { do: 'baz' };
-      const actionBaz = { do: 'shell', command: 'echo qux' };
-      const actionQuux = { do: 'shell', command: 'echo corge' };
+
+    test('concurrent actions are converted to a correct execution flow', function() {
       const input = {
         name: 'foo',
         module: '.',
-        task: { actions: [ actionFoo ] },
-        dependencies: [{ 
-          name: 'bar', 
-          module: '.', 
-          task: { parallel: true, actions: [ actionBar, actionQuux ] }, 
-          dependencies: [{ 
-            name: 'baz', 
-            module: '.', 
-            task: { actions: [ actionBaz ] }, 
-            dependencies: []
-          }]
-        }]
+        dependencies: [
+          { name: 'bar', module: '.', dependencies: [], task: { actions: [{ do: 'shell', command: 'echo bar' }] } },
+          { name: 'baz', module: '.', dependencies: [], task: { actions: [{ do: 'shell', command: 'echo baz' }] } },
+          { name: 'qux', module: '.', dependencies: [], task: { actions: [{ do: 'shell', command: 'echo qux' }] } }
+        ],
+        task: { actions: [{ do: 'bar' }, { do: 'baz' }, { do: 'qux'}], parallel: true }
       };
-  
-      const expected = [ [ actionBaz, actionQuux ] ];
+      
       const actual = buildExecutionFlow(input);
+      const expected = [[{ do: 'shell', command: 'echo bar' }, { do: 'shell', command: 'echo baz' }, { do: 'shell', command: 'echo qux' }]];
   
       expect(actual).toEqual(expected);
     });
+  });
+
+  describe('with mixed no dependencies and shallow local dependencies', function () {
+    test('a sequence of actions is converted to a correct execution flow', function() {
+      const input = {
+        name: 'foo',
+        module: '.',
+        dependencies: [
+          { name: 'bar', module: '.', dependencies: [], task: { actions: [{ do: 'shell', command: 'echo bar' }] } },
+          { name: 'qux', module: '.', dependencies: [], task: { actions: [{ do: 'shell', command: 'echo qux' }] } }
+        ],
+        task: { actions: [{ do: 'bar' }, { do: 'shell', command: 'echo baz' }, { do: 'qux'}] }
+      };
+      
+      const actual = buildExecutionFlow(input);
+      const expected = [{ do: 'shell', command: 'echo bar' }, { do: 'shell', command: 'echo baz' }, { do: 'shell', command: 'echo qux' }];
+  
+      expect(actual).toEqual(expected);
+    });
+
+
+    test('nested sequences of actions is converted to a correct execution flow', function() {
+      const input = {
+        name: 'foo',
+        module: '.',
+        dependencies: [
+          { name: 'bar', module: '.', dependencies: [], task: { actions: [{ do: 'shell', command: 'echo bar' }, { do: 'shell', command: 'echo qux' }] } },
+          { name: 'baz', module: '.', dependencies: [], task: { actions: [{ do: 'shell', command: 'echo baz' }, { do: 'shell', command: 'echo quux' }] } }
+        ],
+        task: { actions: [{ do: 'bar' }, { do: 'baz' }] }
+      };
+      
+      const actual = buildExecutionFlow(input);
+      const expected = [
+        { do: 'shell', command: 'echo bar' },
+        { do: 'shell', command: 'echo qux' },
+        { do: 'shell', command: 'echo baz' },
+        { do: 'shell', command: 'echo quux' }
+      ];
+  
+      expect(actual).toEqual(expected);
+    });
+
+    test('concurrent actions are converted to a correct execution flow', function() {
+      const input = {
+        name: 'foo',
+        module: '.',
+        dependencies: [
+          { name: 'bar', module: '.', dependencies: [], task: { actions: [{ do: 'shell', command: 'echo bar' }] } },
+          { name: 'qux', module: '.', dependencies: [], task: { actions: [{ do: 'shell', command: 'echo qux' }] } }
+        ],
+        task: { actions: [{ do: 'bar' }, { do: 'shell', command: 'echo baz' }, { do: 'qux'}], parallel: true }
+      };
+      
+      const actual = buildExecutionFlow(input);
+      const expected = [[{ do: 'shell', command: 'echo bar' }, { do: 'shell', command: 'echo baz' }, { do: 'shell', command: 'echo qux' }]];
+  
+      expect(actual).toEqual(expected);
+    });
+
+    test('nested concurrent actions are converted to a correct execution flow', function() {
+      const input = {
+        name: 'foo',
+        module: '.',
+        dependencies: [
+          { name: 'bar', module: '.', dependencies: [], task: { actions: [{ do: 'shell', command: 'echo bar' }, { do: 'shell', command: 'echo qux' }], parallel: true } },
+          { name: 'baz', module: '.', dependencies: [], task: { actions: [{ do: 'shell', command: 'echo baz' }, { do: 'shell', command: 'echo quux' }], parallel: true } }
+        ],
+        task: { actions: [{ do: 'bar' }, { do: 'baz' }], parallel: true }
+      };
+      
+      const actual = buildExecutionFlow(input);
+      const expected = [[ 
+        [ { do: 'shell', command: 'echo bar' }, { do: 'shell', command: 'echo qux' } ], 
+        [ { do: 'shell', command: 'echo baz' }, { do: 'shell', command: 'echo quux' } ] 
+      ]];
+  
+      expect(actual).toEqual(expected);
+    });
+  });
+
+  describe('with deep local dependencies', function () {
+    // todo
   });
 });
