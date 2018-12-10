@@ -32,7 +32,7 @@ describe('list-view', () => {
     test('lists all tasks with their description', () => {
       var count = 0;
       _.forOwn(validInput, (descriptions, key) => {
-        expect(logger.info).toHaveBeenCalledWith(`${mockBold(key)}- ${descriptions[0]}`);
+        expect(logger.info).toHaveBeenCalledWith(`${mockBold(key)} - ${descriptions[0]}`);
       });
     });
   });
@@ -48,10 +48,10 @@ describe('list-view', () => {
 
     test('lists all descriptions', () => {
       _.forOwn(oneKeyManyDescInput, (descriptions, key) => {
-        expect(logger.info).toHaveBeenCalledWith(`${mockBold(key)}- ${descriptions[0]}`);
+        expect(logger.info).toHaveBeenCalledWith(`${mockBold(key)} - ${descriptions[0]}`);
         descriptions.shift();
         _.forEach(descriptions, (description) => {
-          expect(logger.info).toHaveBeenCalledWith(`- ${description}`);
+          expect(logger.info).toHaveBeenCalledWith(` - ${description}`);
         });
       });
     });
