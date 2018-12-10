@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 function populateParameters(initialParameters, taskArguments) {
   const parameterNames = Object.keys(initialParameters);
   const populator = createParameterPopulator(initialParameters, taskArguments);

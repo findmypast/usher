@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 const parseFile = require('../../lib/parse-file');
 const resolveUsherFilepath = require('../../lib/resolve-usher-filepath');
 const validate = require('./schema/validate');

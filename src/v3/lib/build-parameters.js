@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 const isEmpty = require('./is-empty');
 const buildInitialParameters = require('./parameters/build-initial-parameters');
 const markLazyParameters = require('./parameters/mark-lazy-parameters');

@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 const path = require('path');
 const _ = require('lodash');
 const parseFile = require('../../lib/parse-file');

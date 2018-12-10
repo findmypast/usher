@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 function isNotResolved(executable) {
   return !isResolved(executable);
 }

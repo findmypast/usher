@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 const UndeclaredParameterError = require('../../errors/undeclared-parameter');
 
 function buildParameters(taskName, taskParameters, parameterDefinitions) {

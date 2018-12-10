@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 const expandParameterDefinitions = require('./expand-parameter-definitions');
 
 describe('src/v3/lib/expand-parameter-definitions', function() {

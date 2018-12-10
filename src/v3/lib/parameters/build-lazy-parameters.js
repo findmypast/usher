@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 function buildLazyParameters(parameters, actions) {
   const isUnpopulated = createUnpopulatedParameterFilter(parameters);
   const mapRegistration = createRegistrationMapper(actions);

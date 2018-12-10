@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 const buildArguments = require('./build-arguments');
 
 describe('src/v3/lib/build-arguments', function() {

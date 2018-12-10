@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 const populateParameters = require('./populate-parameters');
 
 describe('src/v3/lib/parameters/populate-parameters', function() {

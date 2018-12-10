@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 function buildArguments(taskArgs) {
   return taskArgs.reduce(reduceArgument, {});
 }

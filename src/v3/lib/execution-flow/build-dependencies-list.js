@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 const _ = require('lodash');
 
 function buildDependenciesList(node) {

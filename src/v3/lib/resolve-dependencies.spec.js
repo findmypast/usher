@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 const path = require('path');
 
 /* Mock functions declared underneath tests */

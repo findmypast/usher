@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 const isEmpty = require('./is-empty');
 
 function expandParameterDefinitions(parameters) {

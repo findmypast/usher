@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 function findDependency(executable, dependencies) {
   const [moduleName, taskName] = extractModuleAndTaskNames(executable);
   const dependencyFinder = createFindDependency(moduleName, taskName);

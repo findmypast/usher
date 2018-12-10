@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 const includeSchema = require('./spec-data/include-schema');
 const invalidSchemata = require('./spec-data/invalid-schemata');
 const minimalSchema = require('./spec-data/minimal-schema');

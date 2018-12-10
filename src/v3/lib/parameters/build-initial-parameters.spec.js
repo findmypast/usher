@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 const buildParameters = require('./build-initial-parameters');
 
 describe('src/v3/lib/parameters/build-initial-parameters', function() {

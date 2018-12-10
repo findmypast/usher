@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 const buildLazyParameters = require('./build-lazy-parameters');
 
 describe('src/v3/lib/parameters/build-lazy-parameters', function() {

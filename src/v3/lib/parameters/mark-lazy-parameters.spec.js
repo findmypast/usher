@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 const markLazyParameters = require('./mark-lazy-parameters');
 
 describe('src/v3/lib/parameters/mark-lazy-parameters', function() {

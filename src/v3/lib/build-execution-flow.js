@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 const buildDependenciesList = require('./execution-flow/build-dependencies-list');
 const findDependency = require('./execution-flow/find-dependency');
 const { isNotResolved, isResolved } = require('./execution-flow/resolved-status');
