@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 const initUsherfile = require('../lib/init-usherfile');
 
 function reduceTaskToListEntry(usherfile) {

@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 const list = require('./list');
 const path = require('path');
 

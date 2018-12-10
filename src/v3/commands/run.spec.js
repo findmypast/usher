@@ -1,5 +1,3 @@
-/* eslint-disable strict */
-
 const run = require('./run');
 const path = require('path');
 
