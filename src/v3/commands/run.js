@@ -10,7 +10,6 @@ const buildParameters = require('../lib/build-parameters');
 const expandParameterDefinitions = require('../lib/expand-parameter-definitions');
 const initUsherfile = require('../lib/init-usherfile');
 const resolveDependencies = require('../lib/resolve-dependencies');
-const runAction = require('../lib/run-action');
 
 async function run(taskName, taskArgs, opts) {
   const usherfile = await initUsherfile(opts);

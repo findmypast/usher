@@ -45,6 +45,7 @@
   "homepage": "https://github.com/findmypast/usher#readme",
   "dependencies": {
     "ajv": "^6.5.4",
+    "async": "^2.6.1",
     "bluebird": "^3.5.0",
     "chalk": "^2.0.1",
     "child-process-promise": "^2.2.1",

@@ -7,7 +7,8 @@ const logger = new Logger();
 
 const runCommandsByVersion = {
   1: require('./v1/run'),
-  2: require('./v2/commands/run')
+  2: require('./v2/commands/run'),
+  3: require('./v3/commands/run')
 }
 
 async function getRunCommandForVersion(filename) {
