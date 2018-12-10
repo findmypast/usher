@@ -2,8 +2,10 @@ const initUsherfile = require('../lib/init-usherfile');
 
 function reduceTaskToListEntry(usherfile) {
   return function(listEntries, task) {
+    const description = usherfile.tasks[task].description;
+
     return Object.assign({}, listEntries, {
-      [task]: usherfile.tasks[task].description || ''
+      [task]: description == null ? [''] : [description]
     });
   }
 }
