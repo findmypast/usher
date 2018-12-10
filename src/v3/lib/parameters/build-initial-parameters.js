@@ -1,6 +1,9 @@
+const isEmpty = require('../is-empty');
 const UndeclaredParameterError = require('../../errors/undeclared-parameter');
 
 function buildParameters(taskName, taskParameters, parameterDefinitions) {
+  if (isEmpty(taskParameters)) return {};
+
   const parameterBuilder = createParameterBuilder(taskName, parameterDefinitions);
 
   return taskParameters.reduce(parameterBuilder, {});
