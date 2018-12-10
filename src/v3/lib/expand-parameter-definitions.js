@@ -1,6 +1,10 @@
 /* eslint-disable strict */
 
+const isEmpty = require('./is-empty');
+
 function expandParameterDefinitions(parameters) {
+  if (isEmpty(parameters)) return {};
+  
   const parameterNames = Object.keys(parameters);
   const parameterExpander = createParameterDefinitionExpander(parameters);
 
