@@ -438,7 +438,7 @@ tasks:
     actions:
       - do: configure_toggles
         environment: integration
-        flipper_host: integration.flipper.service.consul:3333
+        flipper_host: flipper.integration.service.dun.fh
       - description: Deploy integration and acceptance in parallel
         do: sequence
         actions:
@@ -448,84 +448,27 @@ tasks:
 
   deploy_acceptance:
     description: Deploy Acceptance container
-    do: sequence
-    actions:
-      - description: Get the service tag and colour for the offline colour
-        do: shell
-        command: twoface peek -H <%=consul_host%>:<%=consul_port%> -k proxied-services/<%=service_image_name%>/subdomains/acceptance -b blue-acceptance -g green-acceptance
-        options:
-          register: service_tag
-      - do: global.domesday.get_password
-        service_name: <%=service_image_name%>
-        vault_username: <%=tc_username%>
-        vault_password: <%=tc_password%>
-        options:
-          register: app_password
-      - do: for
-        every: service_node
-        in: <%=acceptance_hosts%>
-        exec: deploy
-        feature_toggle_client_key: 57f4f0e52b886c132878bf77
-        mix_env: integration
-        session_cookie_name: Acceptancesession
-        disable_ssr: false
-      - description: Run smoke tests against the service to confirm it's online
-        do: shell
-        command: shisha --domain=backstage-acceptance.<%=base_service_name%>.service.consul:3333
-        options:
-          retry:
-            retries: 35
-            factor: 1.2
-      - description: Flip offline/online colours by switching the consul tag
-        do: shell
-        command: twoface flip -H <%=consul_host%>:<%=consul_port%> -k proxied-services/<%=service_image_name%>/subdomains/acceptance -b blue-acceptance -g green-acceptance
-      - do: global.deploy.it_lives
-        environment: acceptance
-        options:
-          retry:
-            retries: 10
-            factor: 1.2
+    do: global.deploy_k8s.deploy
+    feature_toggle_client_key: 57f4f0e52b886c132878bf77
+    mix_env: integration
+    session_cookie_name: Acceptancesession
+    disable_ssr: false
+    environment: integration
+    helm_overrides:       
+      environment: integration
+      image.tag: <%=version%>
 
   deploy_integration:
     description: Deploy Integration container
-    do: sequence
-    actions:
-      - description: Get the service tag for the offline colour
-        do: shell
-        command: twoface peek -H <%=consul_host%>:<%=consul_port%> -k proxied-services/<%=service_image_name%>/subdomains/integration -b blue-integration -g green-integration
-        options:
-          register: service_tag
-      - do: global.domesday.get_password
-        service_name: <%=service_image_name%>
-        vault_username: <%=tc_username%>
-        vault_password: <%=tc_password%>
-        options:
-          register: app_password
-      - description: Run the deploy task on the integration hosts
-        do: for
-        every: service_node
-        in: <%=integration_hosts%>
-        exec: deploy
-        feature_toggle_client_key: 57d926af8ede1707195b02c7
-        mix_env: integration
-        session_cookie_name: Integrationsession
-        disable_ssr: false
-      - description: Run smoke tests against the service to confirm it's online
-        do: shell
-        command: shisha --domain=backstage-integration.<%=base_service_name%>.service.consul:3333
-        options:
-          retry:
-            retries: 35
-            factor: 1.2
-      - description: Flip offline/online colours of integration by switching the consul tag
-        do: shell
-        command: twoface flip -H <%=consul_host%>:<%=consul_port%> -k proxied-services/<%=service_image_name%>/subdomains/integration -b blue-integration -g green-integration
-      - do: global.deploy.it_lives
-        environment: integration
-        options:
-          retry:
-            retries: 10
-            factor: 1.2
+    do: global.deploy_k8s.deploy
+    feature_toggle_client_key: 57f4f0e52b886c132878bf77
+    mix_env: integration
+    session_cookie_name: Integrationsession
+    disable_ssr: false
+    environment: integration
+    helm_overrides:       
+      environment: integration
+      image.tag: <%=version%>
 
   deploy_production:
     do: sequence
@@ -533,42 +476,16 @@ tasks:
     actions:
       - description: Deploy Production container
         do: configure_alerts
-      - description: Get the service tag for the offline colour
-        do: shell
-        command: twoface peek -H <%=consul_host%>:<%=consul_port%> -k proxied-services/<%=service_image_name%>/root-tag -b blue-production -g green-production
-        options:
-          register: service_tag
-      - do: global.domesday.get_password
-        service_name: <%=service_image_name%>
-        vault_username: <%=tc_username%>
-        vault_password: <%=tc_password%>
-        options:
-          register: app_password
       - do: configure_toggles
-        flipper_host: production.flipper.service.consul:3333
-      - description: Run the deploy task on the production hosts
-        do: for
-        every: service_node
-        in: <%=production_hosts%>
-        exec: deploy
+        flipper_host: flipper.production.service.dun.fh
+      - do: global.deploy_k8s.deploy
         feature_toggle_client_key: 577cda73711b1406ea0013c1
         session_cookie_name: Livesession
         disable_ssr: false
-      - description: Run smoke tests against the service to confirm it's online
-        do: shell
-        command: shisha --domain=backstage-production.<%=base_service_name%>.service.consul:3333
-        options:
-          retry:
-            retries: 35
-            factor: 1.2
-      - description: Flip offline/online colours by switching the consul tag
-        do: shell
-        command: twoface flip -H <%=consul_host%>:<%=consul_port%> -k proxied-services/<%=service_image_name%>/root-tag -b blue-production -g green-production
-      - do: global.deploy.it_lives
-        options:
-          retry:
-            retries: 10
-            factor: 1.2
+        environment: production
+        helm_overrides:       
+          environment: production
+          image.tag: <%=version%>
 
   acceptance_tests:
     description: Run the acceptance tests
@@ -599,7 +516,7 @@ tasks:
 
       - description: Run UI tests with our Selenium grid
         do: shell
-        command: docker-compose -f docker-compose/production-ui-tests.yml -f docker-compose/production-<%=colour%>.yml run --rm --no-deps -e TEST_URL=acceptance.<%=base_service_name%>.service.consul:3333 worker_1 yarn run test:acceptance
+        command: docker-compose -f docker-compose/production-ui-tests.yml run --rm --no-deps -e TEST_URL=<%=base_service_name%>.acceptance.service.dun.fh worker_1 yarn run test:acceptance
         env:
           - SERVICE_NODE=
           - NODE_ENV=test
@@ -619,42 +536,6 @@ tasks:
       - &IMAGE_LB IMAGE_LB=<%=registry%>/findmypast/<%=load_balancer_image_name%>:<%=version%>
       - CONSUL_TAG_PATH=<%=consul_tag_path%>
       - COMPOSE_PROJECT_NAME=<%=base_service_name%>
-
-  deploy_load_balancer_acceptance:
-    description: Deploy the Titan load balancer for acceptance server(s)
-    do: global.deploy.deploy_load_balancer
-    deploy_hosts: <%=acceptance_hosts%>
-    environment: acceptance
-    consul_key_path: subdomains/acceptance
-    load_balancer_name: <%=load_balancer_image_name%>
-    service_folder: .
-    lb_docker_environment: *LB_DOCKER_ENV
-    blue_tag: blue-acceptance
-    green_tag: green-acceptance
-
-  deploy_load_balancer_integration:
-    description: Deploy the Titan load balancer for integration server(s)
-    do: global.deploy.deploy_load_balancer
-    deploy_hosts: <%=integration_hosts%>
-    environment: integration
-    consul_key_path: subdomains/integration
-    load_balancer_name: <%=load_balancer_image_name%>
-    service_folder: .
-    lb_docker_environment: *LB_DOCKER_ENV
-    blue_tag: blue-integration
-    green_tag: green-integration
-
-  deploy_load_balancer_production:
-    description: Deploy the Titan load balancer for production server(s)
-    do: global.deploy.deploy_load_balancer
-    deploy_hosts: <%=production_lb_hosts%>
-    environment: production
-    consul_key_path: root-tag
-    load_balancer_name: <%=load_balancer_image_name%>
-    service_folder: .
-    lb_docker_environment: *LB_DOCKER_ENV
-    blue_tag: blue-production
-    green_tag: green-production
 
   build_minimal_and_emit_schema:
     description: Extracts the Absinthe schema from API in JSON format
@@ -697,7 +578,7 @@ tasks:
       ignore_errors: true
 
   configure_proxy:
-    description: Submit service.consul:3333 information
+    description: Submit service.consul information
     do: shell
     command: curtain-twitcher consul.dun.fh proxied-services config/proxy.yml
 
