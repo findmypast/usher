@@ -1331,7 +1331,7 @@
     },
     "setup_version": 1,
     "colour": "<%=_.head(_.split(service_tag, '-'))%>",
-    "registry": "docker-registry.dun.fh",
+    "registry": "fh1-harbor01.dun.fh",
     "base_service_name": "titan",
     "consul_host": "consul.dun.fh",
     "consul_port": 8500,

@@ -1,6 +1,6 @@
 version: '2'
 vars:
-  registry: docker-registry
+  registry: fh1-harbor01
   app: myapp
   hosts:
     - host1

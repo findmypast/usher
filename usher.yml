@@ -1,6 +1,6 @@
 version: '2'
 vars:
-  registry: docker-registry.dun.fh
+  registry: fh1-harbor01.dun.fh
   image: findmypast/usher
 
 tasks:

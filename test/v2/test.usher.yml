@@ -3,7 +3,7 @@ version: '2'
 vars:
   setup_version: 1.0
   colour: <%=_.head(_.split(service_tag, '-'))%>
-  registry: docker-registry.dun.fh            # Our private Docker image registry
+  registry: fh1-harbor01.dun.fh            # Our private Docker image registry
   base_service_name: titan                    # The service name
   consul_host: consul.dun.fh                  # Our consul server
   consul_port: 8500

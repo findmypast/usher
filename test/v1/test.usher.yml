@@ -1,6 +1,6 @@
 
 vars:
-  registry: docker-registry.dun.fh
+  registry: fh1-harbor01.dun.fh
   image: findmypast/usher
   host: consul.dun.fh
   blue_tag: blue
@@ -9,7 +9,7 @@ vars:
 tasks:
   build_quotes:
     - description: Test that quotes are expanded as expected
-    - cmd: hello world "hard rock" planet rock 'where rock lives!' docker-registry.dun.fh/findmypast/usher:latest
+    - cmd: hello world "hard rock" planet rock 'where rock lives!' fh1-harbor01.dun.fh/findmypast/usher:latest
 
   build:
     - description: builds the docker container

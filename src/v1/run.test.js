@@ -14,7 +14,7 @@ describe('Given a YAML file run command execution', () => {
       expected: [{
         executable: 'hello',
         args: [
-          'world', 'hard rock', 'planet', 'rock', 'where rock lives!', 'docker-registry.dun.fh/findmypast/usher:latest'
+          'world', 'hard rock', 'planet', 'rock', 'where rock lives!', 'fh1-harbor01.dun.fh/findmypast/usher:latest'
         ]
       }]
     },
@@ -23,7 +23,7 @@ describe('Given a YAML file run command execution', () => {
       cmdArgs: ['version=latest'],
       expected: [{
         executable: 'docker',
-        args: 'build --force-rm -t docker-registry.dun.fh/findmypast/usher:latest .'.split(' ')
+        args: 'build --force-rm -t fh1-harbor01.dun.fh/findmypast/usher:latest .'.split(' ')
       }]
     },
     {
@@ -31,7 +31,7 @@ describe('Given a YAML file run command execution', () => {
       cmdArgs: ['version=latest', 'image=usher-test'],
       expected: [{
         executable: 'docker',
-        args: 'build --force-rm -t docker-registry.dun.fh/usher-test:latest .'.split(' ')
+        args: 'build --force-rm -t fh1-harbor01.dun.fh/usher-test:latest .'.split(' ')
       }]
     },
     {
@@ -39,7 +39,7 @@ describe('Given a YAML file run command execution', () => {
       cmdArgs: ['version=latest', 'user=neil', 'password=password', 'email=ncrawford@findmypast.com'],
       expected: [{
         executable: 'docker',
-        args: 'run --name usher-publisher --rm docker-registry.dun.fh/findmypast/usher:latest npm run publish-to-npm'.split(' '),
+        args: 'run --name usher-publisher --rm fh1-harbor01.dun.fh/findmypast/usher:latest npm run publish-to-npm'.split(' '),
         options: {
           env: _.merge({
             NPM_USER: 'neil',
@@ -60,7 +60,7 @@ describe('Given a YAML file run command execution', () => {
         },
         {
           executable: 'docker',
-          args: 'build --force-rm -t docker-registry.dun.fh/findmypast/usher:latest .'.split(' ')
+          args: 'build --force-rm -t fh1-harbor01.dun.fh/findmypast/usher:latest .'.split(' ')
         }]
     },
     {
@@ -73,7 +73,7 @@ describe('Given a YAML file run command execution', () => {
         },
         {
           executable: 'docker',
-          args: 'build --force-rm -t docker-registry.dun.fh/findmypast/usher:latest .'.split(' ')
+          args: 'build --force-rm -t fh1-harbor01.dun.fh/findmypast/usher:latest .'.split(' ')
         }]
     },
     {
@@ -81,7 +81,7 @@ describe('Given a YAML file run command execution', () => {
       cmdArgs: ['version=latest'],
       expected: [{
         executable: 'docker',
-        args: 'build --force-rm -t docker-registry.dun.fh/some_image:latest .'.split(' ')
+        args: 'build --force-rm -t fh1-harbor01.dun.fh/some_image:latest .'.split(' ')
       }]
     },
     {
@@ -90,11 +90,11 @@ describe('Given a YAML file run command execution', () => {
       expected: [
         {
           executable: 'docker',
-          args: 'build --force-rm -t docker-registry.dun.fh/image01:latest .'.split(' ')
+          args: 'build --force-rm -t fh1-harbor01.dun.fh/image01:latest .'.split(' ')
         },
         {
           executable: 'docker',
-          args: 'build --force-rm -t docker-registry.dun.fh/image02:latest .'.split(' ')
+          args: 'build --force-rm -t fh1-harbor01.dun.fh/image02:latest .'.split(' ')
         }
       ]
     },
@@ -104,11 +104,11 @@ describe('Given a YAML file run command execution', () => {
       expected: [
         {
           executable: 'docker',
-          args: 'build --force-rm -t docker-registry.dun.fh/image01:latest .'.split(' ')
+          args: 'build --force-rm -t fh1-harbor01.dun.fh/image01:latest .'.split(' ')
         },
         {
           executable: 'docker',
-          args: 'build --force-rm -t docker-registry.dun.fh/image02:latest .'.split(' ')
+          args: 'build --force-rm -t fh1-harbor01.dun.fh/image02:latest .'.split(' ')
         }
       ]
     },
@@ -117,7 +117,7 @@ describe('Given a YAML file run command execution', () => {
       cmdArgs: ['version=latest'],
       expected: [{
         executable: 'docker',
-        args: 'build --force-rm -t docker-registry.dun.fh/some_image:latest .'.split(' ')
+        args: 'build --force-rm -t fh1-harbor01.dun.fh/some_image:latest .'.split(' ')
       }]
     }
   ];
@@ -211,7 +211,7 @@ describe('Given a YAML file run command execution', () => {
         },
         {
           executable: 'docker',
-          args: `-H consul.dun.fh run --name ${expectedDeployTarget} --rm docker-registry.dun.fh/findmypast/usher:latest`.split(' '),
+          args: `-H consul.dun.fh run --name ${expectedDeployTarget} --rm fh1-harbor01.dun.fh/findmypast/usher:latest`.split(' '),
           options: {
             stdio: 'inherit'
           }
