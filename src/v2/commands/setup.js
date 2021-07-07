@@ -132,13 +132,27 @@ function importVariables(varList, config, usherFilePath, parser) {
 
 
   varList = _.merge(varList, variables || {});
-
   return varList;
+}
+
+function interpolateModulesToInstall(config) {
+  return _.map(config.include, (include) => {
+    const regexp = /<%=(.*?)%>/g;
+    let module = _.get(include, 'from');
+    let match = regexp.exec(module);
+    
+    while (match != null) {
+      module = module.replace(match[0], config.vars[match[1]]);
+      match = regexp.exec(module);
+    }
+
+    return module;
+  });
 }
 
 module.exports = (config, Logger, usherFilePath, parser=require('./parse')) => Promise.try(() => {
   _.mapValues(validators, validator => validator(config));
-  const modulesToInstall = _.map(config.include, (include) => _.get(include, 'from'));
+  const modulesToInstall = interpolateModulesToInstall(config);
   return Promise.all(_.map(modulesToInstall, installModule))
   .then(() => {
     const reducedTasks = _.reduce(config.include, (acc, includeConfig) => importTasklist(acc, includeConfig, usherFilePath, parser), {});
