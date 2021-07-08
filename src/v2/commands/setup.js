@@ -5,9 +5,11 @@ const Promise = require('bluebird');
 const exec = require('child-process-promise').exec;
 const State = require('../core/state');
 const installDir = require('../core/installed-modules').installDir;
-const defaultTasks = {tasks: require('../tasks')};
+const defaultTasks = { tasks: require('../tasks') };
 const InvalidConfigError = require('../lib/errors').InvalidConfigError;
 const path = require('path');
+
+const varRegexp = /<%=(.*?)%>/g;
 
 function tasksHaveDo(config) {
   _.mapValues(config.tasks, (task, key) => {
@@ -137,28 +139,31 @@ function importVariables(varList, config, usherFilePath, parser) {
 
 function interpolateModulesToInstall(config) {
   return _.map(config.include, (include) => {
-    const regexp = /<%=(.*?)%>/g;
     let module = _.get(include, 'from');
-    let match = regexp.exec(module);
-    
+    let match = varRegexp.exec(module);
+
     while (match != null) {
-      module = module.replace(match[0], config.vars[match[1]]);
-      match = regexp.exec(module);
+
+      if (config.vars && config.vars[match[1]]) {
+        module = module.replace(match[0], config.vars[match[1]]);
+      }
+      
+      match = varRegexp.exec(module);
     }
 
     return module;
   });
 }
 
-module.exports = (config, Logger, usherFilePath, parser=require('./parse')) => Promise.try(() => {
+module.exports = (config, Logger, usherFilePath, parser = require('./parse')) => Promise.try(() => {
   _.mapValues(validators, validator => validator(config));
   const modulesToInstall = interpolateModulesToInstall(config);
   return Promise.all(_.map(modulesToInstall, installModule))
-  .then(() => {
-    const reducedTasks = _.reduce(config.include, (acc, includeConfig) => importTasklist(acc, includeConfig, usherFilePath, parser), {});
-    const reducedArgs = _.reduce(config.include, (acc, includeConfig) => importVariables(acc, includeConfig, usherFilePath, parser), {});
-    const initialState = _.merge({}, defaultTasks, reducedArgs, config.vars, _.pick(config, 'tasks'), {tasks: reducedTasks});
+    .then(() => {
+      const reducedTasks = _.reduce(config.include, (acc, includeConfig) => importTasklist(acc, includeConfig, usherFilePath, parser), {});
+      const reducedArgs = _.reduce(config.include, (acc, includeConfig) => importVariables(acc, includeConfig, usherFilePath, parser), {});
+      const initialState = _.merge({}, defaultTasks, reducedArgs, config.vars, _.pick(config, 'tasks'), { tasks: reducedTasks });
 
-    return new State(initialState, Logger);
-  });
+      return new State(initialState, Logger);
+    });
 });
