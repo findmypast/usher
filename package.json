@@ -1,6 +1,6 @@
 {
   "name": "usher-cli",
-  "version": "2.10.2",
+  "version": "2.11.0",
   "description": "A command line app to usher other command line applications",
   "bin": {
     "usher": "./src/cli.js"
@@ -44,24 +44,24 @@
   },
   "homepage": "https://github.com/findmypast/usher#readme",
   "dependencies": {
-    "bluebird": "^3.5.0",
-    "chalk": "^2.0.1",
+    "bluebird": "^3.7.2",
+    "chalk": "^2.4.2",
     "child-process-promise": "^2.2.1",
-    "commander": "^2.11.0",
-    "errno": "^0.1.4",
-    "firstline": "^1.2.1",
-    "js-yaml": "^3.9.1",
-    "lodash": "^4.17.4",
-    "node-emoji": "^1.8.1",
+    "commander": "^2.20.3",
+    "errno": "^0.1.8",
+    "firstline": "^1.3.1",
+    "js-yaml": "^3.14.1",
+    "lodash": "^4.17.21",
+    "node-emoji": "^1.10.0",
     "promise-retry": "^1.1.1",
     "snuze": "^1.0.0",
     "split": "^1.0.0",
-    "stringify-object": "^3.2.0",
-    "uuid": "^3.1.0",
-    "winston": "^2.3.1"
+    "stringify-object": "^3.3.0",
+    "uuid": "^3.4.0",
+    "winston": "^2.4.5"
   },
   "devDependencies": {
-    "eslint": "^4.3.0",
+    "eslint": "^4.19.1",
     "eslint-config-eslint": "^4.0.0",
     "jest": "^20.0.4",
     "publish": "^0.6.0",

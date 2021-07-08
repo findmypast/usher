@@ -1,0 +1,14 @@
+version: '2'
+
+vars:
+  github_access_token:
+
+include:
+  - from: git+https://<%=github_access_token%>:x-oauth-basic@github.com/findmypast/usher_shared_tasks.git
+    name: shared_tasks as global
+    import:
+      - node_dependencies
+
+tasks:
+  test:
+    do: global.node_dependencies.installAll
