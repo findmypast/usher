@@ -8,7 +8,7 @@
   "scripts": {
     "test": "jest",
     "test:ci": "jest",
-    "prepublish-to-npm": "supersoaker squirt -r https://registry.npmjs.org",
+    "prepublish-to-npm": "npm config set '//registry.npmjs.org/:_authToken' '${NPM_TOKEN}'",
     "publish-to-npm": "publish",
     "usher-test": "node src/cli.js"
   },
@@ -64,8 +64,7 @@
     "eslint": "^4.19.1",
     "eslint-config-eslint": "^4.0.0",
     "jest": "^20.0.4",
-    "publish": "^0.6.0",
-    "supersoaker": "^1.0.1"
+    "publish": "^0.6.0"
   },
   "eslintConfig": {
     "extends": "eslint",
