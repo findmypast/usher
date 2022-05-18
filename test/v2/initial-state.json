@@ -752,13 +752,6 @@
             "service_folder": "config",
             "config_filepath": "alerts.yml"
         },
-        "configure_dashboards": {
-            "description": "Submit dashboards",
-            "do": "global.dasher.publish_dashboard",
-            "service_name": "<%=base_service_name%>",
-            "service_folder": "config",
-            "config_filepath": "dasher.yml"
-        },
         "configure_toggles": {
             "description": "Submit latest version of toggle file",
             "do": "global.flipper.upload_toggles",
