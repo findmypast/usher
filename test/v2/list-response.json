@@ -32,7 +32,6 @@
 	],
 	"install_git_hooks": ["Install pre-push shell file"],
 	"install_git_project_settings": ["git specific settings for this project."],
-	"jackal_test": ["Run and submit jackal contract tests for Titan API"],
 	"local": ["Run container locally"],
 	"local_clean": ["Clean your dev environment"],
 	"local_debug": [""],

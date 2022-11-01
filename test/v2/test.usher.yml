@@ -289,8 +289,6 @@ tasks:
         service_args: <%=mix_test_args%>
         env:
           - COMPOSE_PROJECT_NAME=titanlocal
-      - do: global.deploy.jackal_consumer
-        contract_file: api/config/contracts
 
   local_unit:
     description: Run unit tests inside a container (with automatic build)
@@ -303,11 +301,6 @@ tasks:
     do: local_unit_template
     npm_test_args: yarn run test:nocov
     mix_test_args: mix test
-
-  jackal_test:
-    description: Run and submit jackal contract tests for Titan API
-    do: global.deploy.jackal_consumer
-    contract_file: api/config/contracts
 
   build:
     description: Build the docker image
@@ -396,8 +389,6 @@ tasks:
           - MIX_ENV=test
           - COMPOSE_PROJECT_NAME=titanlocal
           - TEAMCITY=yes
-      - do: global.deploy.jackal_consumer
-        contract_file: api/config/contracts
 
   deploy:
     description: Deploy container to node
@@ -615,8 +606,6 @@ tasks:
         command: sh -c 'scripts/install-and-update-npm-tool.sh yarn || true'
       - do: shell
         command: sh -c 'scripts/install-and-update-npm-tool.sh verzasca || true'
-      - do: shell
-        command: sh -c 'scripts/install-and-update-npm-tool.sh jackal || true'
       - do: shell
         command: sh -c 'scripts/install-and-update-npm-tool.sh turingsnip || true'
 

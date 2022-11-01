@@ -327,10 +327,6 @@
                     "env": [
                         "COMPOSE_PROJECT_NAME=titanlocal"
                     ]
-                },
-                {
-                    "do": "global.deploy.jackal_consumer",
-                    "contract_file": "api/config/contracts"
                 }
             ]
         },
@@ -345,11 +341,6 @@
             "do": "local_unit_template",
             "npm_test_args": "yarn run test:nocov",
             "mix_test_args": "mix test"
-        },
-        "jackal_test": {
-            "description": "Run and submit jackal contract tests for Titan API",
-            "do": "global.deploy.jackal_consumer",
-            "contract_file": "api/config/contracts"
         },
         "build": {
             "description": "Build the docker image",
@@ -476,10 +467,6 @@
                         "COMPOSE_PROJECT_NAME=titanlocal",
                         "TEAMCITY=yes"
                     ]
-                },
-                {
-                    "do": "global.deploy.jackal_consumer",
-                    "contract_file": "api/config/contracts"
                 }
             ]
         },
@@ -832,10 +819,6 @@
                 },
                 {
                     "do": "shell",
-                    "command": "sh -c 'scripts/install-and-update-npm-tool.sh jackal || true'"
-                },
-                {
-                    "do": "shell",
                     "command": "sh -c 'scripts/install-and-update-npm-tool.sh turingsnip || true'"
                 }
             ]
@@ -1061,12 +1044,6 @@
                                     }
                                 },
                                 {
-                                    "do": "jackal_consumer"
-                                },
-                                {
-                                    "do": "jackal_provider"
-                                },
-                                {
                                     "do": "shell",
                                     "description": "Flip the currently active colour",
                                     "command": "twoface flip -H <%=consul_host%>:<%=consul_port%> -k proxied-services/<%=service_name%>/<%=service_key_path%> -b <%=blue_tag%> -g <%=green_tag%>"
@@ -1185,16 +1162,6 @@
                                     "command": "test \"<%=live_tag%>\" = \"<%=service_tag%>\""
                                 }
                             ]
-                        },
-                        "jackal_consumer": {
-                            "do": "shell",
-                            "description": "Run consumer contract tests, skip if contracts file is missing",
-                            "command": "jackal send http://jackal_fmp.production.service.dun.fh <%=contract_file%> --skip-missing-contract -r <%=jackal_reporter%>"
-                        },
-                        "jackal_provider": {
-                            "do": "shell",
-                            "description": "Run provider contract tests, skip if provider is not registered",
-                            "command": "bash -c \"if [ '<%= environment %>' == 'integration' ]; then jackal run http://jackal_fmp.production.service.dun.fh <%=base_service_name%> <%=jackal_provider_args%> -r <%=jackal_reporter%>; else echo 'Skipping jackal provider test'; fi\""
                         },
                         "graylog_link": {
                             "description": "Provide a link for the last half an hour of logging from <%=base_service_name%>",
@@ -1383,9 +1350,6 @@
     "smoke_port": 3333,
     "service_domain": "service.consul",
     "docker_compose_filename": "docker-compose.yml",
-    "contract_file": "contract_missing.json",
-    "jackal_provider_args": "--provider-url http://<%=base_service_name%>.<%=environment%>.service.dun.fh",
-    "jackal_reporter": "spec",
     "santa_environment": "production",
     "slack_channel": "toggle-nose",
     "extra_args": null,
