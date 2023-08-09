@@ -51,7 +51,7 @@ function execAndLog(state, options, resolve, reject, prefix) {
   });
 
   child.on('exit', code => {
-    state.logger.info(`${prefix}Task process exited with code ${code}`);
+    state.logger.info(`${prefix}Task ${state.get('command')} exited with code ${code}`);
   });
 }
 
