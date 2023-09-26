@@ -52,8 +52,6 @@ const validators = {
 function installModule(moduleName) {
 	if (_.endsWith(moduleName, ".yml")) {
 		return Promise.resolve();
-	} else if (moduleName.includes("usher_shared_tasks.git")) {
-		return Promise.resolve();
 	}
 	return exec(`npm install ${moduleName} --prefix ${installDir()}`);
 }
