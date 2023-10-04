@@ -8,6 +8,7 @@ const installDir = require("../core/installed-modules").installDir;
 const defaultTasks = { tasks: require("../tasks") };
 const InvalidConfigError = require("../lib/errors").InvalidConfigError;
 const path = require("path");
+const promiseRetry = require('promise-retry')
 
 const varRegexp = /<%=(.*?)%>/g;
 
@@ -53,7 +54,16 @@ function installModule(moduleName) {
 	if (_.endsWith(moduleName, ".yml")) {
 		return Promise.resolve();
 	}
-	return exec(`npm install ${moduleName} --prefix ${installDir()}`);
+	return promiseRetry(
+		(retry) => {
+		  return exec(`npm install ${moduleName} --prefix ${installDir()}`).catch(
+			retry
+		  );
+		},
+		{
+		  retries: 2,
+		}
+	);
 }
 
 function requireModule(requireName) {
