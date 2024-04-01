@@ -2,7 +2,7 @@
 
 'use strict';
 
-const program = require('commander');
+const { program } = require('commander');
 const version = require('./../package.json').version;
 const handle = require('./error-handler');
 const run = handle(require('./run'));

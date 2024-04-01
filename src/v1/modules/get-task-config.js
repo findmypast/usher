@@ -9,7 +9,7 @@ module.exports = (taskName, taskVars, opts) => {
 
   const usherFile = opts.file || '.usher.yml';
   logger.verbose(`Parsing ${usherFile}`);
-  const config = parser.safeLoad(fs.readFileSync(usherFile, 'utf8'));
+  const config = parser.load(fs.readFileSync(usherFile, 'utf8'));
 
   logger.verbose(`Loading task ${taskName}`);
 

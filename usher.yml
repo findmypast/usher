@@ -4,6 +4,10 @@ vars:
   image: findmypast/usher
 
 tasks:
+  hello:
+    do: shell
+    command: echo Hello world
+
   build:
     description: build the docker image
     do: shell
