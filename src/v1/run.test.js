@@ -131,7 +131,7 @@ describe('Given a YAML file run command execution', () => {
       return {status: 0};
     });
   });
-  
+
   afterEach(() => {
     jest.clearAllMocks();
   });

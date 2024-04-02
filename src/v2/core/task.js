@@ -1,7 +1,7 @@
 'use strict';
 
 const Promise = require('bluebird');
-const uuid = require('uuid').v4;
+const crypto = require('crypto');
 const _ = require('lodash');
 const errors = require('../lib/errors');
 const promiseRetry = require('promise-retry');
@@ -65,7 +65,7 @@ function runTask(task, state) {
     }
     const logger = state.logger;
     task.name = task.name || 'anonymous task';
-    task.id = uuid();
+    task.id = crypto.randomUUID();
     task.options = task.options || {};
     const retry = _.get(task.options, 'retry', {retries: 0});
     state.push(task);

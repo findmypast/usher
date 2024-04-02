@@ -1,8 +1,7 @@
 'use strict';
 
 const emoji = require('node-emoji').emoji;
-const winston = require('winston');
-winston.cli();
+const winston = require('../../winston');
 
 module.exports = class Logger {
   constructor(state) {

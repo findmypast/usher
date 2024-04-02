@@ -3,7 +3,7 @@
 const parser = require('js-yaml');
 const fs = require('fs');
 const _ = require('lodash');
-const logger = require('winston');
+const logger = require('../../winston.js');
 
 module.exports = (taskName, taskVars, opts) => {
 

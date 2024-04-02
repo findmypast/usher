@@ -1,7 +1,6 @@
 'use strict';
 
-const winston = require('winston');
-winston.cli();
+const winston = require('../../winston');
 
 module.exports = class Logger {
   constructor(state) {
