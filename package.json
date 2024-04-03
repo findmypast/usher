@@ -1,6 +1,6 @@
 {
 	"name": "usher-cli",
-	"version": "2.11.10",
+	"version": "2.11.11-beta",
 	"description": "A command line app to usher other command line applications",
 	"bin": {
 		"usher": "./src/cli.js"
@@ -45,12 +45,12 @@
 	"homepage": "https://github.com/findmypast/usher#readme",
 	"dependencies": {
 		"bluebird": "^3.7.2",
-		"chalk": "^4.1.2",
 		"child-process-promise": "^2.2.1",
 		"commander": "^12.0.0",
 		"errno": "^1.0.0",
 		"firstline": "^2.0.2",
 		"js-yaml": "^4.1.0",
+		"kleur": "^4.1.5",
 		"lodash": "^4.17.21",
 		"node-emoji": "^1.11.0",
 		"promise-retry": "^2.0.1",

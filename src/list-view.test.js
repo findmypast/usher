@@ -3,13 +3,13 @@
 const _ = require('lodash');
 
 describe('list-view', () => {
-  jest.mock('chalk');
-  const chalk = require('chalk');
+  jest.mock('kleur');
+  const kleur = require('kleur');
   const mockBold = (string) => {
     return '<bold>' + string + '<bold>';
   };
-  chalk.bold = jest.fn();
-  chalk.bold.mockImplementation(mockBold);
+  kleur.bold = jest.fn();
+  kleur.bold.mockImplementation(mockBold);
   const sut = require('./list-view');
   const logger = {
     info: jest.fn()
