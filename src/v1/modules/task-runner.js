@@ -1,11 +1,10 @@
 'use strict';
 
 const _ = require('lodash');
-const logger = require('winston');
+const logger = require('../../winston.js');
 const snuze = require('snuze');
 const getTaskConfig = require('./get-task-config');
 const errno = require('errno');
-const stringify = require('stringify-object');
 
 const { spawnSync } = require('child_process');
 
@@ -33,13 +32,13 @@ class TaskRunner {
 
           return _.map(command.for_all, x => this.runTask(command.task, _.merge(vars, x)));
         }
-        
+
         return this.runTask(command.task, command.vars);
-        
+
       }
       else {
         const msg = `Task step contains no valid command
-          ${stringify(command)}
+          ${JSON.stringify(command)}
         `
         logger.error(msg);
         throw new Error(msg);

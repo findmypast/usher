@@ -1,8 +1,10 @@
 'use strict';
 
-const emoji = require('node-emoji').emoji;
-const winston = require('winston');
-winston.cli();
+const winston = require('../../winston');
+
+const GEAR_SYMBOL = '\u{2699}';
+const HEAVY_CHECKMARK_SYMBOL = '\u{2714}';
+const HEAVY_MULTIPLICATION_SYMBOL = '\u{2716}';
 
 module.exports = class Logger {
   constructor(state) {
@@ -13,7 +15,7 @@ module.exports = class Logger {
   logTask(name, description, attempt, tries) {
     const retries = attempt > 1 ? `| retrying ${attempt}/${tries}` : '';
     const suffix = description ? `| ${description}` : '';
-    winston.info(`${emoji.gear} Running ${name} ${suffix} ${retries}`);
+    winston.info(`${GEAR_SYMBOL} Running ${name} ${suffix} ${retries}`);
   }
 
   begin(attempt, tries) {
@@ -26,13 +28,13 @@ module.exports = class Logger {
   end() {
     if (this.tasks.length === 1) {
       winston.warn(this.errors);
-      winston.info(`${emoji.heavy_check_mark} Completed ${this.tasks[0].name}`);
+      winston.info(`${HEAVY_CHECKMARK_SYMBOL} Completed ${this.tasks[0].name}`);
     }
     this.tasks.pop();
   }
   fail(error, attempt, tries) {
     if (this.tasks.length === 1 && attempt === tries) {
-      winston.error(`${emoji.heavy_multiplication_x} Failed ${this.tasks[0].name}: ${error.message}`);
+      winston.error(`${HEAVY_MULTIPLICATION_SYMBOL} Failed ${this.tasks[0].name}: ${error.message}`);
       winston.error(this.errors);
     }
     this.tasks.pop();

@@ -8,9 +8,7 @@ const errors = require('../lib/errors');
 
 describe('core/task', () => {
   const id = 'test-id';
-  jest.mock('uuid');
-  const uuid = require('uuid');
-  uuid.v4 = jest.fn(() => id);
+  jest.mock('crypto', () => ({ randomUUID: () => 'test-id' }));;
   const beginSpy = jest.spyOn(Logger, 'begin');
   const endSpy = jest.spyOn(Logger, 'end');
   const errorSpy = jest.spyOn(Logger, 'error');
