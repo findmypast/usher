@@ -5,7 +5,6 @@ const logger = require('../../winston.js');
 const snuze = require('snuze');
 const getTaskConfig = require('./get-task-config');
 const errno = require('errno');
-const stringify = require('stringify-object');
 
 const { spawnSync } = require('child_process');
 
@@ -39,7 +38,7 @@ class TaskRunner {
       }
       else {
         const msg = `Task step contains no valid command
-          ${stringify(command)}
+          ${JSON.stringify(command)}
         `
         logger.error(msg);
         throw new Error(msg);

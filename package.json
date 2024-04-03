@@ -52,11 +52,9 @@
 		"js-yaml": "^4.1.0",
 		"kleur": "^4.1.5",
 		"lodash": "^4.17.21",
-		"node-emoji": "^1.11.0",
 		"promise-retry": "^2.0.1",
 		"snuze": "^1.0.0",
 		"split": "^1.0.0",
-		"stringify-object": "^3.3.0",
 		"winston": "^3.13.0"
 	},
 	"devDependencies": {
