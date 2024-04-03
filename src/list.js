@@ -9,7 +9,7 @@ const Logger = require('./v2/loggers/default');
 const logger = new Logger();
 
 function isV2(file) {
-  return firstline(file).then(line => line.match(/version.*'2'/));
+  return firstline(file).then(line => line.match(/version.*'2'/) || line.match(/version.*"2"/));
 }
 
 function checkVersion(fileName) {
