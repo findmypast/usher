@@ -3,7 +3,7 @@
 	"version": "2.12.0",
 	"description": "A command line app to usher other command line applications",
 	"bin": {
-		"usher": "./src/cli.js"
+		"usher": "src/cli.js"
 	},
 	"scripts": {
 		"test": "jest",
