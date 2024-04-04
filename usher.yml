@@ -26,7 +26,7 @@ tasks:
   publish:
     description: publish package to npm
     do: shell
-    command: docker run -e NPM_USER -e NPM_TOKEN -e NPM_EMAIL --name usher-publisher --rm <%=registry%>/<%=image%> npm run prepublish-to-npm && npm publish --access-public
+    command: docker run -e NPM_USER -e NPM_TOKEN -e NPM_EMAIL --name usher-publisher --rm <%=registry%>/<%=image%> ./publish.sh
     env:
       NPM_USER: <%=user%>
       NPM_TOKEN: <%=token%>
