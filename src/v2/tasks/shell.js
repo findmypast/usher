@@ -37,18 +37,18 @@ function execAndLog(state, options, resolve, reject, prefix) {
   //   }
   //   resolve(stdout);
   // });
-  const child = exec(`${state.get("command")} 1>&2`, options, (error, stderr, stdout) => {
+  const child = exec(`${state.get("command")} 2>&1`, options, (error, stderr, stdout) => {
     if (error) {
       reject(error);
     }
     resolve(stdout);
   });
 
-  // child.stdout.pipe(split()).on('data', data => {
-  //   if (data) {
-  //     state.logger.info(`${prefix}${data.toString()}`);
-  //   }
-  // });
+  child.stdout.pipe(split()).on('data', data => {
+    if (data) {
+      state.logger.info(`${prefix}${data.toString()}`);
+    }
+  });
 
   child.stderr.pipe(split()).on('data', data => {
     if (data) {
