@@ -3,15 +3,60 @@ vars:
   registry: fh1-harbor01.dun.fh
   image: findmypast/usher
 
+include:
+  - from: git+ssh://git@github.com:findmypast/usher_shared_tasks.git
+    name: shared_tasks as global
+    import:
+      - docker
+      - consul
+      - flipper
+      - deploy_k8s
+      - domesday
+      - test
+      - schema_checker
+
 tasks:
   hello:
     do: shell
     command: echo Hello world
 
-  build:
-    description: build the docker image
+  # build:
+  #   description: build the docker image
+  #   do: shell
+  #   command: docker build --force-rm -t <%=registry%>/<%=image%> .
+  echo:
     do: shell
-    command: docker build --force-rm -t <%=registry%>/<%=image%> .
+    # description: 'Echo something'
+    command: echo <%=string%>
+  
+  create_image:
+    description: Build the docker image using a shared cache on the registry
+    do: sequence
+    actions:
+      - do: for
+        every: string
+        options: 
+          sequential: true
+        in:
+          - one
+          - two
+          - three
+          - four
+          - five
+        exec: echo
+      - do: shell
+        command: df -h | grep sda
+      - do: shell
+        command: ls -la | grep test
+      # - do: shell
+      #   command: docker-compose stop
+      - do: shell
+        command: docker buildx build -t <%=registry%>/findmypast/<%=service_name%>:<%=version%> .
+
+  build:
+    description: Build the image
+    do: create_image
+    service_name: test
 
   push:
     description: push the docker iamge to the registry

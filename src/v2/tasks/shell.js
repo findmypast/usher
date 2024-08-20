@@ -2,7 +2,7 @@
 
 const Promise = require('bluebird');
 const _ = require('lodash');
-const { exec } = require('child_process');
+const { exec, execSync } = require('child_process');
 const split = require('split');
 
 const ACCEPTED_OPTIONS = [
@@ -31,18 +31,24 @@ function reduceEnvArrayToObject(envs) {
 }
 
 function execAndLog(state, options, resolve, reject, prefix) {
-  const child = exec(state.get('command'), options, (error, stdout) => {
+  // const child = exec(state.get('command'), options, (error, stdout) => {
+  //   if (error) {
+  //     reject(error);
+  //   }
+  //   resolve(stdout);
+  // });
+  const child = exec(`${state.get("command")} 1>&2`, options, (error, stderr, stdout) => {
     if (error) {
       reject(error);
     }
     resolve(stdout);
   });
 
-  child.stdout.pipe(split()).on('data', data => {
-    if (data) {
-      state.logger.info(`${prefix}${data.toString()}`);
-    }
-  });
+  // child.stdout.pipe(split()).on('data', data => {
+  //   if (data) {
+  //     state.logger.info(`${prefix}${data.toString()}`);
+  //   }
+  // });
 
   child.stderr.pipe(split()).on('data', data => {
     if (data) {
@@ -78,6 +84,7 @@ module.exports = state => new Promise((resolve, reject) => {
   const options = _.reduce(ACCEPTED_OPTIONS, (result, value) => _.set(result, value, state.get(value)), {});
 
   state.logger.info(`${logPrefix} Executing: ${state.get('command')}`);
+
   options.env = reduceEnvArrayToObject(options.env);
   const copyOfProcessEnv = _.cloneDeep(process.env);
   const copyOfOptions = _.cloneDeep(options);
