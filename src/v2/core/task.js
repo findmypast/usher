@@ -65,6 +65,10 @@ function runTask(task, state) {
     }
     const logger = state.logger;
     task.name = task.name || 'anonymous task';
+    
+    // Populating description to avoid parent description duplication in the logs
+    task.description = task.description || buildDescription(task);
+
     task.id = crypto.randomUUID();
     task.options = task.options || {};
     const retry = _.get(task.options, 'retry', {retries: 0});
@@ -103,6 +107,24 @@ function runTask(task, state) {
       });
     }, retry);
   });
+}
+
+function buildDescription(task) {
+  let description = ''
+
+  if (task.do) {
+    description += `do: ${task.do}`
+  }
+  
+  if (task.command) {
+    description += `, command: ${task.command}`
+  }
+  
+  if (task.exec) {
+    description += `, exec: ${task.exec}`
+  }
+
+  return description;
 }
 
 module.exports = runTask;

@@ -107,8 +107,19 @@ module.exports = (taskName, taskVars, opts) => Promise.try(() => {
     return task(taskConfig, state)
       .then(() => execFinallyIfPresent(state, taskConfig))
       .catch(err => {
-        logger.info('Oops, something has gone wrong. Attempting to cleanup...');
-        logger.error(err)
+        logger.error({message: 'Oops, something has gone wrong. Attempting to cleanup...'});
+        
+        // Here we print out the command failure message. 
+        if (err.message) {
+          const lines = err.message.trim().split(/\r?\n/);
+  
+          for (let i = 0; i < lines.length; i++) {
+            if (lines[i]) {
+              logger.error({message: lines[i]});
+            }
+          }
+        }
+
         return cleanup(state, err, taskConfig)
           .then(cleanupErr => Promise.reject(cleanupErr));
       });

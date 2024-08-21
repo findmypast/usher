@@ -14,7 +14,7 @@ tasks:
     command: docker build --force-rm -t <%=registry%>/<%=image%> .
 
   push:
-    description: push the docker iamge to the registry
+    description: push the docker image to the registry
     do: shell
     command: docker push <%=registry%>/<%=image%>
 

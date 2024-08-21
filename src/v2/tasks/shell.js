@@ -31,7 +31,7 @@ function reduceEnvArrayToObject(envs) {
 }
 
 function execAndLog(state, options, resolve, reject, prefix) {
-  const child = exec(state.get('command'), options, (error, stdout) => {
+  const child = exec(`${state.get("command")}`, options, (error, stdout) => {
     if (error) {
       reject(error);
     }
@@ -43,10 +43,14 @@ function execAndLog(state, options, resolve, reject, prefix) {
       state.logger.info(`${prefix}${data.toString()}`);
     }
   });
-
+  
   child.stderr.pipe(split()).on('data', data => {
     if (data) {
-      state.logger.error({ message: `${prefix}${data.toString()}` });
+      // Apparently stderr contains verbose logs, as example that's what buildx is doing:
+      // https://github.com/docker/buildx/issues/802
+      // When the task will fail the error.message contains the log
+      // from the failed command so it would be repeated with logger.error
+      state.logger.info(`${prefix}${data.toString()}`);
     }
   });
 
@@ -78,6 +82,7 @@ module.exports = state => new Promise((resolve, reject) => {
   const options = _.reduce(ACCEPTED_OPTIONS, (result, value) => _.set(result, value, state.get(value)), {});
 
   state.logger.info(`${logPrefix} Executing: ${state.get('command')}`);
+
   options.env = reduceEnvArrayToObject(options.env);
   const copyOfProcessEnv = _.cloneDeep(process.env);
   const copyOfOptions = _.cloneDeep(options);

@@ -18,7 +18,13 @@ module.exports = class Logger {
     winston.info(`Completed ${this.state.get('name')}`);
   }
   fail(error) {
-    winston.error(`Failed ${this.state.get('name')}: ${error.message}`);
+    winston.error(`${HEAVY_MULTIPLICATION_SYMBOL} Failed ${this.state.get('name')}`);
+    if (this.errors) {
+      const lines = this.errors.trim().split(/\r?\n/);
+      for (let i = 0; i < lines.length; i++) {
+        winston.error(lines[i]);
+      }
+    }
   }
   info(message) {
     winston.info(message);
