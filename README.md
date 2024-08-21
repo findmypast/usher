@@ -299,12 +299,6 @@ Push your changes and define the new tagged version  the below:
 git push && git push --tags
 ```
 
-Make sure the Teamcity Agents are updated with the latest usher-cli version after your new release has been published so that it uses the new release. This can be done via puppet in the below profiles:
-
-- [team_city_build_agent_ubuntu](https://github.com/findmypast/puppet/blob/15fbd6e57faa7f58f623e6565e040454babe2b25/code/environments/production/modules/profile/manifests/team_city_build_agent_ubuntu.pp#L137)
-
-- [team_city_build_agent_win](https://github.com/findmypast/puppet/blob/58a52b0c921886ba7fa515b1f3cb32f7283e4467/code/environments/production/modules/profile/manifests/team_city_build_agent_win.pp#L47)
-
 ## Version 1 Documentation
 
 Legacy documentation for usher v1 can be found [here](https://github.com/findmypast/usher/blob/v1.3.11/README.md)
