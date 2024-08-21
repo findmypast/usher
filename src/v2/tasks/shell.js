@@ -31,7 +31,7 @@ function reduceEnvArrayToObject(envs) {
 }
 
 function execAndLog(state, options, resolve, reject, prefix) {
-  const child = exec(`${state.get("command")}`, options, (error, stderr, stdout) => {
+  const child = exec(`${state.get("command")}`, options, (error, stdout) => {
     if (error) {
       reject(error);
     }
