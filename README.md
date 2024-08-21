@@ -20,14 +20,14 @@ If you'd rather not install globally, Usher's runtime is in `src/cli.js`, and `n
 
 To list presets:
 
-```
+```sh
 $ usher list [-f config-file]
 -f config-file: File that will be used for configuration. Default usher.yml.
 ```
 
 To list a preset with further detail (any sub-tasks or sub-actions with descriptions will be listed):
 
-```
+```sh
 $ usher list [-f config-file] [preset]
 -f config-file: File that will be used for configuration. Default usher.yml.
 [preset]: Preset to list in further detail. Preset must match name as listed by usher list.
@@ -35,7 +35,7 @@ $ usher list [-f config-file] [preset]
 
 To run a preset:
 
-```
+```sh
 $ usher run [-f config-file -q/-v] <task-name> [default-vars]
 task-name: Name of the task to run. Required.
 default-vars: var=value pairs that will become the default value for variables. Optional.
@@ -105,6 +105,7 @@ register_last: var_name
 
 This will only produce a noticable difference from register when the task it is attached to calls several subtasks. Can be used alongside register.
 e.g.
+
 ```yaml
 version: '2'
 
@@ -126,12 +127,12 @@ tasks:
           register: everything
           register_last: last_only
 ```
+
 In the above example the variable everything will be `foo,\nbar` whereas last_only will be `bar`
 
 ##### Ignore errors
 
 Errors in this task won't mark it as failed. This is mainly useful for tasks like sequence where execution stops if a task fails. Takes one value, `true` if errors should be ignored, `false` if not (which is the same as the option not being present at all).
-
 
 #### Task Cleanup
 
@@ -145,7 +146,6 @@ Example:
 version: '2'
 
 tasks:
-
   my_task:
     do: shell
     command: false        # returns exit code 1
@@ -159,7 +159,6 @@ tasks:
   finally:
     do: shell
     command: echo "Finally done!"
-
 ```
 
 #### Default tasks
@@ -187,7 +186,7 @@ stdout/stderr will be logged to output. If the command exits with an exit code o
 
 Runs a sequence of tasks. Takes a single argument:
 
-- actions <Array> Required. The tasks to run. Must be valid task objects (that is, objects with a `do` attribute) or references to valid functions.
+- `actions <Array>` Required. The tasks to run. Must be valid task objects (that is, objects with a `do` attribute) or references to valid functions.
 
 If any task fails, the sequence will immediately be interrupted and fail. Following tasks will not run.
 
@@ -271,6 +270,40 @@ include:
 
 - `from <String>` Required. The source to import from. Accepts any string that `npm install` does, so relative paths, npm modules, git urls...
 - `import <Array>` Required. The functions to import. May be simply the names of the functions, or optionally include an `as [local-name]` suffix to import them with a different name than they are declared with in their module.
+
+## Developing
+
+To run in development, if you have Usher already install globally then uninstall it with the below command:
+
+```sh
+npm remove -g usher-cli
+```
+
+Use `npm link`, this will set your current local Usher as a global package using a symlink.
+
+> [!IMPORTANT]
+> Remember to **npm unlink** your development Usher to detach the local version and then re-install the released version.
+> Before pushing changes (but after committing), update the version number to ensure the changes are tagged for a new release to Verdaccio.
+
+## Publish
+
+You can bump the version with the below command:
+
+```sh
+npm version {patch/minor/major} -m "%s"
+```
+
+Push your changes and define the new tagged version  the below:
+
+```sh
+git push && git push --tags
+```
+
+Make sure the Teamcity Agents are updated with the latest usher-cli version after your new release has been published so that it uses the new release. This can be done via puppet in the below profiles:
+
+- [team_city_build_agent_ubuntu](https://github.com/findmypast/puppet/blob/15fbd6e57faa7f58f623e6565e040454babe2b25/code/environments/production/modules/profile/manifests/team_city_build_agent_ubuntu.pp#L137)
+
+- [team_city_build_agent_win](https://github.com/findmypast/puppet/blob/58a52b0c921886ba7fa515b1f3cb32f7283e4467/code/environments/production/modules/profile/manifests/team_city_build_agent_win.pp#L47)
 
 ## Version 1 Documentation
 
