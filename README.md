@@ -283,7 +283,7 @@ Use `npm link`, this will set your current local Usher as a global package using
 
 > [!IMPORTANT]
 > Remember to **npm unlink** your development Usher to detach the local version and then re-install the released version.
-> Before pushing changes (but after committing), update the version number to ensure the changes are tagged for a new release to Verdaccio.
+> Before pushing changes (but after committing), update the version number to ensure the changes are tagged for a new release.
 
 ## Publish
 
