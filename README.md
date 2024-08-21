@@ -290,7 +290,7 @@ Use `npm link`, this will set your current local Usher as a global package using
 You can bump the version with the below command:
 
 ```sh
-npm version {patch/minor/major} -m "%s"
+npm version {patch/minor/major}
 ```
 
 Push your changes and define the new tagged version  the below:
