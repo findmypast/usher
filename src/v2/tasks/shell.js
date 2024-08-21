@@ -2,7 +2,7 @@
 
 const Promise = require('bluebird');
 const _ = require('lodash');
-const { exec, execSync } = require('child_process');
+const { exec } = require('child_process');
 const split = require('split');
 
 const ACCEPTED_OPTIONS = [
@@ -31,7 +31,7 @@ function reduceEnvArrayToObject(envs) {
 }
 
 function execAndLog(state, options, resolve, reject, prefix) {
-  const child = exec(`${state.get("command")} 2>&1`, options, (error, stderr, stdout) => {
+  const child = exec(`${state.get("command")}`, options, (error, stderr, stdout) => {
     if (error) {
       reject(error);
     }
@@ -43,10 +43,14 @@ function execAndLog(state, options, resolve, reject, prefix) {
       state.logger.info(`${prefix}${data.toString()}`);
     }
   });
-
+  
   child.stderr.pipe(split()).on('data', data => {
     if (data) {
-      state.logger.error({ message: `${prefix}${data.toString()}` });
+      // Apparently stderr contains verbose logs, as example that's what buildx is doing:
+      // https://github.com/docker/buildx/issues/802
+      // When the task will fail the error.message contains the log
+      // from the failed command so it would be repeated with logger.error
+      state.logger.info(`${prefix}${data.toString()}`);
     }
   });
 

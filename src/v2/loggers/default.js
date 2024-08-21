@@ -27,29 +27,16 @@ module.exports = class Logger {
   }
   end() {
     if (this.tasks.length === 1) {
-      if (this.errors) {
-        const lines = this.errors.trim().split(/\r?\n/);
-
-        for (let i = 0; i < lines.length; i++) {
-          winston.warn(lines[i]);
-        }
-      }
       winston.info(`${HEAVY_CHECKMARK_SYMBOL} Completed ${this.tasks[0].name}`);
     }
     this.tasks.pop();
   }
   fail(error, attempt, tries) {
+    // This is confusing as when there is a final task 
+    // the logs would not show as the this.tasks length is increased 
     if (this.tasks.length === 1 && attempt === tries) {
       winston.error(`${HEAVY_MULTIPLICATION_SYMBOL} Failed ${this.tasks[0].name}`);
-      if (error.message) {
-        const lines = error.message.trim().split(/\r?\n/);
-
-        for (let i = 0; i < lines.length; i++) {
-          winston.error(lines[i]);
-        }
-      }
-      
-      winston.error(this.errors);
+      // Don't log any error message as the run.js catch will capture final error that broke the run.
     }
     this.tasks.pop();
   }
@@ -57,6 +44,7 @@ module.exports = class Logger {
     winston.info(message);
   }
   error(error) {
-    this.errors = this.errors.concat(error.message + '\n');
+    // Log stderr as info during the default log streaming.
+    winston.error(error.message);
   }
 };
