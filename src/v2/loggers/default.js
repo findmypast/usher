@@ -44,7 +44,6 @@ module.exports = class Logger {
     winston.info(message);
   }
   error(error) {
-    // Log stderr as info during the default log streaming.
     winston.error(error.message);
   }
 };
