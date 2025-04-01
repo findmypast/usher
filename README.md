@@ -302,3 +302,46 @@ git push && git push --tags
 ## Version 1 Documentation
 
 Legacy documentation for usher v1 can be found [here](https://github.com/findmypast/usher/blob/v1.3.11/README.md)
+
+
+## Limitations
+
+### Maximum call stack size exceeded error
+
+Usher recursively templates over and over until there’s nothing left to template. We do this as certain values to template into an underlying task could reference values which then in turn reference another templated value. 
+
+However, if you have the following scenario: 
+
+```
+templated_value: <%=templated_value%>-recursion
+```
+
+Where a yaml key matches the templated string, and that key is actually being used in an underlying task, then you’ll be stuck in an infinite loop. We're using lodash for templating, so here’s a snippet to explain why this happens:
+
+```js
+const _ = require('lodash')
+
+const a = _.template('<%= user %>')
+
+const b = a({
+    user: "<%= user %>-recursion"
+})
+
+// <%= user %>-recursion
+console.log(b)
+
+const c = _.template(b)
+
+const d = c({
+    user: "<%= user %>-recursion"
+})
+
+// <%= user %>-recursion-recursion
+console.log(d)
+```
+
+The code block that causes this issue is the recursive templating done [here](https://github.com/findmypast/usher/blob/31fb08288d31e9efb3c282606de58443b31d78df/src/v2/core/state.js#L58): 
+
+This is a won't fix for now, but is something that we could address if we ever do a v3. 
+
+To avoid this issue, don't pass in templated strings that match keys used by internal tasks
