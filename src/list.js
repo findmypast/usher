@@ -1,11 +1,11 @@
 'use strict';
 
 const firstline = require('firstline');
-const v1 = require('./v1/list');
 const v2 = require('./v2/commands/list');
 const listView = require('./list-view');
 const kleur = require('kleur');
 const Logger = require('./v2/loggers/default');
+const { InvalidConfigError } = require('./v2/lib/errors');
 const logger = new Logger();
 
 function isV2(file) {
@@ -18,7 +18,7 @@ function checkVersion(fileName) {
     if (result) {
       return v2;
     }
-    return v1;
+    throw new InvalidConfigError("Only Usher file version: 2 is supported. Please ensure version is set to 2 in your usher file.");
   });
 }
 

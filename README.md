@@ -48,7 +48,7 @@ default-vars: var=value pairs that will become the default value for variables. 
 
 Configuration is defined in a [YAML](http://yaml.org/) or JSON file, by default named `usher.yml`. Configuration consists of named tasks, default variables, and import declarations.
 
-The first line of configuration must contain the property `version: 2` to use the configuration format described below. Files without it will use the old configuration format which is not compatible.
+The first line of configuration must contain the property `version: 2` to use the configuration format described below. Files without it not be compatible.
 
 ### Tasks
 
@@ -132,7 +132,7 @@ In the above example the variable everything will be `foo,\nbar` whereas last_on
 
 ##### Ignore errors
 
-Errors in this task won't mark it as failed. This is mainly useful for tasks like sequence where execution stops if a task fails. Takes one value, `true` if errors should be ignored, `false` if not (which is the same as the option not being present at all).
+Errors in this task won't mark it as failed when `ignore_errors` is set to `true`. This is mainly useful for tasks like sequence where execution stops if a task fails. Takes one value, `true` if errors should be ignored, `false` if not (which is the same as the option not being present at all).
 
 #### Task Cleanup
 
@@ -149,7 +149,7 @@ tasks:
   my_task:
     do: shell
     command: false        # returns exit code 1
-    catch_task: catch     # will default to catch task anywaway if this line is missing
+    catch_task: catch     # will default to catch task anyway if this line is missing
     finally_task: finally # same here for finally
 
   catch:
