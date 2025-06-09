@@ -12,23 +12,26 @@ function isV2(file) {
   return firstline(file).then(line => line.match(/version.*'2'/) || line.match(/version.*"2"/));
 }
 
-function checkVersion(fileName) {
-  return isV2(fileName)
-  .then(result => {
-    if (result) {
-      return v2;
-    }
-    throw new InvalidConfigError("Only Usher file version: 2 is supported. Please ensure version is set to 2 in your usher file.");
-  });
-}
-
 module.exports = (taskName, opts) => {
+  function checkVersion(fileName) {
+    return isV2(fileName)
+      .then(result => {
+        if (result) {
+          return v2;
+        }
+        throw new InvalidConfigError("Only Usher file version: 2 is supported. Please ensure version is set to \'2\' in your usher file");
+      })
+  }
+
   return checkVersion(opts.file)
-    .catch(() => checkVersion('.usher.yml'))
-    .catch(() => checkVersion('usher.yml'))
+    .catch((e) => {
+      if (e instanceof InvalidConfigError) {
+        throw e;
+      }
+    })
     .then(list => list(taskName, opts))
     .then(tasksAndTheirDescriptions => {
-      logger.info(kleur.bold(`Listing tasks under ${taskName ? taskName : (opts.file || '.usher.yml')}:`));
+      logger.info(kleur.bold(`Listing tasks under ${taskName ? taskName : (opts.file)}:`));
       listView(logger.info, tasksAndTheirDescriptions);
     });
 };

@@ -1,8 +1,8 @@
 'use strict';
 
 const firstline = require('firstline');
-const v1 = require('./v1/run');
 const v2 = require('./v2/commands/run');
+const { InvalidConfigError } = require('./v2/lib/errors');
 
 function isV2(file) {
   return firstline(file).then(line => line.match(/version.*'2'/));
@@ -11,18 +11,19 @@ function isV2(file) {
 module.exports = (taskName, taskVars, opts) => {
   function checkVersion(fileName) {
     return isV2(fileName)
-    .then(result => {
-      if (result) {
-        return v2;
+      .then(result => {
+        if (result) {
+          return v2;
+        }
+        throw new InvalidConfigError("Only Usher file version: 2 is supported. Ensure version is set to \'2\' in your usher file");
+      });
+  }
+
+  return checkVersion(opts.file)
+    .catch((e) => {
+      if (e instanceof InvalidConfigError) {
+        throw e;
       }
-      return v1;
-    });
-  }
-  if (opts.file) {
-    return checkVersion(opts.file)
+    })
     .then(run => run(taskName, taskVars, opts));
-  }
-  return checkVersion('usher.yml')
-  .catch(() => checkVersion('.usher.yml'))
-  .then(run => run(taskName, taskVars, opts));
 };
