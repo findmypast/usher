@@ -1,6 +1,7 @@
 'use strict';
-
 const winston = require('../../winston');
+
+const HEAVY_MULTIPLICATION_SYMBOL = '\u{2716}';
 
 module.exports = class Logger {
   constructor(state) {
