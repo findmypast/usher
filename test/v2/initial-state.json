@@ -695,13 +695,10 @@
             "do": "global.docker.compose_up_build",
             "compose_filename": "load-balancer/docker-compose.yml",
             "service_name": "proxy",
-            "consul_tag_path": "subdomains/integration",
             "load_balancer_name": "<%=load_balancer_image_name%>",
             "service_folder": ".",
             "env": [
-                "SERVICE_NODE=consul",
                 "IMAGE_LB=<%=registry%>/findmypast/<%=load_balancer_image_name%>:<%=version%>",
-                "CONSUL_TAG_PATH=<%=consul_tag_path%>",
                 "COMPOSE_PROJECT_NAME=<%=base_service_name%>"
             ]
         },
@@ -739,11 +736,6 @@
             "options": {
                 "ignore_errors": true
             }
-        },
-        "configure_proxy": {
-            "description": "Submit service.consul information",
-            "do": "shell",
-            "command": "curtain-twitcher consul.dun.fh proxied-services config/proxy.yml"
         },
         "pre_push": {
             "description": "Running pre push tasks",
@@ -1000,14 +992,6 @@
                             "actions": [
                                 {
                                     "do": "shell",
-                                    "description": "Check which colour is currently active",
-                                    "command": "twoface peek -H <%=consul_host%>:<%=consul_port%> -k proxied-services/<%=service_name%>/<%=service_key_path%> -b <%=blue_tag%> -g <%=green_tag%>",
-                                    "options": {
-                                        "register": "service_tag"
-                                    }
-                                },
-                                {
-                                    "do": "shell",
                                     "command": "domesday userpass http://<%=tc_username%>:<%=tc_password%>@production.vault.service.consul:8200 <%=service_name%>-<%=service_tag%> application",
                                     "options": {
                                         "register": "app_password"
@@ -1034,11 +1018,6 @@
                                             "factor": 1.2
                                         }
                                     }
-                                },
-                                {
-                                    "do": "shell",
-                                    "description": "Flip the currently active colour",
-                                    "command": "twoface flip -H <%=consul_host%>:<%=consul_port%> -k proxied-services/<%=service_name%>/<%=service_key_path%> -b <%=blue_tag%> -g <%=green_tag%>"
                                 },
                                 {
                                     "do": "it_lives",
@@ -1074,7 +1053,6 @@
                                     "in": "<%=deploy_hosts%>",
                                     "exec": "generic_deploy_load_balancer",
                                     "service_tag": "<%=environment%>,backstage-<%=environment%>",
-                                    "consul_tag_path": "<%=consul_key_path%>",
                                     "blue_tag": "blue-<%=environment%>",
                                     "green_tag": "green-<%=environment%>",
                                     "options": {
@@ -1121,16 +1099,6 @@
                                             "factor": 1.2
                                         }
                                     }
-                                },
-                                {
-                                    "do": "shell",
-                                    "command": "curl -X GET \"http://consul.<%=service_domain%>:8500/v1/health/service/<%=base_service_name%>?tag=<%=environment%>&passing\" | grep <%=service_node%>",
-                                    "options": {
-                                        "retry": {
-                                            "retries": 30,
-                                            "factor": 1.2
-                                        }
-                                    }
                                 }
                             ]
                         },
@@ -1161,55 +1129,9 @@
                             "actions": [
                                 {
                                     "do": "shell",
-                                    "command": "curl -XGET http://<%=consul_host%>:<%=consul_port%>/v1/kv/proxied-services/<%=service_name%>/<%=service_key_path%>?raw=true | grep -oP \".*(?=-)\"",
-                                    "options": {
-                                        "register": "live_colour"
-                                    }
-                                },
-                                {
-                                    "do": "shell",
                                     "command": "echo 'Graylog trace for this deploy --> http://graylog.dun.fh:9000/search?rangetype=relative&fields=source%2Ccontainer_name%2Cfacility%2Cimage_name%2Cmessage&width=1855&highlightMessage=&relative=1800&q=container_name%3A<%=base_service_name%><%=live_colour%>*+OR+container_name%3A<%=base_service_name%>*proxy*'"
                                 }
                             ]
-                        }
-                    }
-                },
-                "dasher": {
-                    "tasks": {
-                        "publish_dashboard": {
-                            "description": "Publish the latest dashboards config to the santa api",
-                            "do": "shell",
-                            "command": "curl -X PUT -F file=@<%=service_folder%>/<%=config_filepath%> <%=santa_environment%>.santa.service.consul:3334/<%=service_name%>"
-                        },
-                        "delete_dashboard": {
-                            "description": "Delete the project's dashboards",
-                            "do": "shell",
-                            "command": "curl -X DELETE <%=santa_environment%>.santa.service.consul:3334/<%=service_name%>"
-                        }
-                    }
-                },
-                "consul": {
-                    "tasks": {
-                        "create_key_value_pairs": {
-                            "description": "Configure consul with a set of Key/Value pairs",
-                            "do": "shell",
-                            "command": "curtain-twitcher <%=consul_host%> <%=root%> <%=service_folder%>/<%=config_filepath%>"
-                        },
-                        "remove_key_value_folder": {
-                            "description": "Remove a folder from the KV store",
-                            "do": "shell",
-                            "command": "curl -XDELETE --silent \"<%=consul_host%>:<%=consul_port%>/v1/kv/<%=root%>/<%=service_folder%>/?recurse\""
-                        },
-                        "get_service_port": {
-                            "description": "Return the current port for the service name and service colour/environment (service tag)",
-                            "do": "shell",
-                            "command": "port=$(curl -XGET --silent \"<%=consul_host%>:<%=consul_port%>/v1/catalog/service/<%=service_name%>?tag=<%=service_tag%>\" | cat | sed -E 's/^.*\"ServicePort\":([0-9]+).*$/\\1/') && if [ $port = \"[]\" ]; then exit 1; else echo $port; fi",
-                            "options": {
-                                "retry": {
-                                    "retries": 30,
-                                    "factor": 1.5
-                                }
-                            }
                         }
                     }
                 },
@@ -1285,8 +1207,6 @@
     "colour": "<%=_.head(_.split(service_tag, '-'))%>",
     "registry": "fh1-harbor01.dun.fh",
     "base_service_name": "titan",
-    "consul_host": "consul.dun.fh",
-    "consul_port": 8500,
     "mix_env": "prod",
     "service_image_name": "<%=base_service_name%>-app",
     "web_service_image_name": "<%=base_service_name%>-web",
@@ -1340,7 +1260,6 @@
     "signal": "USR1",
     "mix_environ": "prod",
     "smoke_port": 3333,
-    "service_domain": "service.consul",
     "docker_compose_filename": "docker-compose.yml",
     "santa_environment": "production",
     "slack_channel": "toggle-nose",

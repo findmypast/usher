@@ -5,8 +5,6 @@ vars:
   colour: <%=_.head(_.split(service_tag, '-'))%>
   registry: fh1-harbor01.dun.fh            # Our private Docker image registry
   base_service_name: titan                    # The service name
-  consul_host: consul.dun.fh                  # Our consul server
-  consul_port: 8500
   mix_env: prod
   service_image_name: <%=base_service_name%>-app
   web_service_image_name: <%=base_service_name%>-web
@@ -56,7 +54,6 @@ lb_docker_environment: &LB_DOCKER_ENV
   - SERVICE_NAME=<%=base_service_name%>
   - SERVICE_TAGS=<%=service_tag%>
   - SERVICE_NODE=<%=service_node%>
-  - CONSUL_TAG_PATH=<%=consul_tag_path%>
   - ENVIRONMENT=<%=environment%>
   - COMPOSE_PROJECT_NAME=<%=base_service_name%>
   - GREEN_TAG=<%=green_tag%>
@@ -481,12 +478,6 @@ tasks:
     environment: integration
     do: sequence
     actions:
-      - description: Get the service tag for the offline colour
-        do: shell
-        command: twoface peek -H <%=consul_host%>:<%=consul_port%> -k proxied-services/<%=service_image_name%>/subdomains/integration -b blue-integration -g green-integration
-        options:
-          register: service_tag
-
       - description: Get current working directory
         do: shell
         command: pwd
@@ -517,13 +508,10 @@ tasks:
     do: global.docker.compose_up_build
     compose_filename: load-balancer/docker-compose.yml
     service_name: proxy
-    consul_tag_path: subdomains/integration
     load_balancer_name: <%=load_balancer_image_name%>
     service_folder: .
     env:
-      - SERVICE_NODE=consul
       - &IMAGE_LB IMAGE_LB=<%=registry%>/findmypast/<%=load_balancer_image_name%>:<%=version%>
-      - CONSUL_TAG_PATH=<%=consul_tag_path%>
       - COMPOSE_PROJECT_NAME=<%=base_service_name%>
 
   build_minimal_and_emit_schema:
@@ -550,11 +538,6 @@ tasks:
     toggle_project_name: fmp
     options:
       ignore_errors: true
-
-  configure_proxy:
-    description: Submit service.consul information
-    do: shell
-    command: curtain-twitcher consul.dun.fh proxied-services config/proxy.yml
 
   pre_push:
     description: Running pre push tasks
