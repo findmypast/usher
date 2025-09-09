@@ -7,7 +7,6 @@
 	],
 	"clean": ["Clean your dev environment"],
 	"commits_with_tickets_opt_in": ["Install commit-msg shell file"],
-	"configure_alerts": ["Submit alerts"],
 	"configure_proxy": ["Submit service.consul information"],
 	"configure_toggles": ["Submit latest version of toggle file"],
 	"deploy": ["Deploy container to node"],

@@ -731,14 +731,6 @@
                 }
             ]
         },
-        "configure_alerts": {
-            "description": "Submit alerts",
-            "do": "global.consul.create_key_value_pairs",
-            "consul_host": "consul.dun.fh",
-            "root": "proxied-services/titan/alerts",
-            "service_folder": "config",
-            "config_filepath": "alerts.yml"
-        },
         "configure_toggles": {
             "description": "Submit latest version of toggle file",
             "do": "global.flipper.upload_toggles",
