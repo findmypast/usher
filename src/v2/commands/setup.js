@@ -56,7 +56,7 @@ function installModule(moduleName) {
 	}
 	return promiseRetry(
 		(retry) => {
-		  return exec(`npm install ${moduleName} --prefix ${installDir()}`).catch(
+		  return exec(`npm install ${moduleName} --prefix ${installDir()} --allow-git=all`).catch(
 			retry
 		  );
 		},
