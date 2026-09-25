@@ -408,18 +408,6 @@ tasks:
         command: docker-compose -f docker-compose/production.yml -f docker-compose/production-<%=colour%>.yml up -d
         env: *DOCKER_ENV
 
-  sniff:
-    description: Error when launch darkly feature flags are unused
-    do: global.toggle-nose.sniff
-    projkey: fmp
-    # Only report on toggles not used on production environment, ignore other envs
-    environment: production
-    warnage: 7
-    maxage: 31
-    vault_username: <%=service_image_name%>-<%=service_tag%>
-    vault_password: <%=app_password%>
-    slack_channel: titan
-
   deploy_testing:
     description: Deploy testing environment
     do: sequence

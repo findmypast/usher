@@ -558,18 +558,6 @@
                 }
             ]
         },
-        "sniff": {
-            "description": "Error when launch darkly feature flags are unused",
-            "do": "global.toggle-nose.sniff",
-            "projkey": "fmp",
-            "environment": "production",
-            "warnage": 7,
-            "maxage": 31,
-            "vault_username": "<%=service_image_name%>-<%=service_tag%>",
-            "vault_password": "<%=app_password%>",
-            "slack_channel": "titan",
-            "finally_task": "build"
-        },
         "deploy_testing": {
             "description": "Deploy testing environment",
             "do": "sequence",
@@ -1182,15 +1170,6 @@
                         }
                     }
                 },
-                "toggle-nose": {
-                    "tasks": {
-                        "sniff": {
-                            "description": "Error when launch darkly feature toggles are unused",
-                            "do": "shell",
-                            "command": "toggle-nose sniff -k <%=projkey%> -e <%=environment%> -w <%=warnage%> -a <%=maxage%> -u <%=vault_username%> -p <%=vault_password%> -s <%=slack_channel%> <%=extra_args%>"
-                        }
-                    }
-                },
                 "flipper": {
                     "tasks": {
                         "upload_toggles": {
@@ -1262,7 +1241,6 @@
     "smoke_port": 3333,
     "docker_compose_filename": "docker-compose.yml",
     "santa_environment": "production",
-    "slack_channel": "toggle-nose",
     "extra_args": null,
     "flipper_host": "flipper.production.service.dun.fh",
     "service_name": "greatness",
