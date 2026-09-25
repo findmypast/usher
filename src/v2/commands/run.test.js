@@ -169,8 +169,8 @@ describe('commands/run', () => {
           .mockImplementationOnce(() => Promise.resolve(true))
           .mockImplementationOnce(() => Promise.resolve(true));
 
-        var taskConfig = (new State(initialState, loggers.quiet)).get('tasks.sniff');
-        taskConfig.name = 'sniff';
+        var taskConfig = (new State(initialState, loggers.quiet)).get('tasks.local_unit');
+        taskConfig.name = 'local_unit';
         var catchTaskConfig = (new State(initialState, loggers.quiet)).get('tasks.build');
         catchTaskConfig.name = 'build';
 

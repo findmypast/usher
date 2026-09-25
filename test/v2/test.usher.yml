@@ -366,8 +366,6 @@ tasks:
         service_tag: black-dev
         options:
           register: app_password
-      - do: sniff
-        service_tag: black-dev
       - do: shell
         command: docker-compose -f docker-compose/minimal.yml down --remove-orphans
         options:

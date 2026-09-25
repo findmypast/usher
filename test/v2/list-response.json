@@ -60,7 +60,6 @@
 	"setup": ["Setup your local environment"],
 	"setup_if_out_of_date": ["Check that setup is current"],
 	"shell": [""],
-	"sniff": ["Error when launch darkly feature flags are unused"],
 	"unit_test_teamcity": [
 		"Run unit tests inside a container (with automatic build)"
 	],

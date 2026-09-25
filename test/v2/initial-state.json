@@ -334,7 +334,8 @@
             "description": "Run unit tests inside a container (with automatic build)",
             "do": "local_unit_template",
             "npm_test_args": "yarn test",
-            "mix_test_args": "mix coveralls"
+            "mix_test_args": "mix coveralls",
+            "finally_task": "build"
         },
         "local_unit_nocoverage": {
             "description": "Run unit tests inside a container (with automatic build)",
@@ -433,10 +434,6 @@
                     "options": {
                         "register": "app_password"
                     }
-                },
-                {
-                    "do": "sniff",
-                    "service_tag": "black-dev"
                 },
                 {
                     "do": "shell",
